@@ -1,0 +1,46 @@
+name: Epic Template
+description: Template for submitting epics for this repository
+title: '[Epic]: '
+labels:
+  - epic
+  - to be triaged
+assignees:
+  - RSoulatIOHK
+body:
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Acknowledgements
+      description: This epic template can only be filled out by members of the team
+      options:
+        - label: I am a member of the team
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Epic description
+      description: Please provide a detailed description of your idea.
+      placeholder: What is the idea? What problem does it solve? What would be the user journey?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: What are the conditions that must be met for this epic to be considered complete?
+      placeholder: What are the conditions that must be met for this epic to be considered complete?
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this idea?
+      options:
+        - Low
+        - Medium
+        - High
+  - type: input
+    id: story-points
+    attributes:
+      label: Story points
+      description: How many story points do you estimate this epic to be?
+      placeholder: 1, 2, 3, etc.
