@@ -14,8 +14,8 @@ body:
       description: This epic template can only be filled out by members of the team
       options:
         - label: I am a member of the team
-      validations: 
-          required: true
+    validations: 
+        required: true
   - type: textarea
     id: description
     attributes:
