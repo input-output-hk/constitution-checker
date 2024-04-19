@@ -1,6 +1,7 @@
 name: Story Template
 description: Template for submitting storys for this repository
 title: '[Story]: '
+projects: 'input-output-hk/127'
 labels:
   - story
   - to be triaged
