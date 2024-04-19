@@ -1,10 +1,10 @@
 name: Story Template
 description: Template for submitting storys for this repository
 title: '[Story]: '
-projects: 'input-output-hk/127'
 labels:
   - story
   - to be triaged
+projects: ['input-output-hk/127']
 assignees:
   - RSoulatIOHK
 body:
@@ -30,24 +30,3 @@ body:
       label: Acceptance criteria
       description: What are the conditions that must be met for this story to be considered complete?
       placeholder: What are the conditions that must be met for this story to be considered complete?
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      description: How important is this idea?
-      options:
-        - Low
-        - Medium
-        - High
-  - type: textarea
-    id: epic
-    attributes:
-      label: Epic
-      description: To which epic does this story belong?
-      placeholder: Epic ID or link
-  - type: input
-    id: story-points
-    attributes:
-      label: Story points
-      description: How many story points do you estimate this story to be?
-      placeholder: 1, 2, 3, etc.

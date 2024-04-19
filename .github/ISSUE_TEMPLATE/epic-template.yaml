@@ -1,10 +1,10 @@
 name: Epic Template
 description: Template for submitting epics for this repository
 title: '[Epic]: '
-projects: 'input-output-hk/127'
 labels:
   - epic
   - to be triaged
+projects: ['input-output-hk/127']
 assignees:
   - RSoulatIOHK
 body:
@@ -12,11 +12,10 @@ body:
     id: acknowledgements
     attributes:
       label: Acknowledgements
-      description: This epic template can only be filled out by members of the team
+      description: This template for Epics can only be filled out by members of the team
       options:
         - label: I am a member of the team
-    validations: 
-        required: true
+          required: true
   - type: textarea
     id: description
     attributes:
@@ -26,11 +25,13 @@ body:
     validations:
       required: true
   - type: textarea
-    id: acceptance-criteria
+    id: tasks
     attributes:
-      label: Acceptance criteria
-      description: What are the conditions that must be met for this epic to be considered complete?
-      placeholder: What are the conditions that must be met for this epic to be considered complete?
+      label: Acceptance Criteria/Task List
+      value: |
+          - [ ] Specify the feature
+          - [ ] Develop the feature
+          - [ ] Test the feature
   - type: dropdown
     id: priority
     attributes:
@@ -40,9 +41,3 @@ body:
         - Low
         - Medium
         - High
-  - type: input
-    id: story-points
-    attributes:
-      label: Story points
-      description: How many story points do you estimate this epic to be?
-      placeholder: 1, 2, 3, etc.

@@ -2,8 +2,8 @@ name: Free form
 description: Free form issue template
 title: '[Issue]: '
 labels: [to be triaged]
+projects: ['input-output-hk/127']
 assignees: [RsoulatIOHK]
-projects: 'input-output-hk/127'
 body:
   - type: markdown
     attributes:
@@ -21,12 +21,3 @@ body:
       label: Issue description
       description: Please provide a detailed description of your issue.
       placeholder: What is the issue? What problem does it solve? What would be the user journey? 
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      description: How important is this issue?
-      options:
-        - Low
-        - Medium
-        - High

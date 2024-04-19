@@ -1,10 +1,10 @@
 name: Idea Template
 description: Template for submitting ideas for this repository
 title: '[Idea]: '
-projects: 'input-output-hk/127'
 labels:
   - idea
   - to be triaged
+projects: ['input-output-hk/127']
 assignees:
   - RSoulatIOHK
 body:
@@ -24,12 +24,3 @@ body:
       label: Idea description
       description: Please provide a detailed description of your idea.
       placeholder: What is the idea? What problem does it solve? What would be the user journey? 
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      description: How important is this idea?
-      options:
-        - Low
-        - Medium
-        - High
