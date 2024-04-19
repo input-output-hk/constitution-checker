@@ -3,6 +3,7 @@ description: Free form issue template
 title: '[Issue]: '
 labels: [to be triaged]
 assignees: [RsoulatIOHK]
+projects: 'input-output-hk/127'
 body:
   - type: markdown
     attributes:
