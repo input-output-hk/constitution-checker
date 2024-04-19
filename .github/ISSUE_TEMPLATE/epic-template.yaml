@@ -1,6 +1,7 @@
 name: Epic Template
 description: Template for submitting epics for this repository
 title: '[Epic]: '
+project: 'input-output-hk/127'
 labels:
   - epic
   - to be triaged
