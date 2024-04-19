@@ -1,6 +1,7 @@
 name: Idea Template
 description: Template for submitting ideas for this repository
 title: '[Idea]: '
+projects: 'input-output-hk/127'
 labels:
   - idea
   - to be triaged
