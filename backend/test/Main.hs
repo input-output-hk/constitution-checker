@@ -23,11 +23,11 @@ unitTests =
     "Unit tests"
     [ testCase "Simple parameter encoding" $
         let bs = encode [aesonQQ| { "0":  1 }|]
-         in decode bs @?= Just (mkParameterChangeUnsafe [MkParamValue txFeePerByte 1])
+         in decode bs @?= Just (mkParametersChangeUnsafe [MkParamValue txFeePerByte 1])
     , testCase "Simple rational parameter encoding" $
         let bs = encode [aesonQQ| { "11":  1.2 }|]
-         in decode bs @?= Just (mkParameterChangeUnsafe [MkParamValue treasuryCut (Identity (130 % 100))])
+         in decode bs @?= Just (mkParametersChangeUnsafe [MkParamValue treasuryCut (Identity (6 % 5))])
     , testCase "Wrong simple parameter encoding" $
         let bs = encode [aesonQQ| { "0":  1.2 }|]
-         in decode bs @?= Nothing @ParameterChange
+         in decode bs @?= Nothing @ParametersChange
     ]

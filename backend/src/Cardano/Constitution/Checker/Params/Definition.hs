@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -7,6 +8,8 @@ import Cardano.Constitution.Checker.Params.Intervals
 import Cardano.Constitution.Checker.Params.Types
 import Data.Functor.Identity
 import Data.Ratio
+
+import Cardano.Constitution.Checker.Params.JSON ()
 
 txFeePerByte :: Param (Identity Integer)
 txFeePerByte =
