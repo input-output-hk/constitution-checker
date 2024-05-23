@@ -46,6 +46,8 @@ library
         , Cardano.Constitution.Checker.Params.Intervals
         , Cardano.Constitution.Checker.Params.Types
         , Cardano.Constitution.Checker.Params.Definition
+        , Cardano.Constitution.Checker.Params.Farey
+        , Cardano.Constitution.Checker.Params.JSON
         , Cardano.Constitution.Checker.Types
 
     build-depends:
@@ -61,7 +63,10 @@ library
         , containers
         , aeson ^>= 2.2.2.0
         , vector
+        , scientific
         , time
+        --, insert-ordered-containers
+        , text
 
     hs-source-dirs:   src
 

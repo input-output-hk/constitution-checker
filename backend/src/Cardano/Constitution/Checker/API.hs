@@ -1,13 +1,9 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Cardano.Constitution.Checker.API where
 
-import Data.Aeson
-import Data.Time.Calendar
-import GHC.Generics
 import Servant
 import Servant.Swagger.UI
 
@@ -21,7 +17,7 @@ import Servant.Swagger
 --------------------------------------------------------------------------------
 
 type API =
-  "parameters" :> "proposal" :> ReqBody '[JSON] ParameterChange :> Post '[JSON] ()
+  "parameters" :> "proposal" :> ReqBody '[JSON] ParametersChange :> Post '[JSON] ()
     :<|> "isaac" :> Get '[JSON] ()
 
 server :: Server API
