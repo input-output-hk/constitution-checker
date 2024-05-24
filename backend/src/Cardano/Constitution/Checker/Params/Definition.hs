@@ -7,9 +7,12 @@ module Cardano.Constitution.Checker.Params.Definition where
 import Cardano.Constitution.Checker.Params.Intervals
 import Cardano.Constitution.Checker.Params.Types
 import Data.Functor.Identity
-import Data.Ratio
 
-import Cardano.Constitution.Checker.Params.JSON ()
+-- import Data.Ratio
+
+import Cardano.Constitution.Checker.Params.Swagger ()
+
+import Prelude hiding (Rational)
 
 txFeePerByte :: Param (Identity Integer)
 txFeePerByte =

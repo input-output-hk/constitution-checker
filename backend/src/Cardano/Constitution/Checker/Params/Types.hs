@@ -2,7 +2,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
 
 module Cardano.Constitution.Checker.Params.Types where
 
@@ -10,9 +9,55 @@ import Cardano.Constitution.Checker.Params.Farey
 import Cardano.Constitution.Checker.Params.Intervals
 import Data.Aeson
 import Data.Functor.Identity
-import Data.Ratio
 
+import qualified Data.Ratio as R
 import Data.Swagger (Schema)
+
+import qualified GHC.IsList as Haskell
+import Prelude hiding (Rational)
+
+newtype Rational = MkRational (R.Ratio Integer)
+  deriving (Eq, Ord)
+
+infixl 7 %
+(%) :: Integer -> Integer -> Rational
+a % b = MkRational $ a R.% b
+
+numerator :: Rational -> Integer
+numerator (MkRational a) = R.numerator a
+
+denominator :: Rational -> Integer
+denominator (MkRational a) = R.denominator a
+
+instance Num Rational where
+  (MkRational a) + (MkRational b) = MkRational $ a + b
+  (MkRational a) - (MkRational b) = MkRational $ a - b
+  (MkRational a) * (MkRational b) = MkRational $ a * b
+  abs (MkRational a) = MkRational $ abs a
+  signum (MkRational a) = MkRational $ signum a
+  fromInteger a = MkRational $ fromInteger a
+
+instance Fractional Rational where
+  (MkRational a) / (MkRational b) = MkRational $ a / b
+  fromRational = MkRational
+
+instance FromJSON Rational where
+  parseJSON (Array v) = do
+    let xs = Haskell.toList v
+    case xs of
+      [a, b] -> do
+        num <- parseJSON a
+        den <- parseJSON b
+        return $ num % den
+      _otherwise -> fail "Rational: Expected a two-element array"
+  parseJSON (Number n) = return $ MkRational $ toRational n
+  parseJSON _ = fail "Rational: Expected an array or a number"
+
+instance ToJSON Rational where
+  toJSON a = toJSON [toJSON $ numerator a, toJSON $ denominator a]
+
+instance Show Rational where
+  show a = show (numerator a) ++ " % " ++ show (denominator a)
 
 data Assertion a = MustNotBe !(String, String) !(RangeConstraint a)
 
@@ -45,10 +90,10 @@ instance IntervalEnum Integer where
   boundarySucc (Closed a) = a + 1
   boundarySucc (Open a) = a
 
-instance (a ~ Integer) => IntervalEnum (Ratio a) where
-  boundaryPred (Closed a) = fst $ findTightestRationalBounds a 64
+instance IntervalEnum Rational where
+  boundaryPred (Closed (MkRational a)) = MkRational $ fst $ findTightestRationalBounds a 64
   boundaryPred (Open a) = a
-  boundarySucc (Closed a) = snd $ findTightestRationalBounds a 64
+  boundarySucc (Closed (MkRational a)) = MkRational $ snd $ findTightestRationalBounds a 64
   boundarySucc (Open a) = a
 
 paramIx :: Param a -> Integer
@@ -72,7 +117,7 @@ instance HasDomain Integer where
   domain = (fromIntegral $ minBound @Int, fromIntegral $ maxBound @Int)
 
 instance HasDomain Rational where
-  domain = (toRational $ minBound @Int, toRational $ maxBound @Int)
+  domain = (MkRational $ toRational $ minBound @Int, MkRational $ toRational $ maxBound @Int)
 
 boundaries ::
   forall a.

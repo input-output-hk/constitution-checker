@@ -17,13 +17,16 @@ import Servant.Swagger
 --------------------------------------------------------------------------------
 
 type API =
-  "parameters" :> "proposal" :> ReqBody '[JSON] ParametersChange :> Post '[JSON] ()
-    :<|> "isaac" :> Get '[JSON] ()
+  "parameters" :> "proposal" :> ReqBody '[JSON] ParametersChange :> Post '[JSON] ParametersChange
+    :<|> "other" :> Get '[JSON] ()
 
 server :: Server API
 server =
-  return undefined
+  parametersChange
     :<|> return ()
+ where
+  parametersChange :: ParametersChange -> Handler ParametersChange
+  parametersChange = return
 
 api :: Proxy API
 api = Proxy

@@ -86,11 +86,13 @@ instance FromJSON ParametersChange where
           return $ Just (paramIx', MkParamValue pram val)
 
 parseCollection :: Param [a] -> Value -> Parser [a]
-parseCollection (Collection _ _ params) = withArray "Collection" $ \arr ->
-  mapM parseParam (zip params (V.toList arr))
+parseCollection (Collection _ _ params) = withObject "Collection" $ \obj ->
+  mapM (parseParam obj) params
  where
-  parseParam :: (Param (Identity a), Value) -> Parser a
-  parseParam (param, value) = do
+  parseParam :: Object -> Param (Identity a) -> Parser a
+  parseParam obj param = do
+    let paramName' = fromString $ paramName param
+    value <- obj .: paramName'
     val <- parseScalar param value
     return $ runIdentity val
 

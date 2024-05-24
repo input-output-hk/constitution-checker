@@ -3,7 +3,7 @@
 {-# LANGUAGE GADTs #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Cardano.Constitution.Checker.Params.JSON where
+module Cardano.Constitution.Checker.Params.Swagger where
 
 import Cardano.Constitution.Checker.Params.Types
 
@@ -13,10 +13,10 @@ import Data.String
 
 import Control.Lens hiding ((.=))
 
-import Data.Ratio
 import Data.Swagger hiding (Param)
 
 import qualified GHC.IsList as Haskell
+import Prelude hiding (Rational)
 
 instance ParamToSchema (Identity Integer) where
   paramToSchema param@(Scalar _ name' _) = do
@@ -47,7 +47,7 @@ instance ParamToSchema (Identity Rational) where
     -- declareNamedSchema (Proxy :: Proxy a)
     mempty
       & type_
-        ?~ SwaggerNumber
+        ?~ SwaggerArray
       & title
         ?~ fromString name'
       & minItems
@@ -56,8 +56,10 @@ instance ParamToSchema (Identity Rational) where
         ?~ 2
       & example
         ?~ ( case (lowerM, upperM) of
-              (Just lower, _) -> toJSON ([numerator lower, denominator lower] :: [Integer])
-              (_, Just upper) -> toJSON ([numerator upper, denominator upper] :: [Integer])
+              (Just lower, _) ->
+                toJSON ([numerator lower, denominator lower] :: [Integer])
+              (_, Just upper) ->
+                toJSON ([numerator upper, denominator upper] :: [Integer])
               _otherwise -> toJSON ([1, 1] :: [Integer])
            )
       & description
