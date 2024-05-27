@@ -15,6 +15,9 @@ import qualified Data.Ratio as R
 import Data.Swagger (Schema)
 
 import qualified GHC.IsList as Haskell
+
+import Data.Map (Map)
+
 import Prelude hiding (Rational)
 
 newtype Rational = MkRational (R.Ratio Integer)
@@ -68,7 +71,30 @@ assertionDescription :: Assertion a -> (String, String)
 assertionDescription (MustNotBe desc _) = desc
 assertionDescription (ShouldSatisfy desc _) = desc
 
+data ByParameter a = ByParameter
+  { getInteger :: !(a -> Maybe Integer)
+  , getRational :: !(a -> Maybe Rational)
+  , getIntegers :: !(a -> Map String Integer)
+  , getRationals :: !(a -> Map String Rational)
+  }
+
+findInteger :: a -> ByParameter a -> Maybe Integer
+findInteger = flip getInteger
+
+findRational :: ByParameter a -> a -> Maybe Rational
+findRational = getRational
+
+findIntegers :: ByParameter a -> a -> Map String Integer
+findIntegers = getIntegers
+
+findRationals :: ByParameter a -> a -> Map String Rational
+findRationals = getRationals
+
 data Context = Context
+  { byName :: !(ByParameter String)
+  , byIx :: !(ByParameter Integer)
+  }
+
 data SatisfactionResult
   = Satisfied
   | Unsatisfied !String
@@ -78,6 +104,7 @@ data Param a where
     ( FromJSON a
     , ToJSON a
     , ParamToSchema (Identity a)
+    , Lookup (Identity a)
     , HasDomain a
     , IntervalEnum a
     , Show a
@@ -92,6 +119,7 @@ data Param a where
     ( FromJSON a
     , ToJSON a
     , ParamToSchema (Identity a)
+    , Lookup [a]
     , HasDomain a
     , IntervalEnum a
     , Show a
@@ -102,6 +130,11 @@ data Param a where
     String ->
     [Param (Identity a)] ->
     Param [a]
+
+-- TODO: not the best approach, but it works for now
+class Lookup a where
+  lookupRational' :: a -> [Rational]
+  lookupInteger' :: a -> [Integer]
 
 class ParamToSchema a where
   paramToSchema :: Param a -> Schema

@@ -1,33 +1,76 @@
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.Constitution.Checker.Types (
   ParametersChange,
   mkParametersChangeUnsafe,
   ParamValue (..),
   unParametersChange,
+  mkContext,
 ) where
 
 import Cardano.Constitution.Checker.Params.Definition
 import Cardano.Constitution.Checker.Params.Types
 
+import Cardano.Constitution.Checker.Params.Lookup
+import Control.Lens hiding (Context, (.=))
 import Control.Monad (foldM)
 import Data.Aeson
 import Data.Aeson.Types (Parser)
-import Data.Functor.Identity
 import Data.Map hiding (fromList)
 import Data.String
-
-import Control.Lens hiding ((.=))
-
 import Data.Swagger hiding (Param)
-
 import qualified GHC.IsList as Haskell
 
 -- import qualified Data.Swagger as SWG
 
 newtype ParametersChange = MkParametersChange (Map Integer ParamValue)
   deriving (Show, Eq)
+
+mkContext :: ParametersChange -> Context
+mkContext (MkParametersChange m) =
+  Context byName' byIx'
+ where
+  xs = snd <$> toList m
+  byName' = byParameter' withParamName
+  byIx' = byParameter' withParamIx
+
+  nameMap :: Map String ParamValue
+  nameMap = Haskell.fromList $ zip allNames xs
+
+  allNames = fmap (\(MkParamValue p _) -> paramName p) xs
+
+  withParamIx :: (forall a. Maybe (Param a, a) -> b) -> Integer -> b
+  withParamIx f ix' = case Data.Map.lookup ix' m of
+    Just (MkParamValue p v) -> f $ Just (p, v)
+    Nothing -> f Nothing
+
+  withParamName :: (forall a. Maybe (Param a, a) -> b) -> String -> b
+  withParamName f name' = case Data.Map.lookup name' nameMap of
+    Just (MkParamValue p v) -> f $ Just (p, v)
+    Nothing -> f Nothing
+
+byParameter' ::
+  (forall b. (forall a. Maybe (Param a, a) -> b) -> s -> b) ->
+  ByParameter s
+byParameter' f =
+  ByParameter
+    { getInteger = f \case
+        Just (Scalar{}, val) | [v] <- lookupInteger' val -> Just v
+        _otherwise -> Nothing
+    , getRational = f \case
+        Just (Scalar{}, val) | [v] <- lookupRational' val -> Just v
+        _otherwise -> Nothing
+    , getIntegers = f \case
+        Just (param@Collection{}, val) -> lookupInteger param val
+        _otherwise -> empty
+    , getRationals = f \case
+        Just (param@Collection{}, val) -> lookupRational param val
+        _otherwise -> empty
+    }
 
 unParametersChange :: ParametersChange -> Map Integer ParamValue
 unParametersChange (MkParametersChange m) = m

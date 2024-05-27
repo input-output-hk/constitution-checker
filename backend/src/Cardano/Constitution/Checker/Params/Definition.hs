@@ -1,10 +1,13 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Cardano.Constitution.Checker.Params.Definition where
 
 import Cardano.Constitution.Checker.Params.Intervals
+import Cardano.Constitution.Checker.Params.Lookup ()
 import Cardano.Constitution.Checker.Params.Types
 import Data.Functor.Identity
 
@@ -460,6 +463,13 @@ govActionLifetime =
     -- 5
     [ ("GAL-01", "govActionLifetime must not be lower than 1 epoch (5 days)") `MustNotBe` NL 1
     , ("GAL-02", "govActionLifetime must not be greater than 15 epochs (75 days)") `MustNotBe` NG 15
+    , ("GAL-05", "govActionLifetime must be less than dRepActivity")
+        `ShouldSatisfy` \(byName -> findInteger "dRepActivity" -> dRepActivityM) val ->
+          case dRepActivityM of
+            Just dRepActivity'
+              | val < dRepActivity' -> Satisfied
+              | otherwise -> Unsatisfied "govActionLifetime must be less than dRepActivity"
+            Nothing -> Unsatisfied "dRepActivity not found"
     ]
 
 committeeMaxTermLimit :: Param (Identity Integer)
