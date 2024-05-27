@@ -9,7 +9,6 @@ import Servant.Swagger.UI
 
 import Cardano.Constitution.Checker.Checks hiding (description)
 
-import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
 import Control.Lens hiding (Context (..), (.=))
 import Data.Swagger as SWG
@@ -25,7 +24,7 @@ server =
     :<|> return ()
  where
   parametersChange :: ParametersChange -> Handler ParamChecks
-  parametersChange paramChange = pure $ checkParams Context paramChange
+  parametersChange paramChange = pure $ checkParams (mkContext paramChange) paramChange
 
 api :: Proxy API
 api = Proxy

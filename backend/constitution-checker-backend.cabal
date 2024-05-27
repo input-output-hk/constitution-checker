@@ -48,6 +48,7 @@ library
         , Cardano.Constitution.Checker.Params.Definition
         , Cardano.Constitution.Checker.Params.Farey
         , Cardano.Constitution.Checker.Params.Swagger
+        , Cardano.Constitution.Checker.Params.Lookup
         , Cardano.Constitution.Checker.Types
         , Cardano.Constitution.Checker.Checks
 
