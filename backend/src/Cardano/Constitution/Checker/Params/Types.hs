@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -76,6 +77,7 @@ data Param a where
   Scalar ::
     ( FromJSON a
     , ToJSON a
+    , ParamToSchema (Identity a)
     , HasDomain a
     , IntervalEnum a
     , Show a
@@ -89,6 +91,7 @@ data Param a where
   Collection ::
     ( FromJSON a
     , ToJSON a
+    , ParamToSchema (Identity a)
     , HasDomain a
     , IntervalEnum a
     , Show a
