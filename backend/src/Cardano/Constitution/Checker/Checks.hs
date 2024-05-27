@@ -1,3 +1,4 @@
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
@@ -40,19 +41,29 @@ data GenericParamCheck = forall a. (ToJSON a) => MkGenericParamCheck (ParamCheck
 instance ToJSON GenericParamCheck where
   toJSON (MkGenericParamCheck check') = toJSON check'
 
-data ParamCheck a = ParamCheck
-  { value :: !a
-  , param :: !(Param a)
-  , check :: !(Map String GuardrailResult)
-  }
+data ParamCheck a where
+  ParamCheck :: !a -> !(Param (Identity a)) -> !(Map String GuardrailResult) -> ParamCheck (Identity a)
+  ParamCheckList :: (ToJSON a) => [ParamCheck (Identity a)] -> ParamCheck [a]
 
 instance (ToJSON a) => ToJSON (ParamCheck a) where
   toJSON (ParamCheck val param' check') =
     object
-      [ "value" .= paramValToValue (MkParamValue param' val)
+      [ "value" .= paramValToValue (MkParamValue param' (Identity val))
       , "guardrails" .= check'
-      , "summary" .= not (any (\(_, GuardrailResult result' _ _) -> not result') $ Map.toList check')
+      , "summary" .= checkGuardrailsMap check'
       ]
+  toJSON (ParamCheckList checks) =
+    let keys = flip fmap checks \(ParamCheck _ (paramName -> name') _) ->
+          Haskell.fromString name'
+        values = fmap toJSON checks
+        allResults = map (\(ParamCheck _ _ results) -> checkGuardrailsMap results) checks
+        allValid = and allResults
+     in object $ zip keys values <> [("summary", toJSON allValid)]
+
+checkGuardrailsMap :: Map a GuardrailResult -> Bool
+checkGuardrailsMap = not . any failed . Map.toList
+ where
+  failed (_, GuardrailResult result' _ _) = not result'
 
 getParamGuardrailsSchema :: Param a -> Referenced Schema
 getParamGuardrailsSchema (Scalar _ _ assertions) =
@@ -80,7 +91,7 @@ allAssertionSchema = fmap toProperty
     )
 
 paramCheckSchema :: Param' -> Schema
-paramCheckSchema (MkParam' param') =
+paramCheckSchema (MkParam' param'@(Scalar{})) =
   mempty
     & type_ ?~ SwaggerObject
     & properties
@@ -89,6 +100,17 @@ paramCheckSchema (MkParam' param') =
          , ("guardrails", getParamGuardrailsSchema param')
          ]
     & required .~ ["summary", "value", "guardrails"]
+paramCheckSchema (MkParam' (Collection _ _ params)) =
+  let subParamSchemas = map (Inline . paramCheckSchema . MkParam') params
+      subParamKeys = map (Haskell.fromString . paramName) params
+      subParamProperties = zip subParamKeys subParamSchemas
+   in mempty
+        & type_ ?~ SwaggerObject
+        & required .~ ("summary" : subParamKeys)
+        & properties
+          .~ Haskell.fromList
+            ( ("summary", toSchemaRef (Proxy :: Proxy Bool)) : subParamProperties
+            )
 
 paramValToValue :: ParamValue -> Value
 paramValToValue (MkParamValue (Scalar{}) val) = toJSON (runIdentity val)
@@ -114,8 +136,6 @@ instance ToSchema ParamChecks where
               .~ Haskell.fromList xs
 
     return $ NamedSchema (Just "ParamChecks") schema'
-
--- toJSON (head val)
 
 data GuardrailResult = GuardrailResult
   { result :: !Bool
@@ -165,17 +185,19 @@ checkAssertion ((_, _) `MustNotBe` constraint) _ val =
   getUnsatisfiedMessage (NGEQ ge) = prefix' ++ "greater than or equal to " ++ show ge
   getUnsatisfiedMessage (NEQ e) = prefix' ++ "equal to " ++ show e
 
-  prefix' = "Value must not be "
+  prefix' = "Value (" ++ show val ++ ") must not be "
 checkAssertion ((_, _) `ShouldSatisfy` f) ctx val = f ctx val
 
 paramCheck :: forall a. Context -> Param a -> a -> ParamCheck a
-paramCheck ctx param'@(Scalar _ _ assertions) valI@(Identity val) =
-  ParamCheck valI param' (toGuardrailResults ctx assertions val)
-paramCheck ctx param'@(Collection _ _ params) valColl =
-  let paired = zip params valColl
-      mappedXs = fmap (\(Scalar _ _ assertions, val) -> toGuardrailResults ctx assertions val) paired
-      guardRailResults = Map.unions mappedXs
-   in ParamCheck valColl param' guardRailResults
+paramCheck ctx param'@(Scalar _ _ assertions) (Identity val) =
+  ParamCheck val param' (toGuardrailResults ctx assertions val)
+paramCheck ctx (Collection _ _ params) valColl =
+  let
+    paired = zip params $ fmap Identity valColl
+    checks = fmap (uncurry $ paramCheck ctx) paired
+   in
+    -- in ParamCheck valColl param' guardRailResults
+    ParamCheckList checks
 
 toGuardrailResults :: (Ord a, Show a) => Context -> [Assertion a] -> a -> Map String GuardrailResult
 toGuardrailResults ctx assertions val =

@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Cardano.Constitution.Checker.Params.Swagger where
@@ -73,10 +74,7 @@ instance ParamToSchema (Identity Rational) where
       & description
         ?~ fromString (prefix' ++ name' ++ suffix)
 
-instance ParamToSchema [Rational] where
-  paramToSchema = paramToSchemaCol
-
-instance ParamToSchema [Integer] where
+instance (ParamToSchema (Identity a)) => ParamToSchema [a] where
   paramToSchema = paramToSchemaCol
 
 paramToSchemaCol :: (ParamToSchema (Identity a)) => Param [a] -> Schema
