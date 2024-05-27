@@ -5,6 +5,7 @@ module Cardano.Constitution.Checker.Types (
   ParametersChange,
   mkParametersChangeUnsafe,
   ParamValue (..),
+  unParametersChange,
 ) where
 
 import Cardano.Constitution.Checker.Params.Definition
@@ -21,13 +22,15 @@ import Control.Lens hiding ((.=))
 
 import Data.Swagger hiding (Param)
 
-import qualified Data.Vector as V
 import qualified GHC.IsList as Haskell
 
 -- import qualified Data.Swagger as SWG
 
 newtype ParametersChange = MkParametersChange (Map Integer ParamValue)
   deriving (Show, Eq)
+
+unParametersChange :: ParametersChange -> Map Integer ParamValue
+unParametersChange (MkParametersChange m) = m
 
 mkParametersChangeUnsafe :: [ParamValue] -> ParametersChange
 mkParametersChangeUnsafe = Prelude.foldr f (MkParametersChange empty)
@@ -36,7 +39,7 @@ mkParametersChangeUnsafe = Prelude.foldr f (MkParametersChange empty)
   f (MkParamValue param val) (MkParametersChange m) =
     MkParametersChange $ insert (paramIx param) (MkParamValue param val) m
 
-data ParamValue = forall a. MkParamValue !(Param a) !a
+data ParamValue = forall a. (ToJSON a) => MkParamValue !(Param a) !a
 
 instance Show ParamValue where
   show (MkParamValue (Scalar _ name' _) val) = name' ++ ": " ++ show (runIdentity val)

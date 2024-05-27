@@ -49,6 +49,7 @@ library
         , Cardano.Constitution.Checker.Params.Farey
         , Cardano.Constitution.Checker.Params.Swagger
         , Cardano.Constitution.Checker.Types
+        , Cardano.Constitution.Checker.Checks
 
     build-depends:
           base ^>=4.18.1.0

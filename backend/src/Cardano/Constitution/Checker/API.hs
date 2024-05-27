@@ -7,17 +7,16 @@ module Cardano.Constitution.Checker.API where
 import Servant
 import Servant.Swagger.UI
 
+import Cardano.Constitution.Checker.Checks hiding (description)
+
+import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
-import Control.Lens hiding ((.=))
+import Control.Lens hiding (Context (..), (.=))
 import Data.Swagger as SWG
 import Servant.Swagger
 
---------------------------------------------------------------------------------
-
---------------------------------------------------------------------------------
-
 type API =
-  "parameters" :> "proposal" :> ReqBody '[JSON] ParametersChange :> Post '[JSON] ParametersChange
+  "parameters" :> "proposal" :> ReqBody '[JSON] ParametersChange :> Post '[JSON] ParamChecks
     :<|> "other" :> Get '[JSON] ()
 
 server :: Server API
@@ -25,8 +24,8 @@ server =
   parametersChange
     :<|> return ()
  where
-  parametersChange :: ParametersChange -> Handler ParametersChange
-  parametersChange = return
+  parametersChange :: ParametersChange -> Handler ParamChecks
+  parametersChange paramChange = pure $ checkParams Context paramChange
 
 api :: Proxy API
 api = Proxy

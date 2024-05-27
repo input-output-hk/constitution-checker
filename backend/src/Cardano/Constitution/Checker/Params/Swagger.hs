@@ -34,6 +34,14 @@ instance ParamToSchema (Identity Integer) where
         ?~ fromString name'
       & description
         ?~ fromString (prefix' ++ name' ++ suffix)
+      & example
+        ?~ ( case (lowerM, upperM) of
+              (Just lower, _) ->
+                toJSON lower
+              (_, Just upper) ->
+                toJSON upper
+              _otherwise -> toJSON ([1, 1] :: [Integer])
+           )
 
 instance ParamToSchema (Identity Rational) where
   paramToSchema param@(Scalar _ name' _) = do

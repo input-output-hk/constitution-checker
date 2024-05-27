@@ -59,17 +59,42 @@ instance ToJSON Rational where
 instance Show Rational where
   show a = show (numerator a) ++ " % " ++ show (denominator a)
 
-data Assertion a = MustNotBe !(String, String) !(RangeConstraint a)
+data Assertion a
+  = MustNotBe !(String, String) !(RangeConstraint a)
+  | ShouldSatisfy !(String, String) !(Context -> a -> SatisfactionResult)
+
+assertionDescription :: Assertion a -> (String, String)
+assertionDescription (MustNotBe desc _) = desc
+assertionDescription (ShouldSatisfy desc _) = desc
+
+data Context = Context
+data SatisfactionResult
+  = Satisfied
+  | Unsatisfied !String
 
 data Param a where
   Scalar ::
-    (FromJSON a, ToJSON a, HasDomain a, IntervalEnum a, Show a, Num a, Ord a) =>
+    ( FromJSON a
+    , ToJSON a
+    , HasDomain a
+    , IntervalEnum a
+    , Show a
+    , Num a
+    , Ord a
+    ) =>
     Integer ->
     String ->
     [Assertion a] ->
     Param (Identity a)
   Collection ::
-    (FromJSON a, ToJSON a, HasDomain a, IntervalEnum a, Show a, Num a, Ord a) =>
+    ( FromJSON a
+    , ToJSON a
+    , HasDomain a
+    , IntervalEnum a
+    , Show a
+    , Num a
+    , Ord a
+    ) =>
     Integer ->
     String ->
     [Param (Identity a)] ->
@@ -91,9 +116,11 @@ instance IntervalEnum Integer where
   boundarySucc (Open a) = a
 
 instance IntervalEnum Rational where
-  boundaryPred (Closed (MkRational a)) = MkRational $ fst $ findTightestRationalBounds a 64
+  boundaryPred (Closed (MkRational a)) =
+    MkRational $ fst $ findTightestRationalBounds a 64
   boundaryPred (Open a) = a
-  boundarySucc (Closed (MkRational a)) = MkRational $ snd $ findTightestRationalBounds a 64
+  boundarySucc (Closed (MkRational a)) =
+    MkRational $ snd $ findTightestRationalBounds a 64
   boundarySucc (Open a) = a
 
 paramIx :: Param a -> Integer
@@ -104,11 +131,25 @@ paramName :: Param a -> String
 paramName (Scalar _ n _) = n
 paramName (Collection _ n _) = n
 
-getAssertionRangeAndStr :: Assertion a -> (String, RangeConstraint a)
-getAssertionRangeAndStr (MustNotBe (g, _) range) = (g, range)
+getParamAssertions :: Param (Identity a) -> [Assertion a]
+getParamAssertions (Scalar _ _ assertions) = assertions
 
-getAllRangeConstraints :: Param (Identity a) -> [(String, RangeConstraint a)]
-getAllRangeConstraints (Scalar _ _ assertions) = map getAssertionRangeAndStr assertions
+-- getAssertionRangeAndStr :: Assertion (RangeConstraint a) -> (String, RangeConstraint a)
+-- getAssertionRangeAndStr (MustNotBe (g, _) range) = (g, range)
+
+getAllRangeConstraints :: forall a. Param (Identity a) -> [(String, RangeConstraint a)]
+getAllRangeConstraints (Scalar _ _ assertions) =
+  foldr f [] assertions
+ where
+  f (MustNotBe (g, _) range) acc = (g, range) : acc
+  f _ acc = acc
+
+-- rangeConstraintAssertions :: [Assertion a] -> [Assertion (RangeConstraint a)]
+-- rangeConstraintAssertions = foldr go []
+
+-- go :: Assertion a -> [Assertion (RangeConstraint a)] -> [Assertion (RangeConstraint a)]
+-- go assertion@(MustNotBe g range) acc = _ : acc
+-- go _ acc = acc
 
 class HasDomain a where
   domain :: (a, a)
@@ -117,7 +158,10 @@ instance HasDomain Integer where
   domain = (fromIntegral $ minBound @Int, fromIntegral $ maxBound @Int)
 
 instance HasDomain Rational where
-  domain = (MkRational $ toRational $ minBound @Int, MkRational $ toRational $ maxBound @Int)
+  domain =
+    ( MkRational $ toRational $ minBound @Int
+    , MkRational $ toRational $ maxBound @Int
+    )
 
 boundaries ::
   forall a.
