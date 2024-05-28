@@ -67,6 +67,8 @@ library
         , vector
         , scientific
         , time
+        , http-conduit
+        , bytestring
         --, insert-ordered-containers
         , text
 
