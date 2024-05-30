@@ -30,7 +30,8 @@ type API =
     :> ( ReqBody '[JSON] ParametersChange :> Post '[JSON] ParamChecks
           :<|> "by-url" :> ReqBody '[JSON] URL :> Post '[JSON] ParamChecks
        )
-    :<|> "current-values" :> Get '[JSON] ParametersChange
+    :<|> "current-values" :> Get '[JSON] EpochParameters
+
 newtype URL = URL BaseUrl
 
 server :: ServerCaps -> Server API
@@ -40,7 +41,7 @@ server ServerCaps{..} =
   )
     :<|> getAllCurrentParamsValues
  where
-  getAllCurrentParamsValues :: Handler ParametersChange
+  getAllCurrentParamsValues :: Handler EpochParameters
   getAllCurrentParamsValues = do
     protocolParamsE <- liftIO getLatestEpochProtocolParams
     case protocolParamsE of
