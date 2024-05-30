@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ViewPatterns #-}
 
@@ -15,6 +16,9 @@ import Data.Functor.Identity
 
 import Cardano.Constitution.Checker.Params.Swagger ()
 
+import Cardano.Constitution.Checker.Blockfrost
+
+import Blockfrost.Client (unQuantity)
 import Prelude hiding (Rational)
 
 txFeePerByte :: Param (Identity Integer)
@@ -496,34 +500,142 @@ committeeMinSize =
     ]
 
 allParams :: [Param']
-allParams =
-  [ MkParam' txFeePerByte
-  , MkParam' txFeeFixed
-  , MkParam' utxoCostPerByte
-  , MkParam' maxBlockBodySize
-  , MkParam' maxTxSize
-  , MkParam' maxBlockHeaderSize
-  , MkParam' minPoolCost
-  , MkParam' maxValueSize
-  , MkParam' collateralPercentage
-  , MkParam' maxCollateralInputs
-  , MkParam' stakeAddressDeposit
-  , MkParam' stakePoolDeposit
-  , MkParam' poolRetireMaxEpoch
-  , MkParam' stakePoolTargetNum
-  , MkParam' poolPledgeInfluence
-  , MkParam' minFeeRefScriptCoinsPerByte
-  , MkParam' govDeposit
-  , MkParam' dRepDeposit
-  , MkParam' dRepActivity
-  , MkParam' govActionLifetime
-  , MkParam' committeeMaxTermLimit
-  , MkParam' committeeMinSize
-  , MkParam' monetaryExpansion
-  , MkParam' treasuryCut
-  , MkParam' poolVotingThresholds
-  , MkParam' dRepVotingThresholds
-  , MkParam' executionUnitPrices
-  , MkParam' maxBlockExecutionUnits
-  , MkParam' maxTxExecutionUnits
+allParams = map fromParamWithCurrentValues allParamsWithCurrentValues
+
+_fakeFetcher :: (Monoid_ a) => b -> a
+_fakeFetcher _ = unsure'
+
+class Monoid_ a where
+  unsure' :: a
+
+instance Monoid_ Integer where
+  unsure' = -1
+
+instance Monoid_ Rational where
+  unsure' = -1
+
+instance (Monoid_ a) => Monoid_ (Identity a) where
+  unsure' = Identity unsure'
+
+instance (Monoid_ a) => Monoid_ [a] where
+  unsure' = []
+
+scalarX :: (ProtocolParams -> a) -> ProtocolParams -> Identity Integer
+scalarX = undefined
+
+allParamsWithCurrentValues :: [ParamWithCurrentValue]
+allParamsWithCurrentValues =
+  [ ParamWithCurrentValue
+      txFeePerByte
+      -- Not sure
+      (Identity . _protocolParamsMinFeeA)
+  , --
+    ParamWithCurrentValue
+      txFeeFixed
+      -- Not sure
+      (Identity . _protocolParamsMinFeeB)
+  , --
+    ParamWithCurrentValue
+      utxoCostPerByte
+      -- Not sure (fromIntegral ?????)
+      (Identity . fromIntegral . _protocolParamsCoinsPerUtxoWord)
+  , --
+    ParamWithCurrentValue
+      maxBlockBodySize
+      -- OK
+      (Identity . _protocolParamsMaxBlockSize)
+  , --
+    ParamWithCurrentValue
+      maxTxSize
+      -- OK
+      (Identity . _protocolParamsMaxTxSize)
+  , --
+    ParamWithCurrentValue
+      maxBlockHeaderSize
+      -- OK
+      (Identity . _protocolParamsMaxBlockHeaderSize)
+  , --
+    ParamWithCurrentValue
+      minPoolCost
+      -- OK (fromIntegral ?????)
+      (Identity . fromIntegral . _protocolParamsMinPoolCost)
+  , --
+    ParamWithCurrentValue
+      maxValueSize
+      -- OK
+      (Identity . unQuantity . _protocolParamsMaxValSize)
+  , --
+    ParamWithCurrentValue
+      collateralPercentage
+      -- OK
+      (Identity . _protocolParamsCollateralPercent)
+  , --
+    ParamWithCurrentValue
+      maxCollateralInputs
+      -- OK
+      (Identity . _protocolParamsMaxCollateralInputs)
+  , --
+    ParamWithCurrentValue stakeAddressDeposit $
+      const unsure'
+  , --
+    ParamWithCurrentValue stakePoolDeposit $
+      const unsure'
+  , --
+    ParamWithCurrentValue poolRetireMaxEpoch $
+      const unsure'
+  , ParamWithCurrentValue stakePoolTargetNum $
+      const unsure'
+  , --
+    ParamWithCurrentValue
+      poolPledgeInfluence
+      -- OK
+      (Identity . MkRational . _protocolParamsA0)
+  , --
+    ParamWithCurrentValue minFeeRefScriptCoinsPerByte $
+      const unsure'
+  , --
+    ParamWithCurrentValue govDeposit $
+      const unsure'
+  , --
+    ParamWithCurrentValue dRepDeposit $
+      const unsure'
+  , --
+    ParamWithCurrentValue dRepActivity $
+      const unsure'
+  , --
+    ParamWithCurrentValue govActionLifetime $
+      const unsure'
+  , --
+    ParamWithCurrentValue committeeMaxTermLimit $
+      const unsure'
+  , --
+    ParamWithCurrentValue committeeMinSize $
+      const unsure'
+  , --
+    ParamWithCurrentValue
+      monetaryExpansion
+      (Identity . MkRational . _protocolParamsRho)
+  , --
+    ParamWithCurrentValue treasuryCut $
+      const unsure'
+  , --
+    ParamWithCurrentValue poolVotingThresholds $
+      const $
+        replicate 5 unsure'
+  , --
+    ParamWithCurrentValue dRepVotingThresholds $
+      const $
+        replicate 10 unsure'
+  , --
+    ParamWithCurrentValue executionUnitPrices $ \ProtocolParams{..} ->
+      -- not sure
+      map MkRational [_protocolParamsPriceMem, _protocolParamsPriceStep]
+  , --
+    ParamWithCurrentValue maxBlockExecutionUnits $ \ProtocolParams{..} ->
+      -- OK
+      map unQuantity [_protocolParamsMaxBlockExMem, _protocolParamsMaxBlockExSteps]
+  , --
+    ParamWithCurrentValue maxTxExecutionUnits $ \ProtocolParams{..} ->
+      -- OK
+      map unQuantity [_protocolParamsMaxTxExMem, _protocolParamsMaxTxExSteps]
   ]

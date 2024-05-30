@@ -1,20 +1,24 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Cardano.Constitution.Checker.API where
 
-import Servant
+import Servant hiding (Context (..))
 import Servant.Swagger.UI
 
 import Cardano.Constitution.Checker.Checks hiding (description)
 
+import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
 import Control.Lens hiding (Context (..), (.=))
 import Data.Swagger as SWG hiding (URL)
 import Network.HTTP.Conduit (simpleHttp)
 import Servant.Swagger
 
+import Cardano.Constitution.Checker.Blockfrost
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Aeson
 import Data.String
 import Data.Text (unpack)
@@ -26,19 +30,39 @@ type API =
     :> ( ReqBody '[JSON] ParametersChange :> Post '[JSON] ParamChecks
           :<|> "by-url" :> ReqBody '[JSON] URL :> Post '[JSON] ParamChecks
        )
+    :<|> "current-values" :> Get '[JSON] ParametersChange
 newtype URL = URL BaseUrl
 
-server :: Server API
-server =
-  parametersChange
-    :<|> parametersChangeByUrl
+server :: ServerCaps -> Server API
+server ServerCaps{..} =
+  ( parametersChange
+      :<|> parametersChangeByUrl
+  )
+    :<|> getAllCurrentParamsValues
  where
+  getAllCurrentParamsValues :: Handler ParametersChange
+  getAllCurrentParamsValues = do
+    protocolParamsE <- liftIO getLatestEpochProtocolParams
+    case protocolParamsE of
+      Left err -> throwError err500{errBody = fromString err}
+      Right protocolParams -> pure $ allCurrentParamsValues protocolParams
+
   parametersChange :: ParametersChange -> Handler ParamChecks
-  parametersChange paramChange = pure $ checkParams (mkContext paramChange) paramChange
+  parametersChange paramChange = do
+    ctx <- mkContext' paramChange
+    pure $ checkParams ctx paramChange
+
   parametersChangeByUrl :: URL -> Handler ParamChecks
-  parametersChangeByUrl url = do
-    param <- fetchParamCheck url
+  parametersChangeByUrl url' = do
+    param <- fetchParamCheck url'
     parametersChange param
+
+  mkContext' :: ParametersChange -> Handler Context
+  mkContext' paramChange = do
+    protocolParamsE <- liftIO getLatestEpochProtocolParams
+    case protocolParamsE of
+      Left err -> throwError err500{errBody = fromString err}
+      Right protocolParams -> pure $ mkContext paramChange protocolParams
 
 -- TODO: guard checks against exploits
 fetchParamCheck :: URL -> Handler ParametersChange
@@ -84,10 +108,21 @@ swaggerJson =
     & info . SWG.version .~ "0.1.0.0"
     & info . description ?~ "This is the API for the Constitution Checker."
 
--- | Servant server for an API
-serverWithDoc :: Server APIWithDoc
-serverWithDoc =
-  swaggerSchemaUIServer swaggerJson :<|> server
+newtype ServerCaps = ServerCaps
+  { getLatestEpochProtocolParams :: IO (Either String ProtocolParams)
+  }
 
-app :: Application
-app = serve apiWithDoc serverWithDoc
+-- | Servant server for an API
+serverWithDoc :: ServerCaps -> Server APIWithDoc
+serverWithDoc caps =
+  swaggerSchemaUIServer swaggerJson :<|> server caps
+
+app :: ServerCaps -> Application
+app = serve apiWithDoc . serverWithDoc
+
+-- TODO:  replaceThis
+dummyServerCaps :: ServerCaps
+dummyServerCaps =
+  ServerCaps
+    { getLatestEpochProtocolParams = getLatestEpochProtocolParams'
+    }
