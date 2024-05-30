@@ -51,6 +51,8 @@ library
         , Cardano.Constitution.Checker.Params.Lookup
         , Cardano.Constitution.Checker.Types
         , Cardano.Constitution.Checker.Checks
+        , Cardano.Constitution.Checker.Blockfrost
+        , Cardano.Constitution.Checker.Blockfrost.Override
 
     build-depends:
           base ^>=4.18.1.0
@@ -69,8 +71,14 @@ library
         , time
         , http-conduit
         , bytestring
-        --, insert-ordered-containers
         , text
+        , blockfrost-client
+        , blockfrost-api
+        , servant-docs
+        , deriving-aeson
+        , http-client
+        , http-client-tls
+        , mtl
 
     hs-source-dirs:   src
 

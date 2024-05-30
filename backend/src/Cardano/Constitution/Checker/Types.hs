@@ -10,11 +10,13 @@ module Cardano.Constitution.Checker.Types (
   ParamValue (..),
   unParametersChange,
   mkContext,
+  allCurrentParamsValues,
 ) where
 
 import Cardano.Constitution.Checker.Params.Definition
 import Cardano.Constitution.Checker.Params.Types
 
+import Cardano.Constitution.Checker.Blockfrost (ProtocolParams)
 import Cardano.Constitution.Checker.Params.Lookup
 import Control.Lens hiding (Context, (.=))
 import Control.Monad (foldM)
@@ -30,9 +32,8 @@ import qualified GHC.IsList as Haskell
 newtype ParametersChange = MkParametersChange (Map Integer ParamValue)
   deriving (Show, Eq)
 
-mkContext :: ParametersChange -> Context
-mkContext (MkParametersChange m) =
-  Context byName' byIx'
+mkContext :: ParametersChange -> ProtocolParams -> Context
+mkContext (MkParametersChange m) = Context byName' byIx'
  where
   xs = snd <$> toList m
   byName' = byParameter' withParamName
@@ -84,6 +85,21 @@ mkParametersChangeUnsafe = Prelude.foldr f (MkParametersChange empty)
 
 data ParamValue = forall a. (ToJSON a) => MkParamValue !(Param a) !a
 
+--------------------------------------------------------------------------------
+-- TODO: move these from Types (maybe into API)
+paramValueFromCurrent :: ProtocolParams -> ParamWithCurrentValue -> ParamValue
+paramValueFromCurrent currentValues (ParamWithCurrentValue param@(Scalar{}) f) =
+  MkParamValue param (f currentValues)
+paramValueFromCurrent currentValues (ParamWithCurrentValue param@(Collection{}) f) =
+  MkParamValue param (f currentValues)
+
+allCurrentParamsValues :: ProtocolParams -> ParametersChange
+allCurrentParamsValues currentValues =
+  mkParametersChangeUnsafe $
+    fmap (paramValueFromCurrent currentValues) allParamsWithCurrentValues
+
+--------------------------------------------------------------------------------
+
 instance Show ParamValue where
   show (MkParamValue (Scalar _ name' _) val) = name' ++ ": " ++ show (runIdentity val)
   show (MkParamValue (Collection _ name' _) val) = name' ++ ": " ++ show val
@@ -99,8 +115,10 @@ instance ToJSON ParametersChange where
     f :: (Integer, ParamValue) -> (Key, Value)
     f (paramIx', MkParamValue ((Scalar{})) val) =
       (fromString $ show paramIx', toJSON (runIdentity val))
-    f (paramIx', MkParamValue ((Collection{})) val) =
-      (fromString $ show paramIx', toJSON val)
+    f (paramIx', MkParamValue ((Collection _ _ params)) val) =
+      let paramNames = fmap paramName params
+          obj = object $ zipWith (\name' v -> fromString name' .= toJSON v) paramNames val
+       in (fromString $ show paramIx', obj)
 
 instance FromJSON ParametersChange where
   parseJSON = withObject "ParamValue" $ \o -> do

@@ -6,6 +6,7 @@
 
 module Cardano.Constitution.Checker.Params.Types where
 
+import Cardano.Constitution.Checker.Blockfrost
 import Cardano.Constitution.Checker.Params.Farey
 import Cardano.Constitution.Checker.Params.Intervals
 import Data.Aeson
@@ -68,8 +69,8 @@ data Assertion a
   | ShouldSatisfy !(String, String) !(Context -> a -> SatisfactionResult)
 
 assertionDescription :: Assertion a -> (String, String)
-assertionDescription (MustNotBe desc _) = desc
-assertionDescription (ShouldSatisfy desc _) = desc
+assertionDescription (MustNotBe desc' _) = desc'
+assertionDescription (ShouldSatisfy desc' _) = desc'
 
 data ByParameter a = ByParameter
   { getInteger :: !(a -> Maybe Integer)
@@ -93,6 +94,7 @@ findRationals = getRationals
 data Context = Context
   { byName :: !(ByParameter String)
   , byIx :: !(ByParameter Integer)
+  , currentParams :: !ProtocolParams
   }
 
 data SatisfactionResult
@@ -139,7 +141,11 @@ class Lookup a where
 class ParamToSchema a where
   paramToSchema :: Param a -> Schema
 
-data Param' = forall a. (ParamToSchema a) => MkParam' (Param a)
+data ParamWithCurrentValue = forall a. (ParamToSchema a) => ParamWithCurrentValue !(Param a) !(ProtocolParams -> a)
+data Param' = forall a. (ParamToSchema a) => MkParam' !(Param a)
+
+fromParamWithCurrentValues :: ParamWithCurrentValue -> Param'
+fromParamWithCurrentValues (ParamWithCurrentValue p _) = MkParam' p
 
 class IntervalEnum a where
   boundaryPred :: Boundary a -> a
