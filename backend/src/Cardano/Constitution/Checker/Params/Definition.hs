@@ -527,17 +527,17 @@ allParamsWithCurrentValues :: [ParamWithCurrentValue]
 allParamsWithCurrentValues =
   [ ParamWithCurrentValue
       txFeePerByte
-      -- Not sure
+      -- OK
       (Identity . _protocolParamsMinFeeA)
   , --
     ParamWithCurrentValue
       txFeeFixed
-      -- Not sure
+      -- OK
       (Identity . _protocolParamsMinFeeB)
   , --
     ParamWithCurrentValue
       utxoCostPerByte
-      -- Not sure (fromIntegral ?????)
+      -- OK
       (Identity . fromIntegral . _protocolParamsCoinsPerUtxoWord)
   , --
     ParamWithCurrentValue
@@ -557,7 +557,7 @@ allParamsWithCurrentValues =
   , --
     ParamWithCurrentValue
       minPoolCost
-      -- OK (fromIntegral ?????)
+      -- OK
       (Identity . fromIntegral . _protocolParamsMinPoolCost)
   , --
     ParamWithCurrentValue
@@ -575,16 +575,24 @@ allParamsWithCurrentValues =
       -- OK
       (Identity . _protocolParamsMaxCollateralInputs)
   , --
-    ParamWithCurrentValue stakeAddressDeposit $
-      const unsure'
+    ParamWithCurrentValue
+      stakeAddressDeposit
+      -- OK
+      (Identity . fromIntegral . _protocolParamsKeyDeposit)
   , --
-    ParamWithCurrentValue stakePoolDeposit $
-      const unsure'
+    ParamWithCurrentValue
+      stakePoolDeposit
+      -- OK
+      (Identity . fromIntegral . _protocolParamsPoolDeposit)
   , --
-    ParamWithCurrentValue poolRetireMaxEpoch $
-      const unsure'
-  , ParamWithCurrentValue stakePoolTargetNum $
-      const unsure'
+    ParamWithCurrentValue
+      poolRetireMaxEpoch
+      -- OK
+      (Identity . _protocolParamsEMax)
+  , ParamWithCurrentValue
+      stakePoolTargetNum
+      -- OK
+      (Identity . _protocolParamsNOpt)
   , --
     ParamWithCurrentValue
       poolPledgeInfluence
@@ -594,41 +602,69 @@ allParamsWithCurrentValues =
     ParamWithCurrentValue minFeeRefScriptCoinsPerByte $
       const unsure'
   , --
-    ParamWithCurrentValue govDeposit $
-      const unsure'
+    ParamWithCurrentValue
+      govDeposit
+      -- not sure
+      (Identity . fromIntegral . _protocolParamsGovActionDeposit)
   , --
-    ParamWithCurrentValue dRepDeposit $
-      const unsure'
+    ParamWithCurrentValue
+      dRepDeposit
+      (Identity . fromIntegral . _protocolParamsDrepDeposit)
   , --
-    ParamWithCurrentValue dRepActivity $
-      const unsure'
+    ParamWithCurrentValue
+      dRepActivity
+      (Identity . unQuantity . _protocolParamsDrepActivity)
   , --
-    ParamWithCurrentValue govActionLifetime $
-      const unsure'
+    ParamWithCurrentValue
+      govActionLifetime
+      (Identity . unQuantity . _protocolParamsGovActionLifetime)
   , --
-    ParamWithCurrentValue committeeMaxTermLimit $
-      const unsure'
+    ParamWithCurrentValue
+      committeeMaxTermLimit
+      -- OK
+      (Identity . unQuantity . _protocolParamsCommitteeMaxTermLength)
   , --
-    ParamWithCurrentValue committeeMinSize $
-      const unsure'
+    ParamWithCurrentValue
+      committeeMinSize
+      -- OK
+      (Identity . unQuantity . _protocolParamsCommitteeMinSize)
   , --
     ParamWithCurrentValue
       monetaryExpansion
+      -- OK
       (Identity . MkRational . _protocolParamsRho)
   , --
-    ParamWithCurrentValue treasuryCut $
-      const unsure'
+    ParamWithCurrentValue
+      treasuryCut
+      -- OK
+      (Identity . MkRational . _protocolParamsTau)
   , --
-    ParamWithCurrentValue poolVotingThresholds $
-      const $
-        replicate 5 unsure'
+    ParamWithCurrentValue poolVotingThresholds $ \ProtocolParams{..} ->
+      map
+        MkRational
+        [ _protocolParamsPvtMotionNoConfidence
+        , _protocolParamsPvtCommitteeNormal
+        , _protocolParamsPvtCommitteeNoConfidence
+        , _protocolParamsPvtHardForkInitiation
+        ]
+        ++ [unsure']
   , --
-    ParamWithCurrentValue dRepVotingThresholds $
-      const $
-        replicate 10 unsure'
+    ParamWithCurrentValue dRepVotingThresholds $ \ProtocolParams{..} ->
+      map
+        MkRational
+        [ _protocolParamsDvtMotionNoConfidence
+        , _protocolParamsDvtCommitteeNormal
+        , _protocolParamsDvtCommitteeNoConfidence
+        , _protocolParamsDvtUpdateToConstitution
+        , _protocolParamsDvtHardForkInitiation
+        , _protocolParamsDvtP_PNetworkGroup
+        , _protocolParamsDvtP_PEconomicGroup
+        , _protocolParamsDvtP_PTechnicalGroup
+        , _protocolParamsDvtP_PGovGroup
+        , _protocolParamsDvtTreasuryWithdrawal
+        ]
   , --
     ParamWithCurrentValue executionUnitPrices $ \ProtocolParams{..} ->
-      -- not sure
       map MkRational [_protocolParamsPriceMem, _protocolParamsPriceStep]
   , --
     ParamWithCurrentValue maxBlockExecutionUnits $ \ProtocolParams{..} ->

@@ -124,5 +124,5 @@ app = serve apiWithDoc . serverWithDoc
 dummyServerCaps :: ServerCaps
 dummyServerCaps =
   ServerCaps
-    { getLatestEpochProtocolParams = getLatestEpochProtocolParams'
+    { getLatestEpochProtocolParams = getLatestParams
     }
