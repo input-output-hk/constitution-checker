@@ -1,10 +1,13 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.Constitution.Checker.Types (
+  EpochParameters (..),
   ParametersChange,
   mkParametersChangeUnsafe,
   ParamValue (..),
@@ -16,12 +19,16 @@ module Cardano.Constitution.Checker.Types (
 import Cardano.Constitution.Checker.Params.Definition
 import Cardano.Constitution.Checker.Params.Types
 
-import Cardano.Constitution.Checker.Blockfrost (ProtocolParams)
+import qualified Data.Aeson.KeyMap as KM
+
+import Blockfrost.Client (Epoch)
+import Cardano.Constitution.Checker.Blockfrost (ProtocolParams (..))
 import Cardano.Constitution.Checker.Params.Lookup
 import Control.Lens hiding (Context, (.=))
 import Control.Monad (foldM)
 import Data.Aeson
 import Data.Aeson.Types (Parser)
+import Data.Data (Proxy (..))
 import Data.Map hiding (fromList)
 import Data.String
 import Data.Swagger hiding (Param)
@@ -93,10 +100,11 @@ paramValueFromCurrent currentValues (ParamWithCurrentValue param@(Scalar{}) f) =
 paramValueFromCurrent currentValues (ParamWithCurrentValue param@(Collection{}) f) =
   MkParamValue param (f currentValues)
 
-allCurrentParamsValues :: ProtocolParams -> ParametersChange
+allCurrentParamsValues :: ProtocolParams -> EpochParameters
 allCurrentParamsValues currentValues =
-  mkParametersChangeUnsafe $
-    fmap (paramValueFromCurrent currentValues) allParamsWithCurrentValues
+  EpochParameters (_protocolParamsEpoch currentValues) $
+    mkParametersChangeUnsafe $
+      fmap (paramValueFromCurrent currentValues) allParamsWithCurrentValues
 
 --------------------------------------------------------------------------------
 
@@ -182,5 +190,35 @@ instance ToSchema ParametersChange where
       , Inline $ paramToSchema param
       )
 
--- & type_ ?~ SwaggerString
--- & SL.pattern ?~ ghAccessTokenPattern
+data EpochParameters = EpochParameters
+  { epoch :: !Epoch
+  , parameters :: !ParametersChange
+  }
+  deriving (Show)
+
+instance ToJSON EpochParameters where
+  -- extends ParametersChange JSON instance with epoch field
+  toJSON (EpochParameters epoch' params) =
+    Object (x <> y)
+   where
+    x = case toJSON params of
+      Object obj -> obj
+      _otherwise -> KM.empty
+    y = KM.fromList ["epoch" .= epoch']
+
+instance FromJSON EpochParameters where
+  -- extends ProtocolParams JSON instance with epoch field
+  parseJSON = withObject "EpochParameters" $ \o -> do
+    epoch' <- o .: "epoch"
+    params <- parseJSON (Object o)
+    return $ EpochParameters epoch' params
+
+instance ToSchema EpochParameters where
+  declareNamedSchema _ = do
+    epochSchema <- declareSchemaRef (Proxy :: Proxy Int)
+    parametersSchema <- declareSchema (Proxy :: Proxy ParametersChange)
+    return $
+      NamedSchema (Just "EpochParameters") $
+        parametersSchema
+          & properties %~ (`mappend` [("epoch", epochSchema)])
+          & required %~ (<> ["epoch"])
