@@ -26,15 +26,28 @@ import Cardano.Constitution.Checker.Params.Definition (allParams)
 import Data.Aeson.Key (fromString)
 import Data.Data (Proxy (..))
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import qualified Data.String as Haskell
 import Data.Swagger hiding (Param)
 import Data.Text (Text)
 import qualified GHC.IsList as Haskell
 
-newtype ParamChecks = ParamChecks (Map String GenericParamCheck)
+newtype MissingParams = MissingParams (Map String ParamValue)
+data ParamChecks = ParamChecks
+  { paramChecks :: !(Map String GenericParamCheck)
+  , paramChecksMissing :: !MissingParams
+  }
+
+instance ToJSON MissingParams where
+  toJSON (MissingParams missingParams') = object $ f <$> Map.toList missingParams'
+   where
+    f :: (String, ParamValue) -> (Key, Value)
+    f (name', MkParamValue param' val') = (fromString name', paramValToValue (MkParamValue param' val'))
 
 instance ToJSON ParamChecks where
-  toJSON (ParamChecks checks) = object $ f <$> Map.toList checks
+  toJSON (ParamChecks checks missingParams') =
+    object $
+      (f <$> Map.toList checks) <> ["missingParamCurrentValues" .= missingParams']
    where
     f :: (String, GenericParamCheck) -> (Key, Value)
     f (name', MkGenericParamCheck check') = (fromString name', toJSON check')
@@ -70,11 +83,11 @@ instance (ToJSON a) => ToJSON (ParamCheck a) where
   toJSON (ParamCheckCostModels (v1, v2, v3) _ (check1, check2, check3)) =
     let
       keys = map Haskell.fromString ["plutusV1" :: String, "plutusV2", "plutusV3"]
-      f (value, check) =
+      f (value, check') =
         object
           [ "value" .= toJSON value
-          , "guardrails" .= check
-          , "summary" .= checkGuardrailsMap check
+          , "guardrails" .= check'
+          , "summary" .= checkGuardrailsMap check'
           ]
       values = map f [(v1, check1), (v2, check2), (v3, check3)]
       allResults = map checkGuardrailsMap [check1, check2, check3]
@@ -169,10 +182,10 @@ paramValToValue (MkParamValue (CostModels{}) (v1, v2, v3)) =
                 "plutusV2":  #{v2} ,
                 "plutusV3":  #{v3}
               }|]
-instance ToSchema ParamChecks where
+
+instance ToSchema MissingParams where
   declareNamedSchema _ = do
-    _ <- declareSchemaRef (Proxy :: Proxy GuardrailResult)
-    let schemas = map (Inline . paramCheckSchema) allParams
+    let schemas = map (\(MkParam' param) -> Inline $ paramToSchema param) allParams
         keys = map (\(MkParam' param') -> Haskell.fromString $ paramName param') allParams
         xs = zip keys schemas
     let schema' =
@@ -181,6 +194,22 @@ instance ToSchema ParamChecks where
               ?~ SwaggerObject
             & properties
               .~ Haskell.fromList xs
+
+    return $ NamedSchema (Just "MissingParams") schema'
+
+instance ToSchema ParamChecks where
+  declareNamedSchema _ = do
+    _ <- declareSchemaRef (Proxy :: Proxy GuardrailResult)
+    missingParamsSchema <- declareSchemaRef (Proxy :: Proxy MissingParams)
+    let schemas = map (Inline . paramCheckSchema) allParams
+        keys = map (\(MkParam' param') -> Haskell.fromString $ paramName param') allParams
+        xs = zip keys schemas
+    let schema' =
+          mempty
+            & type_
+              ?~ SwaggerObject
+            & properties
+              .~ (Haskell.fromList xs <> [("missingParamCurrentValues", missingParamsSchema)])
 
     return $ NamedSchema (Just "ParamChecks") schema'
 
@@ -268,10 +297,22 @@ toGuardrailResult (assertionDescription -> (gId, desc)) = \case
   Unsatisfied msg -> (gId, GuardrailResult (Just False) desc (Just msg))
   Neutral msg -> (gId, GuardrailResult Nothing desc (Just msg))
 
-checkParams :: Context -> ParametersChange -> ParamChecks
-checkParams ctx (unParametersChange -> m) =
-  ParamChecks $ Map.fromList $ foldr collect mempty (Map.toList m)
+type CurrentParams = ParametersChange
+checkParams :: CurrentParams -> Context -> ParametersChange -> ParamChecks
+checkParams (MkParametersChange currentParams) ctx (unParametersChange -> m) =
+  ParamChecks
+    { paramChecks = Map.fromList $ foldr collect mempty (Map.toList m)
+    , paramChecksMissing =
+        MissingParams $
+          Map.fromList $
+            filter (\(k, _) -> not $ Set.member k allProvidedParamsNames) $
+              (\(_, param@(MkParamValue p _)) -> (paramName p, param))
+                <$> Map.toList currentParams
+    }
  where
+  allProvidedParamsNames :: Set.Set String =
+    Set.fromList $
+      (\(MkParamValue p _) -> paramName p) <$> Map.elems m
   collect ::
     (Integer, ParamValue) ->
     [(String, GenericParamCheck)] ->
