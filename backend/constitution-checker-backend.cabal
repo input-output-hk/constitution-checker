@@ -50,6 +50,7 @@ library
         , Cardano.Constitution.Checker.Params.Swagger
         , Cardano.Constitution.Checker.Params.Lookup
         , Cardano.Constitution.Checker.Types
+        , Cardano.Constitution.Checker.Context
         , Cardano.Constitution.Checker.Checks
         , Cardano.Constitution.Checker.Blockfrost
         , Cardano.Constitution.Checker.Blockfrost.Override

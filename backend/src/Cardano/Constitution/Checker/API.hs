@@ -10,6 +10,7 @@ import Servant.Swagger.UI
 
 import Cardano.Constitution.Checker.Checks hiding (description)
 
+import Cardano.Constitution.Checker.Context
 import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
 import Control.Lens hiding (Context (..), (.=))

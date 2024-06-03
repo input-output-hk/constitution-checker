@@ -2,6 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RankNTypes #-}
@@ -9,11 +10,10 @@
 
 module Cardano.Constitution.Checker.Types (
   EpochParameters (..),
-  ParametersChange,
+  ParametersChange (..),
   mkParametersChangeUnsafe,
   ParamValue (..),
   unParametersChange,
-  mkContext,
   allCurrentParamsValues,
 ) where
 
@@ -26,12 +26,13 @@ import qualified Data.Aeson.KeyMap as KM
 import Blockfrost.Client (Epoch)
 import Cardano.Constitution.Checker.Blockfrost (ProtocolParams (..))
 import Cardano.Constitution.Checker.Params.Lookup
+import Control.Applicative ((<|>))
 import Control.Lens hiding (Context, (.=))
 import Control.Monad (foldM)
 import Data.Aeson
 import Data.Aeson.Types (Parser)
 import Data.Data (Proxy (..))
-import Data.Map hiding (fromList)
+import Data.Map
 import Data.String
 import Data.Swagger hiding (Param)
 import qualified GHC.IsList as Haskell
@@ -40,47 +41,6 @@ import qualified GHC.IsList as Haskell
 
 newtype ParametersChange = MkParametersChange (Map Integer ParamValue)
   deriving (Show, Eq)
-
-mkContext :: ParametersChange -> ProtocolParams -> Context
-mkContext (MkParametersChange m) = Context byName' byIx'
- where
-  xs = snd <$> toList m
-  byName' = byParameter' withParamName
-  byIx' = byParameter' withParamIx
-
-  nameMap :: Map String ParamValue
-  nameMap = Haskell.fromList $ zip allNames xs
-
-  allNames = fmap (\(MkParamValue p _) -> paramName p) xs
-
-  withParamIx :: (forall a. Maybe (Param a, a) -> b) -> Integer -> b
-  withParamIx f ix' = case Data.Map.lookup ix' m of
-    Just (MkParamValue p v) -> f $ Just (p, v)
-    Nothing -> f Nothing
-
-  withParamName :: (forall a. Maybe (Param a, a) -> b) -> String -> b
-  withParamName f name' = case Data.Map.lookup name' nameMap of
-    Just (MkParamValue p v) -> f $ Just (p, v)
-    Nothing -> f Nothing
-
-byParameter' ::
-  (forall b. (forall a. Maybe (Param a, a) -> b) -> s -> b) ->
-  ByParameter s
-byParameter' f =
-  ByParameter
-    { getInteger = f \case
-        Just (Scalar{}, val) | [v] <- lookupInteger' val -> Just v
-        _otherwise -> Nothing
-    , getRational = f \case
-        Just (Scalar{}, val) | [v] <- lookupRational' val -> Just v
-        _otherwise -> Nothing
-    , getIntegers = f \case
-        Just (param@Collection{}, val) -> lookupInteger param val
-        _otherwise -> empty
-    , getRationals = f \case
-        Just (param@Collection{}, val) -> lookupRational param val
-        _otherwise -> empty
-    }
 
 unParametersChange :: ParametersChange -> Map Integer ParamValue
 unParametersChange (MkParametersChange m) = m
@@ -97,18 +57,18 @@ data ParamValue = forall a. (ToJSON a) => MkParamValue !(Param a) !a
 --------------------------------------------------------------------------------
 -- TODO: move these from Types (maybe into API)
 paramValueFromCurrent :: ProtocolParams -> ParamWithCurrentValue -> ParamValue
-paramValueFromCurrent currentValues (ParamWithCurrentValue param@(Scalar{}) f) =
-  MkParamValue param (f currentValues)
-paramValueFromCurrent currentValues (ParamWithCurrentValue param@(Collection{}) f) =
-  MkParamValue param (f currentValues)
-paramValueFromCurrent currentValues (ParamWithCurrentValue param@(CostModels{}) f) =
-  MkParamValue param (f currentValues)
+paramValueFromCurrent currentValues' (ParamWithCurrentValue param@(Scalar{}) f) =
+  MkParamValue param (f currentValues')
+paramValueFromCurrent currentValues' (ParamWithCurrentValue param@(Collection{}) f) =
+  MkParamValue param (f currentValues')
+paramValueFromCurrent currentValues' (ParamWithCurrentValue param@(CostModels{}) f) =
+  MkParamValue param (f currentValues')
 
 allCurrentParamsValues :: ProtocolParams -> EpochParameters
-allCurrentParamsValues currentValues =
-  EpochParameters (_protocolParamsEpoch currentValues) $
+allCurrentParamsValues currentValues' =
+  EpochParameters (_protocolParamsEpoch currentValues') $
     mkParametersChangeUnsafe $
-      fmap (paramValueFromCurrent currentValues) allParamsWithCurrentValues
+      fmap (paramValueFromCurrent currentValues') allParamsWithCurrentValues
 
 --------------------------------------------------------------------------------
 

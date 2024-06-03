@@ -30,6 +30,10 @@ instance Lookup [Integer] where
   lookupRational' _ = []
   lookupInteger' val = val
 
+instance Lookup (Maybe PV1, Maybe PV2, Maybe PV3) where
+  lookupRational' _ = []
+  lookupInteger' _ = []
+
 lookup' :: (a -> [b]) -> Param a -> a -> Map String b
 lookup' f (Scalar _ name _) val = Map.fromList $ zip [name] $ f val
 lookup' f (Collection _ _ params) val =
@@ -42,3 +46,8 @@ lookupRational = lookup' lookupRational'
 
 lookupInteger :: forall a. (Lookup a) => Param a -> a -> Map String Integer
 lookupInteger = lookup' lookupInteger'
+
+lookupCostModels :: Param a -> a -> (Maybe PV1, Maybe PV2, Maybe PV3)
+lookupCostModels (Scalar{}) _ = (Nothing, Nothing, Nothing)
+lookupCostModels (Collection{}) _ = (Nothing, Nothing, Nothing)
+lookupCostModels (CostModels{}) val = val
