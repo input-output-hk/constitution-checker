@@ -51,20 +51,24 @@ server ServerCaps{..} =
 
   parametersChange :: ParametersChange -> Handler ParamChecks
   parametersChange paramChange = do
-    ctx <- mkContext' paramChange
-    pure $ checkParams ctx paramChange
+    (ctx, EpochParameters _ currentParams) <- mkContext' paramChange
+    pure $ checkParams currentParams ctx paramChange
 
   parametersChangeByUrl :: URL -> Handler ParamChecks
   parametersChangeByUrl url' = do
     param <- fetchParamCheck url'
     parametersChange param
 
-  mkContext' :: ParametersChange -> Handler Context
+  mkContext' :: ParametersChange -> Handler (Context, EpochParameters)
   mkContext' paramChange = do
     protocolParamsE <- liftIO getLatestEpochProtocolParams
     case protocolParamsE of
       Left err -> throwError err500{errBody = fromString err}
-      Right protocolParams -> pure $ mkContext paramChange protocolParams
+      Right protocolParams ->
+        pure
+          ( mkContext paramChange protocolParams
+          , allCurrentParamsValues protocolParams
+          )
 
 -- TODO: guard checks against exploits
 fetchParamCheck :: URL -> Handler ParametersChange
