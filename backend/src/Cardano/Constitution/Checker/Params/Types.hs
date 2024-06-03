@@ -77,6 +77,7 @@ data ByParameter a = ByParameter
   , getRational :: !(a -> Maybe Rational)
   , getIntegers :: !(a -> Map String Integer)
   , getRationals :: !(a -> Map String Rational)
+  , getCostModels :: !(a -> (Maybe PV1, Maybe PV2, Maybe PV3))
   }
 
 findInteger :: a -> ByParameter a -> Maybe Integer
@@ -91,10 +92,15 @@ findIntegers = getIntegers
 findRationals :: ByParameter a -> a -> Map String Rational
 findRationals = getRationals
 
-data Context = Context
+data ParamsAccess = ParamsAccess
   { byName :: !(ByParameter String)
   , byIx :: !(ByParameter Integer)
-  , currentParams :: !ProtocolParams
+  }
+
+data Context = Context
+  { proposal :: !ParamsAccess
+  , merged :: !ParamsAccess
+  , currentValues :: !ParamsAccess
   }
 
 data SatisfactionResult

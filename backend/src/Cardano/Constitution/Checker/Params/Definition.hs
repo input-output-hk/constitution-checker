@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeApplications #-}
@@ -467,8 +468,8 @@ govActionLifetime =
     [ ("GAL-01", "govActionLifetime must not be lower than 1 epoch (5 days)") `MustNotBe` NL 1
     , ("GAL-02", "govActionLifetime must not be greater than 15 epochs (75 days)") `MustNotBe` NG 15
     , ("GAL-05", "govActionLifetime must be less than dRepActivity")
-        `ShouldSatisfy` \(byName -> findInteger "dRepActivity" -> dRepActivityM) val ->
-          case dRepActivityM of
+        `ShouldSatisfy` \ctx val ->
+          case ctx.merged.byName.getInteger "dRepActivity" of
             Just dRepActivity'
               | val < dRepActivity' -> Satisfied
               | otherwise -> Unsatisfied "govActionLifetime must be less than dRepActivity"
