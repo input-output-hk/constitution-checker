@@ -101,6 +101,10 @@ data SatisfactionResult
   = Satisfied
   | Unsatisfied !String
 
+type PV1 = [Integer]
+type PV2 = [Integer]
+type PV3 = [Integer]
+
 data Param a where
   Scalar ::
     ( FromJSON a
@@ -132,6 +136,12 @@ data Param a where
     String ->
     [Param (Identity a)] ->
     Param [a]
+  CostModels ::
+    Integer ->
+    [Assertion (Maybe PV1)] ->
+    [Assertion (Maybe PV2)] ->
+    [Assertion (Maybe PV3)] ->
+    Param (Maybe PV1, Maybe PV2, Maybe PV3)
 
 -- TODO: not the best approach, but it works for now
 class Lookup a where
@@ -168,10 +178,15 @@ instance IntervalEnum Rational where
 paramIx :: Param a -> Integer
 paramIx (Scalar ix _ _) = ix
 paramIx (Collection ix _ _) = ix
+paramIx (CostModels ix _ _ _) = ix
 
 paramName :: Param a -> String
 paramName (Scalar _ n _) = n
 paramName (Collection _ n _) = n
+paramName (CostModels{}) = costModelsParamName
+
+costModelsParamName :: String
+costModelsParamName = "costModels"
 
 getParamAssertions :: Param (Identity a) -> [Assertion a]
 getParamAssertions (Scalar _ _ assertions) = assertions

@@ -79,6 +79,7 @@ library
         , http-client
         , http-client-tls
         , mtl
+        , aeson-qq
 
     hs-source-dirs:   src
 

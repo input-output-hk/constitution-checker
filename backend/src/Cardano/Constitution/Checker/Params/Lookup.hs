@@ -35,6 +35,7 @@ lookup' f (Scalar _ name _) val = Map.fromList $ zip [name] $ f val
 lookup' f (Collection _ _ params) val =
   let names = map paramName params
    in Map.fromList $ zip names $ f val
+lookup' _ (CostModels{}) _ = Map.empty
 
 lookupRational :: forall a. (Lookup a) => Param a -> a -> Map String Rational
 lookupRational = lookup' lookupRational'

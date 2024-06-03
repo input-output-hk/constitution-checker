@@ -5,6 +5,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
@@ -16,6 +17,8 @@ import Cardano.Constitution.Checker.Types
 import Control.Lens hiding (Context (..), (.=))
 import Data.Aeson
 import Data.Map (Map)
+
+import Data.Aeson.QQ
 
 -- (Map, fromList, toList, unions,empty)
 
@@ -44,6 +47,11 @@ instance ToJSON GenericParamCheck where
 data ParamCheck a where
   ParamCheck :: !a -> !(Param (Identity a)) -> !(Map String GuardrailResult) -> ParamCheck (Identity a)
   ParamCheckList :: (ToJSON a) => [ParamCheck (Identity a)] -> ParamCheck [a]
+  ParamCheckCostModels ::
+    (Maybe PV1, Maybe PV2, Maybe PV3) ->
+    Param (Maybe PV1, Maybe PV2, Maybe PV3) ->
+    !(Map String GuardrailResult, Map String GuardrailResult, Map String GuardrailResult) ->
+    ParamCheck (Maybe PV1, Maybe PV2, Maybe PV3)
 
 instance (ToJSON a) => ToJSON (ParamCheck a) where
   toJSON (ParamCheck val param' check') =
@@ -59,27 +67,41 @@ instance (ToJSON a) => ToJSON (ParamCheck a) where
         allResults = map (\(ParamCheck _ _ results) -> checkGuardrailsMap results) checks
         allValid = and allResults
      in object $ zip keys values <> [("summary", toJSON allValid)]
+  toJSON (ParamCheckCostModels (v1, v2, v3) _ (check1, check2, check3)) =
+    let
+      keys = map Haskell.fromString ["plutusV1" :: String, "plutusV2", "plutusV3"]
+      f (value, check) =
+        object
+          [ "value" .= toJSON value
+          , "guardrails" .= check
+          , "summary" .= checkGuardrailsMap check
+          ]
+      values = map f [(v1, check1), (v2, check2), (v3, check3)]
+      allResults = map checkGuardrailsMap [check1, check2, check3]
+      allValid = and allResults
+     in
+      object $ zip keys values <> [("summary", toJSON allValid)]
 
 checkGuardrailsMap :: Map a GuardrailResult -> Bool
 checkGuardrailsMap = not . any failed . Map.toList
  where
   failed (_, GuardrailResult result' _ _) = not result'
 
-getParamGuardrailsSchema :: Param a -> Referenced Schema
+getParamGuardrailsSchema :: Param (Identity a) -> Referenced Schema
 getParamGuardrailsSchema (Scalar _ _ assertions) =
   Inline $
     mempty
       & type_ ?~ SwaggerObject
       & properties .~ Haskell.fromList (allAssertionSchema assertions)
       & required .~ fmap (Haskell.fromString . fst . assertionDescription) assertions
-getParamGuardrailsSchema (Collection _ _ params) = do
-  let properties' = concatMap (allAssertionSchema . getParamAssertions) params
-      requiredProps = map fst properties'
+
+getCostModelsGuardrailsSchema :: [Assertion (Maybe [Integer])] -> Referenced Schema
+getCostModelsGuardrailsSchema assertions =
   Inline $
     mempty
       & type_ ?~ SwaggerObject
-      & properties .~ Haskell.fromList properties'
-      & required .~ requiredProps
+      & properties .~ Haskell.fromList (allAssertionSchema assertions)
+      & required .~ fmap (Haskell.fromString . fst . assertionDescription) assertions
 
 allAssertionSchema :: [Assertion a] -> [(Text, Referenced Schema)]
 allAssertionSchema = fmap toProperty
@@ -111,6 +133,26 @@ paramCheckSchema (MkParam' (Collection _ _ params)) =
           .~ Haskell.fromList
             ( ("summary", toSchemaRef (Proxy :: Proxy Bool)) : subParamProperties
             )
+paramCheckSchema (MkParam' (CostModels _ v1a v2a v3a)) =
+  let ex assertions =
+        mempty
+          & type_ ?~ SwaggerObject
+          & properties
+            .~ [ ("summary", toSchemaRef (Proxy :: Proxy Bool))
+               , ("value", toSchemaRef (Proxy :: Proxy [Integer]))
+               , ("guardrails", getCostModelsGuardrailsSchema assertions)
+               ]
+          & required .~ ["summary", "value", "guardrails"]
+   in mempty
+        & type_ ?~ SwaggerObject
+        & required .~ ["summary"]
+        & properties
+          .~ Haskell.fromList
+            [ ("summary", toSchemaRef (Proxy :: Proxy Bool))
+            , ("plutusV1", Inline $ ex v1a)
+            , ("plutusV2", Inline $ ex v2a)
+            , ("plutusV3", Inline $ ex v3a)
+            ]
 
 paramValToValue :: ParamValue -> Value
 paramValToValue (MkParamValue (Scalar{}) val) = toJSON (runIdentity val)
@@ -121,7 +163,12 @@ paramValToValue (MkParamValue (Collection _ _ params) val) =
   collect (param'@(Scalar{}), val') =
     let jsonValue = (paramValToValue $ MkParamValue param' (Identity val')) -- (toJSON (runIdentity val)) acc
      in Map.insert (paramName param') jsonValue
-
+paramValToValue (MkParamValue (CostModels{}) (v1, v2, v3)) =
+  toJSON
+    [aesonQQ| { "plutusV1":  #{v1} ,
+                "plutusV2":  #{v2} ,
+                "plutusV3":  #{v3}
+              }|]
 instance ToSchema ParamChecks where
   declareNamedSchema _ = do
     _ <- declareSchemaRef (Proxy :: Proxy GuardrailResult)
@@ -196,8 +243,17 @@ paramCheck ctx (Collection _ _ params) valColl =
     paired = zip params $ fmap Identity valColl
     checks = fmap (uncurry $ paramCheck ctx) paired
    in
-    -- in ParamCheck valColl param' guardRailResults
     ParamCheckList checks
+paramCheck ctx param'@(CostModels _ av1 av2 av3) val@(v1, v2, v3) =
+  ParamCheckCostModels
+    val
+    param'
+    ( toGuardrailResults ctx av1 v1
+    , toGuardrailResults ctx av2 v2
+    , toGuardrailResults ctx av3 v3
+    )
+
+-- ParamCheckCostModels val param' (toGuardrailResults ctx assertions val)
 
 toGuardrailResults :: (Ord a, Show a) => Context -> [Assertion a] -> a -> Map String GuardrailResult
 toGuardrailResults ctx assertions val =

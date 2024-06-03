@@ -13,6 +13,7 @@
 
 module Cardano.Constitution.Checker.Blockfrost.Override (
   ProtocolParams (..),
+  unCostModels,
   bfTokenPath,
   getParamsByEpoch,
   getLatestParams,

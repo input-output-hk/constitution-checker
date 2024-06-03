@@ -3,6 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -18,6 +19,7 @@ module Cardano.Constitution.Checker.Types (
 
 import Cardano.Constitution.Checker.Params.Definition
 import Cardano.Constitution.Checker.Params.Types
+import Data.Aeson.QQ
 
 import qualified Data.Aeson.KeyMap as KM
 
@@ -99,6 +101,8 @@ paramValueFromCurrent currentValues (ParamWithCurrentValue param@(Scalar{}) f) =
   MkParamValue param (f currentValues)
 paramValueFromCurrent currentValues (ParamWithCurrentValue param@(Collection{}) f) =
   MkParamValue param (f currentValues)
+paramValueFromCurrent currentValues (ParamWithCurrentValue param@(CostModels{}) f) =
+  MkParamValue param (f currentValues)
 
 allCurrentParamsValues :: ProtocolParams -> EpochParameters
 allCurrentParamsValues currentValues =
@@ -111,6 +115,7 @@ allCurrentParamsValues currentValues =
 instance Show ParamValue where
   show (MkParamValue (Scalar _ name' _) val) = name' ++ ": " ++ show (runIdentity val)
   show (MkParamValue (Collection _ name' _) val) = name' ++ ": " ++ show val
+  show (MkParamValue (CostModels{}) val) = "costModels" ++ ": " ++ show val
 
 instance Eq ParamValue where
   (MkParamValue (Scalar{}) a) == (MkParamValue (Scalar{}) b) = show a == show b
@@ -127,6 +132,14 @@ instance ToJSON ParametersChange where
       let paramNames = fmap paramName params
           obj = object $ zipWith (\name' v -> fromString name' .= toJSON v) paramNames val
        in (fromString $ show paramIx', obj)
+    f (paramIx', MkParamValue ((CostModels{})) (v1, v2, v3)) =
+      ( fromString $ show paramIx'
+      , toJSON
+          [aesonQQ| { "plutusV1":  #{v1} ,
+                "plutusV2":  #{v2} ,
+                "plutusV3":  #{v3}
+              }|]
+      )
 
 instance FromJSON ParametersChange where
   parseJSON = withObject "ParamValue" $ \o -> do
@@ -142,20 +155,27 @@ instance FromJSON ParametersChange where
         Just (paramIx', value) -> return $ insert paramIx' value acc
 
     parseParam :: Object -> Param' -> Parser (Maybe (Integer, ParamValue))
-    parseParam o (MkParam' pram@(Scalar paramIx' _ _)) = do
+    parseParam o (MkParam' param@(Scalar paramIx' _ _)) = do
       valueM <- o .:? fromString (show paramIx')
       case valueM of
         Nothing -> return Nothing
         Just value -> do
-          val <- parseScalar pram value
-          return $ Just (paramIx', MkParamValue pram val)
-    parseParam o (MkParam' pram@(Collection paramIx' _ _)) = do
+          val <- parseScalar param value
+          return $ Just (paramIx', MkParamValue param val)
+    parseParam o (MkParam' param@(Collection paramIx' _ _)) = do
       valueM <- o .:? fromString (show paramIx')
       case valueM of
         Nothing -> return Nothing
         Just value -> do
-          val <- parseCollection pram value
-          return $ Just (paramIx', MkParamValue pram val)
+          val <- parseCollection param value
+          return $ Just (paramIx', MkParamValue param val)
+    parseParam o (MkParam' param@(CostModels paramIx' _ _ _)) = do
+      valueM <- o .:? fromString (show paramIx')
+      case valueM of
+        Nothing -> return Nothing
+        Just value -> do
+          val <- parseCostModels param value
+          return $ Just (paramIx', MkParamValue param val)
 
 parseCollection :: Param [a] -> Value -> Parser [a]
 parseCollection (Collection _ _ params) = withObject "Collection" $ \obj ->
@@ -173,6 +193,10 @@ parseScalar (Scalar _ paramName' _) value =
   case fromJSON value of
     Success a -> return a
     Error e -> fail $ paramName' ++ ": " ++ e
+
+parseCostModels :: Param (Maybe PV1, Maybe PV2, Maybe PV3) -> Value -> Parser (Maybe PV1, Maybe PV2, Maybe PV3)
+parseCostModels CostModels{} = withObject "CostModels" $ \obj ->
+  (,,) <$> obj .:? "plutusV1" <*> obj .:? "plutusV2" <*> obj .:? "plutusV3"
 
 instance ToSchema ParametersChange where
   declareNamedSchema _ = do
