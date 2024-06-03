@@ -25,8 +25,6 @@ import qualified Data.Aeson.KeyMap as KM
 
 import Blockfrost.Client (Epoch)
 import Cardano.Constitution.Checker.Blockfrost (ProtocolParams (..))
-import Cardano.Constitution.Checker.Params.Lookup
-import Control.Applicative ((<|>))
 import Control.Lens hiding (Context, (.=))
 import Control.Monad (foldM)
 import Data.Aeson

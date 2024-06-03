@@ -85,7 +85,7 @@ instance (ToJSON a) => ToJSON (ParamCheck a) where
 checkGuardrailsMap :: Map a GuardrailResult -> Bool
 checkGuardrailsMap = not . any failed . Map.toList
  where
-  failed (_, GuardrailResult result' _ _) = not result'
+  failed (_, GuardrailResult result' _ _) = result' == Just False
 
 getParamGuardrailsSchema :: Param (Identity a) -> Referenced Schema
 getParamGuardrailsSchema (Scalar _ _ assertions) =
@@ -185,7 +185,7 @@ instance ToSchema ParamChecks where
     return $ NamedSchema (Just "ParamChecks") schema'
 
 data GuardrailResult = GuardrailResult
-  { result :: !Bool
+  { result :: !(Maybe Bool)
   , description :: !String
   , message :: !(Maybe String)
   }
@@ -211,7 +211,7 @@ instance ToSchema GuardrailResult where
                  , ("description", stringSchema)
                  , ("message", stringSchema)
                  ]
-            & required .~ ["result", "description"]
+            & required .~ ["description"]
     return $ NamedSchema (Just "GuardrailResult") schema'
 
 checkAssertion :: (Ord a, Show a) => Assertion a -> Context -> a -> SatisfactionResult
@@ -264,8 +264,9 @@ toGuardrailResults ctx assertions val =
 
 toGuardrailResult :: Assertion a -> SatisfactionResult -> (String, GuardrailResult)
 toGuardrailResult (assertionDescription -> (gId, desc)) = \case
-  Satisfied -> (gId, GuardrailResult True desc Nothing)
-  Unsatisfied msg -> (gId, GuardrailResult False desc (Just msg))
+  Satisfied -> (gId, GuardrailResult (Just True) desc Nothing)
+  Unsatisfied msg -> (gId, GuardrailResult (Just False) desc (Just msg))
+  Neutral msg -> (gId, GuardrailResult Nothing desc (Just msg))
 
 checkParams :: Context -> ParametersChange -> ParamChecks
 checkParams ctx (unParametersChange -> m) =

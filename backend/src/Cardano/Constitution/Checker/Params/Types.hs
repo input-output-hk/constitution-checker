@@ -106,6 +106,7 @@ data Context = Context
 data SatisfactionResult
   = Satisfied
   | Unsatisfied !String
+  | Neutral !String
 
 type PV1 = [Integer]
 type PV2 = [Integer]
