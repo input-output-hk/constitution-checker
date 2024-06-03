@@ -1,6 +1,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
@@ -16,6 +18,7 @@ import Control.Lens hiding ((.=))
 
 import Data.Swagger hiding (Param)
 
+import Data.Data (Proxy (..))
 import qualified GHC.IsList as Haskell
 import Prelude hiding (Rational)
 
@@ -76,6 +79,21 @@ instance ParamToSchema (Identity Rational) where
 
 instance (ParamToSchema (Identity a)) => ParamToSchema [a] where
   paramToSchema = paramToSchemaCol
+
+instance ParamToSchema (Maybe PV1, Maybe PV2, Maybe PV3) where
+  paramToSchema _ = do
+    let listSchema = toSchemaRef (Proxy :: Proxy [Integer])
+
+    mempty
+      & type_
+        ?~ SwaggerObject
+      & title
+        ?~ fromString "costModels"
+      & properties
+        .~ [ ("plutusV1", listSchema)
+           , ("plutusV2", listSchema)
+           , ("plutusV3", listSchema)
+           ]
 
 paramToSchemaCol :: (ParamToSchema (Identity a)) => Param [a] -> Schema
 paramToSchemaCol (Collection _ name' params) = do

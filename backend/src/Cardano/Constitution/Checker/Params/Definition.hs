@@ -1,25 +1,24 @@
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ViewPatterns #-}
 
 module Cardano.Constitution.Checker.Params.Definition where
 
+import Blockfrost.Client (unQuantity)
+import Cardano.Constitution.Checker.Blockfrost
 import Cardano.Constitution.Checker.Params.Intervals
 import Cardano.Constitution.Checker.Params.Lookup ()
+import Cardano.Constitution.Checker.Params.Swagger ()
 import Cardano.Constitution.Checker.Params.Types
 import Data.Functor.Identity
-
--- import Data.Ratio
-
-import Cardano.Constitution.Checker.Params.Swagger ()
-
-import Cardano.Constitution.Checker.Blockfrost
-
-import Blockfrost.Client (unQuantity)
+import Data.List (sortOn)
+import Data.Text (Text)
 import Prelude hiding (Rational)
+
+import qualified Data.Map as Map
 
 txFeePerByte :: Param (Identity Integer)
 txFeePerByte =
@@ -499,6 +498,9 @@ committeeMinSize =
     , ("CMS-03", "committeeMinSize must not exceed 10") `MustNotBe` NG 10
     ]
 
+costModels :: Param (Maybe PV1, Maybe PV2, Maybe PV3)
+costModels = CostModels 18 [] [] []
+
 allParams :: [Param']
 allParams = map fromParamWithCurrentValues allParamsWithCurrentValues
 
@@ -674,4 +676,13 @@ allParamsWithCurrentValues =
     ParamWithCurrentValue maxTxExecutionUnits $ \ProtocolParams{..} ->
       -- OK
       map unQuantity [_protocolParamsMaxTxExMem, _protocolParamsMaxTxExSteps]
+  , ParamWithCurrentValue costModels $ \ProtocolParams{..} ->
+      let m = unCostModels _protocolParamsCostModels
+          p1 = toValues <$> Map.lookup "plutusV1" m
+          p2 = toValues <$> Map.lookup "plutusV2" m
+          p3 = toValues <$> Map.lookup "plutusV3" m
+
+          toValues :: Map.Map Text Integer -> [Integer]
+          toValues kv = map snd $ sortOn fst $ Map.toList kv
+       in (p1, p2, p3)
   ]
