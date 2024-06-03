@@ -473,6 +473,8 @@ govActionLifetime =
               | val < dRepActivity' -> Satisfied
               | otherwise -> Unsatisfied "govActionLifetime must be less than dRepActivity"
             Nothing -> Unsatisfied "dRepActivity not found"
+    , ("GAL-XX", "DELETE ME")
+        `ShouldSatisfy` \_ _ -> Neutral "for testing purposes"
     ]
 
 committeeMaxTermLimit :: Param (Identity Integer)
