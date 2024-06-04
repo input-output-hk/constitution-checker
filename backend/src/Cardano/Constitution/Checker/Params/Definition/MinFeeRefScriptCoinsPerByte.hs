@@ -18,6 +18,6 @@ minFeeRefScriptCoinsPerByte =
     33
     "minFeeRefScriptCoinsPerByte"
     -- 1
-    [ ("MFRS-01", "minFeeRefScriptCoinsPerByte must not exceed 1,000 (0.001 ada)") `MustNotBe` NG 1_000
-    , ("MFRS-02", "minFeeRefScriptCoinsPerByte must not be negative") `MustNotBe` NL 0
+    [ ("MFRS-01", "minFeeRefScriptCoinsPerByte must not exceed 1,000 (0.001 ada)") `MustBe` NG 1_000
+    , ("MFRS-02", "minFeeRefScriptCoinsPerByte must not be negative") `MustBe` NL 0
     ]

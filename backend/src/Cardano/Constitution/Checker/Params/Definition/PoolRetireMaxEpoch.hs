@@ -18,5 +18,5 @@ poolRetireMaxEpoch =
     7
     "poolRetireMaxEpoch"
     -- 18
-    [ ("PRME-01", "poolRetireMaxEpoch must not be negative") `MustNotBe` NL 0
+    [ ("PRME-01", "poolRetireMaxEpoch must not be negative") `MustBe` NL 0
     ]

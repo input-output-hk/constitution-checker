@@ -65,11 +65,11 @@ instance Show Rational where
   show a = show (numerator a) ++ " % " ++ show (denominator a)
 
 data Assertion a
-  = MustNotBe !(String, String) !(RangeConstraint a)
+  = MustBe !(String, String) !(RangeConstraint a)
   | ShouldSatisfy !(String, String) !(Context -> a -> SatisfactionResult)
 
 assertionDescription :: Assertion a -> (String, String)
-assertionDescription (MustNotBe desc' _) = desc'
+assertionDescription (MustBe desc' _) = desc'
 assertionDescription (ShouldSatisfy desc' _) = desc'
 
 data ByParameter a = ByParameter
@@ -199,20 +199,20 @@ getParamAssertions :: Param (Identity a) -> [Assertion a]
 getParamAssertions (Scalar _ _ assertions) = assertions
 
 -- getAssertionRangeAndStr :: Assertion (RangeConstraint a) -> (String, RangeConstraint a)
--- getAssertionRangeAndStr (MustNotBe (g, _) range) = (g, range)
+-- getAssertionRangeAndStr (MustBe (g, _) range) = (g, range)
 
 getAllRangeConstraints :: forall a. Param (Identity a) -> [(String, RangeConstraint a)]
 getAllRangeConstraints (Scalar _ _ assertions) =
   foldr f [] assertions
  where
-  f (MustNotBe (g, _) range) acc = (g, range) : acc
+  f (MustBe (g, _) range) acc = (g, range) : acc
   f _ acc = acc
 
 -- rangeConstraintAssertions :: [Assertion a] -> [Assertion (RangeConstraint a)]
 -- rangeConstraintAssertions = foldr go []
 
 -- go :: Assertion a -> [Assertion (RangeConstraint a)] -> [Assertion (RangeConstraint a)]
--- go assertion@(MustNotBe g range) acc = _ : acc
+-- go assertion@(MustBe g range) acc = _ : acc
 -- go _ acc = acc
 
 class HasDomain a where

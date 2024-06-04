@@ -18,6 +18,6 @@ maxTxSize =
     3
     "maxTxSize"
     -- 16_384
-    [ ("MTS-01", "maxTxSize must not exceed 32,768 Bytes (32KB)") `MustNotBe` NG 32_768
-    , ("MTS-02", "maxTxSize must not be negative") `MustNotBe` NL 0
+    [ ("MTS-01", "maxTxSize must not exceed 32,768 Bytes (32KB)") `MustBe` NG 32_768
+    , ("MTS-02", "maxTxSize must not be negative") `MustBe` NL 0
     ]

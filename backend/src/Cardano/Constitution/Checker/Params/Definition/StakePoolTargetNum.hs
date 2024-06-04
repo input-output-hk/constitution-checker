@@ -18,8 +18,8 @@ stakePoolTargetNum =
     8
     "stakePoolTargetNum"
     -- 500
-    [ ("SPTN-01", "stakePoolTargetNum must not be lower than 250") `MustNotBe` NL 250
-    , ("SPTN-02", "stakePoolTargetNum must not exceed 2,000") `MustNotBe` NG 2_000
-    , ("SPTN-03", "stakePoolTargetNum must not be negative") `MustNotBe` NL 0
-    , ("SPTN-04", "stakePoolTargetNum must not be zero") `MustNotBe` NEQ 0
+    [ ("SPTN-01", "stakePoolTargetNum must not be lower than 250") `MustBe` NL 250
+    , ("SPTN-02", "stakePoolTargetNum must not exceed 2,000") `MustBe` NG 2_000
+    , ("SPTN-03", "stakePoolTargetNum must not be negative") `MustBe` NL 0
+    , ("SPTN-04", "stakePoolTargetNum must not be zero") `MustBe` NEQ 0
     ]

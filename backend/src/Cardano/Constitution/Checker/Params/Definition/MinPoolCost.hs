@@ -18,6 +18,6 @@ minPoolCost =
     16
     "minPoolCost"
     -- 170_000_000
-    [ ("MPC-01", "minPoolCost must not be negative") `MustNotBe` NL 0
-    , ("MPC-02", "minPoolCost must not exceed 500,000,000 (500 ada)") `MustNotBe` NG 500_000_000
+    [ ("MPC-01", "minPoolCost must not be negative") `MustBe` NL 0
+    , ("MPC-02", "minPoolCost must not exceed 500,000,000 (500 ada)") `MustBe` NG 500_000_000
     ]

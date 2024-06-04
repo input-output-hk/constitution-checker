@@ -20,14 +20,14 @@ executionUnitPrices =
         0
         "priceMemory"
         -- (577 % 10_000)
-        [ ("EIUP-PM-01", "executionUnitPrices[priceMemory] must not exceed 2_000 / 10_000") `MustNotBe` NG (2_000 % 10_000)
-        , ("EIUP-PM-02", "executionUnitPrices[priceMemory] must not be lower than 400 / 10_000") `MustNotBe` NL (400 % 10_000)
+        [ ("EIUP-PM-01", "executionUnitPrices[priceMemory] must not exceed 2_000 / 10_000") `MustBe` NG (2_000 % 10_000)
+        , ("EIUP-PM-02", "executionUnitPrices[priceMemory] must not be lower than 400 / 10_000") `MustBe` NL (400 % 10_000)
         ]
     , Scalar
         1
         "priceSteps"
         -- (721 % 10_000_000)
-        [ ("EIUP-PS-01", "executionUnitPrices[priceSteps] must not exceed 2,000 / 10,000,000") `MustNotBe` NG (2_000 % 10_000_000)
-        , ("EIUP-PS-02", "executionUnitPrices[priceSteps] must not be lower than 500 / 10,000,000") `MustNotBe` NL (500 % 10_000_000)
+        [ ("EIUP-PS-01", "executionUnitPrices[priceSteps] must not exceed 2,000 / 10,000,000") `MustBe` NG (2_000 % 10_000_000)
+        , ("EIUP-PS-02", "executionUnitPrices[priceSteps] must not be lower than 500 / 10,000,000") `MustBe` NL (500 % 10_000_000)
         ]
     ]

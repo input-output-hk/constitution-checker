@@ -18,5 +18,5 @@ maxCollateralInputs =
     24
     "maxCollateralInputs"
     -- 3
-    [ ("MCI-01", "maxCollateralInputs must not be lower than 1") `MustNotBe` NL 1
+    [ ("MCI-01", "maxCollateralInputs must not be lower than 1") `MustBe` NL 1
     ]

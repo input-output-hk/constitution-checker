@@ -18,7 +18,7 @@ dRepDeposit =
     31
     "dRepDeposit"
     -- 1_000_000
-    [ ("DRD-01", "dRepDeposit must not be negative") `MustNotBe` NL 0
-    , ("DRD-02", "dRepDeposit must not be lower than 1,000,000 (1 ada)") `MustNotBe` NL 1_000_000
-    , ("DRD-03", "dRepDeposit must be no more than 100,000,000,000 (100,000 ada)") `MustNotBe` NG 100_000_000_000
+    [ ("DRD-01", "dRepDeposit must not be negative") `MustBe` NL 0
+    , ("DRD-02", "dRepDeposit must not be lower than 1,000,000 (1 ada)") `MustBe` NL 1_000_000
+    , ("DRD-03", "dRepDeposit must be no more than 100,000,000,000 (100,000 ada)") `MustBe` NG 100_000_000_000
     ]

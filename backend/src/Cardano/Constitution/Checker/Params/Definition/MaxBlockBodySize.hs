@@ -18,6 +18,6 @@ maxBlockBodySize =
     2
     "maxBlockBodySize"
     -- 90_112
-    [ ("MBBS-01", "maxBlockBodySize must not exceed 122,880 Bytes (120KB)") `MustNotBe` NG 122_880
-    , ("MBBS-02", "maxBlockBodySize must not be lower than 24,576 Bytes (24KB)") `MustNotBe` NL 24_576
+    [ ("MBBS-01", "maxBlockBodySize must not exceed 122,880 Bytes (120KB)") `MustBe` NG 122_880
+    , ("MBBS-02", "maxBlockBodySize must not be lower than 24,576 Bytes (24KB)") `MustBe` NL 24_576
     ]

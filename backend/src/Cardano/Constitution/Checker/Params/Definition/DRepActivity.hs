@@ -18,7 +18,7 @@ dRepActivity =
     32
     "dRepActivity"
     -- 25
-    [ ("DRA-01", "dRepActivity must not be lower than 13 epochs (2 months)") `MustNotBe` NL 13
-    , ("DRA-02", "dRepActivity must not exceed 37 epochs (6 months)") `MustNotBe` NG 37
-    , ("DRA-03", "dRepActivity must not be negative") `MustNotBe` NL 0
+    [ ("DRA-01", "dRepActivity must not be lower than 13 epochs (2 months)") `MustBe` NL 13
+    , ("DRA-02", "dRepActivity must not exceed 37 epochs (6 months)") `MustBe` NG 37
+    , ("DRA-03", "dRepActivity must not be negative") `MustBe` NL 0
     ]

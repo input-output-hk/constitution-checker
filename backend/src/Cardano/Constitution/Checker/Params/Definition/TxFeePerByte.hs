@@ -18,7 +18,7 @@ txFeePerByte =
     0
     "txFeePerByte"
     -- 44
-    [ ("TFPB-01", "txFeePerByte must not be lower than 30 (0.000030 ada)") `MustNotBe` NL 30
-    , ("TFPB-02", "txFeePerByte must not exceed 1,000 (0.001 ada)") `MustNotBe` NG 1_000
-    , ("TFPB-03", "txFeePerByte must not be negative") `MustNotBe` NL 0
+    [ ("TFPB-01", "txFeePerByte must not be lower than 30 (0.000030 ada)") `MustBe` NL 30
+    , ("TFPB-02", "txFeePerByte must not exceed 1,000 (0.001 ada)") `MustBe` NG 1_000
+    , ("TFPB-03", "txFeePerByte must not be negative") `MustBe` NL 0
     ]

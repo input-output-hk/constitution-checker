@@ -20,14 +20,14 @@ maxTxExecutionUnits =
         0
         "mem"
         -- 20_000_000
-        [ ("MTEU-M-01", "maxTxExecutionUnits[memory] must not exceed 40,000,000 units") `MustNotBe` NG 40_000_000
-        , ("MTEU-M-02", "maxTxExecutionUnits[memory] must not be negative") `MustNotBe` NL 0
+        [ ("MTEU-M-01", "maxTxExecutionUnits[memory] must not exceed 40,000,000 units") `MustBe` NG 40_000_000
+        , ("MTEU-M-02", "maxTxExecutionUnits[memory] must not be negative") `MustBe` NL 0
         ]
     , Scalar
         1
         "steps"
         -- 10_000_000_000
-        [ ("MTEU-S-01", "maxTxExecutionUnits[steps] must not exceed 15,000,000,000 (15Bn) units") `MustNotBe` NG 15_000_000_000
-        , ("MTEU-S-02", "maxTxExecutionUnits[steps] must not be negative") `MustNotBe` NL 0
+        [ ("MTEU-S-01", "maxTxExecutionUnits[steps] must not exceed 15,000,000,000 (15Bn) units") `MustBe` NG 15_000_000_000
+        , ("MTEU-S-02", "maxTxExecutionUnits[steps] must not be negative") `MustBe` NL 0
         ]
     ]

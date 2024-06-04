@@ -18,8 +18,8 @@ collateralPercentage =
     23
     "collateralPercentage"
     -- 150
-    [ ("CP-01", "collateralPercentage must not be lower than 100") `MustNotBe` NL 100
-    , ("CP-02", "collateralPercentage must not exceed 200") `MustNotBe` NG 200
-    , ("CP-03", "collateralPercentage must not be negative") `MustNotBe` NL 0
-    , ("CP-04", "collateralPercentage must not be set to 0") `MustNotBe` NEQ 0
+    [ ("CP-01", "collateralPercentage must not be lower than 100") `MustBe` NL 100
+    , ("CP-02", "collateralPercentage must not exceed 200") `MustBe` NG 200
+    , ("CP-03", "collateralPercentage must not be negative") `MustBe` NL 0
+    , ("CP-04", "collateralPercentage must not be set to 0") `MustBe` NEQ 0
     ]

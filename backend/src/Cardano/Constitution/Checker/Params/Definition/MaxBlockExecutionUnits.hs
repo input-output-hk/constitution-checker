@@ -19,13 +19,13 @@ maxBlockExecutionUnits =
     [ Scalar
         0
         "memory"
-        [ ("MBEU-M-01", "maxBlockExecutionUnits[memory] must not exceed 120,000,000 units") `MustNotBe` NG 120_000_000
-        , ("MBEU-M-02", "maxBlockExecutionUnits[memory] must not be negative") `MustNotBe` NL 0
+        [ ("MBEU-M-01", "maxBlockExecutionUnits[memory] must not exceed 120,000,000 units") `MustBe` NG 120_000_000
+        , ("MBEU-M-02", "maxBlockExecutionUnits[memory] must not be negative") `MustBe` NL 0
         ]
     , Scalar
         1
         "steps"
-        [ ("MBEU-S-01", "maxBlockExecutionUnits[steps] must not exceed 40,000,000,000 (40Bn) units") `MustNotBe` NG 40_000_000_000
-        , ("MBEU-S-02", "maxBlockExecutionUnits[steps] must not be negative") `MustNotBe` NL 0
+        [ ("MBEU-S-01", "maxBlockExecutionUnits[steps] must not exceed 40,000,000,000 (40Bn) units") `MustBe` NG 40_000_000_000
+        , ("MBEU-S-02", "maxBlockExecutionUnits[steps] must not be negative") `MustBe` NL 0
         ]
     ]

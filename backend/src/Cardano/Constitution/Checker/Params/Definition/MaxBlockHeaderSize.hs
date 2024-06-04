@@ -18,6 +18,6 @@ maxBlockHeaderSize =
     4
     "maxBlockHeaderSize"
     -- 1_100
-    [ ("MBHS-01", "maxBlockHeaderSize must not exceed 5,000 Bytes") `MustNotBe` NG 5_000
-    , ("MBHS-02", "maxBlockHeaderSize must not be negative") `MustNotBe` NL 0
+    [ ("MBHS-01", "maxBlockHeaderSize must not exceed 5,000 Bytes") `MustBe` NG 5_000
+    , ("MBHS-02", "maxBlockHeaderSize must not be negative") `MustBe` NL 0
     ]

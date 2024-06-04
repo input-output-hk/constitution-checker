@@ -17,7 +17,7 @@ committeeMinSize =
     27
     "committeeMinSize"
     -- 3
-    [ ("CMS-01", "committeeMinSize must not be negative") `MustNotBe` NL 0
-    , ("CMS-02", "committeeMinSize must not be lower than 3") `MustNotBe` NL 3
-    , ("CMS-03", "committeeMinSize must not exceed 10") `MustNotBe` NG 10
+    [ ("CMS-01", "committeeMinSize must not be negative") `MustBe` NL 0
+    , ("CMS-02", "committeeMinSize must not be lower than 3") `MustBe` NL 3
+    , ("CMS-03", "committeeMinSize must not exceed 10") `MustBe` NG 10
     ]

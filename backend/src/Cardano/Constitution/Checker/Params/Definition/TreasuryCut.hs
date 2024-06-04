@@ -17,8 +17,8 @@ treasuryCut =
     11
     "treasuryCut"
     -- 0.3
-    [ ("TC-01", "treasuryCut must not be lower than 0.1 (10%)") `MustNotBe` NL 0.1
-    , ("TC-02", "treasuryCut must not exceed 0.3 (30%)") `MustNotBe` NG 0.3
-    , ("TC-03", "treasuryCut must not be negative") `MustNotBe` NL 0
-    , ("TC-04", "treasuryCut must not exceed 1.0 (100%)") `MustNotBe` NG 1.0
+    [ ("TC-01", "treasuryCut must not be lower than 0.1 (10%)") `MustBe` NL 0.1
+    , ("TC-02", "treasuryCut must not exceed 0.3 (30%)") `MustBe` NG 0.3
+    , ("TC-03", "treasuryCut must not be negative") `MustBe` NL 0
+    , ("TC-04", "treasuryCut must not exceed 1.0 (100%)") `MustBe` NG 1.0
     ]

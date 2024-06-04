@@ -17,8 +17,8 @@ govActionLifetime =
     29
     "govActionLifetime"
     -- 5
-    [ ("GAL-01", "govActionLifetime must not be lower than 1 epoch (5 days)") `MustNotBe` NL 1
-    , ("GAL-02", "govActionLifetime must not be greater than 15 epochs (75 days)") `MustNotBe` NG 15
+    [ ("GAL-01", "govActionLifetime must not be lower than 1 epoch (5 days)") `MustBe` NL 1
+    , ("GAL-02", "govActionLifetime must not be greater than 15 epochs (75 days)") `MustBe` NG 15
     , ("GAL-05", "govActionLifetime must be less than dRepActivity")
         `ShouldSatisfy` \ctx val ->
           case ctx.merged.byName.getInteger "dRepActivity" of

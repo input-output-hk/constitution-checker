@@ -18,7 +18,7 @@ stakeAddressDeposit =
     5
     "stakeAddressDeposit"
     -- 2_000_000
-    [ ("SAD-01", "stakeAddressDeposit must not be lower than 1,000,000 (1 ada)") `MustNotBe` NL 1_000_000
-    , ("SAD-02", "stakeAddressDeposit must not exceed 5,000,000 (5 ada)") `MustNotBe` NG 5_000_000
-    , ("SAD-03", "stakeAddressDeposit must not be negative") `MustNotBe` NL 0
+    [ ("SAD-01", "stakeAddressDeposit must not be lower than 1,000,000 (1 ada)") `MustBe` NL 1_000_000
+    , ("SAD-02", "stakeAddressDeposit must not exceed 5,000,000 (5 ada)") `MustBe` NG 5_000_000
+    , ("SAD-03", "stakeAddressDeposit must not be negative") `MustBe` NL 0
     ]

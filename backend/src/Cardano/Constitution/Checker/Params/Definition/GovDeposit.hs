@@ -18,7 +18,7 @@ govDeposit =
     30
     "govDeposit"
     -- 1_000_000
-    [ ("GD-01", "govDeposit must not be negative") `MustNotBe` NL 0
-    , ("GD-02", "govDeposit must not be lower than 1,000,000 (1 ada)") `MustNotBe` NL 1_000_000
-    , ("GD-03", "govDeposit must not exceed 10,000,000,000,000 (10 Million ada)") `MustNotBe` NG 10_000_000_000_000
+    [ ("GD-01", "govDeposit must not be negative") `MustBe` NL 0
+    , ("GD-02", "govDeposit must not be lower than 1,000,000 (1 ada)") `MustBe` NL 1_000_000
+    , ("GD-03", "govDeposit must not exceed 10,000,000,000,000 (10 Million ada)") `MustBe` NG 10_000_000_000_000
     ]

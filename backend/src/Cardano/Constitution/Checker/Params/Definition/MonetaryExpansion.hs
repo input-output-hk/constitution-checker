@@ -17,7 +17,7 @@ monetaryExpansion =
     10
     "monetaryExpansion"
     -- 0.003
-    [ ("ME-01", "monetaryExpansion must not exceed 0.005") `MustNotBe` NG 0.005
-    , ("ME-02", "monetaryExpansion must not be lower than 0.001") `MustNotBe` NL 0.001
-    , ("ME-03", "monetaryExpansion must not be negative") `MustNotBe` NL 0
+    [ ("ME-01", "monetaryExpansion must not exceed 0.005") `MustBe` NG 0.005
+    , ("ME-02", "monetaryExpansion must not be lower than 0.001") `MustBe` NL 0.001
+    , ("ME-03", "monetaryExpansion must not be negative") `MustBe` NL 0
     ]

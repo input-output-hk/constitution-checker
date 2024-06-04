@@ -17,8 +17,8 @@ committeeMaxTermLimit =
     28
     "committeeMaxTermLimit"
     -- 50
-    [ ("CMTL-01", "committeeMaxTermLimit must not be zero") `MustNotBe` NEQ 0
-    , ("CMTL-02", "committeeMaxTermLimit must not be negative") `MustNotBe` NL 0
-    , ("CMTL-03", "committeeMaxTermLimit must not be lower than 18 epochs (90 days, or approximately 3 months)") `MustNotBe` NL 18
-    , ("CMTL-04", "committeeMaxTermLimit must not exceed 293 epochs (approximately 4 years)") `MustNotBe` NG 293
+    [ ("CMTL-01", "committeeMaxTermLimit must not be zero") `MustBe` NEQ 0
+    , ("CMTL-02", "committeeMaxTermLimit must not be negative") `MustBe` NL 0
+    , ("CMTL-03", "committeeMaxTermLimit must not be lower than 18 epochs (90 days, or approximately 3 months)") `MustBe` NL 18
+    , ("CMTL-04", "committeeMaxTermLimit must not exceed 293 epochs (approximately 4 years)") `MustBe` NG 293
     ]

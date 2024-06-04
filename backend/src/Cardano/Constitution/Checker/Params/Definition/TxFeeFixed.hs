@@ -18,7 +18,7 @@ txFeeFixed =
     1
     "txFeeFixed"
     -- 155_381
-    [ ("TFF-01", "txFeeFixed must not be lower than 100,000 (0.1 ada)") `MustNotBe` NL 100_000
-    , ("TFF-02", "txFeeFixed must not exceed 10,000,000 (10 ada)") `MustNotBe` NG 10_000_000
-    , ("TFF-03", "txFeeFixed must not be negative") `MustNotBe` NL 0
+    [ ("TFF-01", "txFeeFixed must not be lower than 100,000 (0.1 ada)") `MustBe` NL 100_000
+    , ("TFF-02", "txFeeFixed must not exceed 10,000,000 (10 ada)") `MustBe` NG 10_000_000
+    , ("TFF-03", "txFeeFixed must not be negative") `MustBe` NL 0
     ]

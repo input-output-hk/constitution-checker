@@ -244,7 +244,7 @@ instance ToSchema GuardrailResult where
     return $ NamedSchema (Just "GuardrailResult") schema'
 
 checkAssertion :: (Ord a, Show a) => Assertion a -> Context -> a -> SatisfactionResult
-checkAssertion ((_, _) `MustNotBe` constraint) _ val =
+checkAssertion ((_, _) `MustBe` constraint) _ val =
   if check' constraint
     then Satisfied
     else Unsatisfied $ getUnsatisfiedMessage constraint
