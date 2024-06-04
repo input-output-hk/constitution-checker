@@ -46,6 +46,36 @@ library
         , Cardano.Constitution.Checker.Params.Intervals
         , Cardano.Constitution.Checker.Params.Types
         , Cardano.Constitution.Checker.Params.Definition
+        , Cardano.Constitution.Checker.Params.Definition.CollateralPercentage
+        , Cardano.Constitution.Checker.Params.Definition.CommitteeMaxTermLimit
+        , Cardano.Constitution.Checker.Params.Definition.CommitteeMinSize
+        , Cardano.Constitution.Checker.Params.Definition.CostModels
+        , Cardano.Constitution.Checker.Params.Definition.DRepActivity
+        , Cardano.Constitution.Checker.Params.Definition.DRepDeposit
+        , Cardano.Constitution.Checker.Params.Definition.DRepVotingThresholds
+        , Cardano.Constitution.Checker.Params.Definition.ExecutionUnitPrices
+        , Cardano.Constitution.Checker.Params.Definition.GovActionLifetime
+        , Cardano.Constitution.Checker.Params.Definition.GovDeposit
+        , Cardano.Constitution.Checker.Params.Definition.MaxBlockBodySize
+        , Cardano.Constitution.Checker.Params.Definition.MaxBlockExecutionUnits
+        , Cardano.Constitution.Checker.Params.Definition.MaxBlockHeaderSize
+        , Cardano.Constitution.Checker.Params.Definition.MaxCollateralInputs
+        , Cardano.Constitution.Checker.Params.Definition.MaxTxExecutionUnits
+        , Cardano.Constitution.Checker.Params.Definition.MaxTxSize
+        , Cardano.Constitution.Checker.Params.Definition.MaxValueSize
+        , Cardano.Constitution.Checker.Params.Definition.MinFeeRefScriptCoinsPerByte
+        , Cardano.Constitution.Checker.Params.Definition.MinPoolCost
+        , Cardano.Constitution.Checker.Params.Definition.MonetaryExpansion
+        , Cardano.Constitution.Checker.Params.Definition.PoolPledgeInfluence
+        , Cardano.Constitution.Checker.Params.Definition.PoolRetireMaxEpoch
+        , Cardano.Constitution.Checker.Params.Definition.PoolVotingThresholds
+        , Cardano.Constitution.Checker.Params.Definition.StakeAddressDeposit
+        , Cardano.Constitution.Checker.Params.Definition.StakePoolDeposit
+        , Cardano.Constitution.Checker.Params.Definition.StakePoolTargetNum
+        , Cardano.Constitution.Checker.Params.Definition.TreasuryCut
+        , Cardano.Constitution.Checker.Params.Definition.TxFeeFixed
+        , Cardano.Constitution.Checker.Params.Definition.TxFeePerByte
+        , Cardano.Constitution.Checker.Params.Definition.UtxoCostPerByte
         , Cardano.Constitution.Checker.Params.Farey
         , Cardano.Constitution.Checker.Params.Swagger
         , Cardano.Constitution.Checker.Params.Lookup
@@ -83,6 +113,8 @@ library
         , aeson-qq
 
     hs-source-dirs:   src
+
+    default-extensions:   OverloadedRecordDot
 
     default-language: Haskell2010
 

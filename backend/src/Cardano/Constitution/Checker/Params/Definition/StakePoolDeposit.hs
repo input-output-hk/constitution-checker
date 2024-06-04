@@ -1,0 +1,24 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
+
+module Cardano.Constitution.Checker.Params.Definition.StakePoolDeposit where
+
+import Cardano.Constitution.Checker.Params.Intervals
+import Cardano.Constitution.Checker.Params.Lookup ()
+import Cardano.Constitution.Checker.Params.Swagger ()
+import Cardano.Constitution.Checker.Params.Types
+import Data.Functor.Identity
+import Prelude hiding (Rational)
+
+stakePoolDeposit :: Param (Identity Integer)
+stakePoolDeposit =
+  Scalar @Integer
+    6
+    "stakePoolDeposit"
+    -- 500_000_000
+    [ ("SPD-01", "stakePoolDeposit must not be lower than 250,000,000 (250 ada)") `MustNotBe` NL 250_000_000
+    , ("SPD-02", "stakePoolDeposit must not exceed 500,000,000 (500 ada)") `MustNotBe` NG 500_000_000
+    , ("SDP-03", "stakePoolDeposit must not be negative") `MustNotBe` NL 0
+    ]
