@@ -118,6 +118,8 @@ library
 
     default-language: Haskell2010
 
+    --ghc-options: -Werror
+
 executable constitution-checker-backend
     import:           warnings
 
