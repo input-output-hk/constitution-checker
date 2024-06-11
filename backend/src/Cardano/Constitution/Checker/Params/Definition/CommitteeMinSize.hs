@@ -21,3 +21,5 @@ committeeMinSize =
     , ("CMS-02", "committeeMinSize must not be lower than 3") `MustBe` NL 3
     , ("CMS-03", "committeeMinSize must not exceed 10") `MustBe` NG 10
     ]
+
+-- Complete as of June 12, 2024

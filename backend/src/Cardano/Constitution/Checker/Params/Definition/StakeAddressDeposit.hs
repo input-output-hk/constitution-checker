@@ -22,3 +22,5 @@ stakeAddressDeposit =
     , ("SAD-02", "stakeAddressDeposit must not exceed 5,000,000 (5 ada)") `MustBe` NG 5_000_000
     , ("SAD-03", "stakeAddressDeposit must not be negative") `MustBe` NL 0
     ]
+
+-- Complete as of June 12, 2024

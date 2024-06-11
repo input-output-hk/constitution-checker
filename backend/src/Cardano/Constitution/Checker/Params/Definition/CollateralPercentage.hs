@@ -23,3 +23,5 @@ collateralPercentage =
     , ("CP-03", "collateralPercentage must not be negative") `MustBe` NL 0
     , ("CP-04", "collateralPercentage must not be set to 0") `MustBe` NEQ 0
     ]
+
+-- Complete as of June 11, 2024

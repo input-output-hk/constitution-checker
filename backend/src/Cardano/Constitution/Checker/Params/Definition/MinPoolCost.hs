@@ -20,4 +20,8 @@ minPoolCost =
     -- 170_000_000
     [ ("MPC-01", "minPoolCost must not be negative") `MustBe` NL 0
     , ("MPC-02", "minPoolCost must not exceed 500,000,000 (500 ada)") `MustBe` NG 500_000_000
+    , ("MPC-03", "*minPoolCost* **should** be set in line with the economic cost for operating a pool") `ShouldSatisfy` \ctx val -> 
+      Neutral "Please contribute to the check"
     ]
+
+-- Complete as of June 12, 2024

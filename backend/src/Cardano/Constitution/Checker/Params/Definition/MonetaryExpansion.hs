@@ -20,4 +20,10 @@ monetaryExpansion =
     [ ("ME-01", "monetaryExpansion must not exceed 0.005") `MustBe` NG 0.005
     , ("ME-02", "monetaryExpansion must not be lower than 0.001") `MustBe` NL 0.001
     , ("ME-03", "monetaryExpansion must not be negative") `MustBe` NL 0
+    , ("ME-04", "*monetaryExpansion* **should not** be varied by more than +/- 10% in any 73-epoch period (approximately 12 months)") `ShouldSatisfy` \ctx val -> 
+      Neutral "Please contribute to the check"
+    , ("ME-05", "*monetaryExpansion* **should not** be changed more than once in any 36-epoch period (approximately 6 months)") `ShouldSatisfy` \ctx val -> 
+      Neutral "Please contribute to the check"
     ]
+
+-- Complete as of June 12, 2024

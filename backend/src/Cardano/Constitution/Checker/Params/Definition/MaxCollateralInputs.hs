@@ -20,3 +20,5 @@ maxCollateralInputs =
     -- 3
     [ ("MCI-01", "maxCollateralInputs must not be lower than 1") `MustBe` NL 1
     ]
+
+-- Complete as of June 12, 2024

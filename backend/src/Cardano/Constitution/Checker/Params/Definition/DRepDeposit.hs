@@ -21,4 +21,8 @@ dRepDeposit =
     [ ("DRD-01", "dRepDeposit must not be negative") `MustBe` NL 0
     , ("DRD-02", "dRepDeposit must not be lower than 1,000,000 (1 ada)") `MustBe` NL 1_000_000
     , ("DRD-03", "dRepDeposit must be no more than 100,000,000,000 (100,000 ada)") `MustBe` NG 100_000_000_000
+    , ("DRD-04", "dRepDeposit should be adjusted in line with fiat changes") `ShouldSatisfy` \_ _ ->
+        Neutral "Please contribute to this check."
     ]
+
+-- Complete as of June 12, 2024
