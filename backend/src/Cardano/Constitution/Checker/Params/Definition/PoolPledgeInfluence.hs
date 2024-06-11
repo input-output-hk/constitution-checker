@@ -21,4 +21,8 @@ poolPledgeInfluence =
     [ ("PPI-01", "poolPledgeInfluence must not be lower than 0.1") `MustBe` NL (1 % 10)
     , ("PPI-02", "poolPledgeInfluence must not exceed 1.0") `MustBe` NG (10 % 10)
     , ("PPI-03", "poolPledgeInfluence must not be negative") `MustBe` NL 0
+    , ("PPI-04", "*poolPledgeInfluence* **should not** vary by more than +/- 10% in any 18-epoch period (approximately 3 months)") `ShouldSatisfy` \ctx val -> 
+      Neutral "Please contribute to the check"
     ]
+
+-- Complete as of June 12, 2024

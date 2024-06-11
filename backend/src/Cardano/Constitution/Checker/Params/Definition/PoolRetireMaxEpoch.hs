@@ -19,4 +19,10 @@ poolRetireMaxEpoch =
     "poolRetireMaxEpoch"
     -- 18
     [ ("PRME-01", "poolRetireMaxEpoch must not be negative") `MustBe` NL 0
+    , ("PRME-02", "*poolRetireMaxEpoch* **should not** be lower than 1") `ShouldSatisfy` \ctx val -> 
+      if val >= 1
+      then Satisfied
+      else Unsatisfied "poolRetireMaxEpoch should not be lower than 1"
     ]
+
+-- Complete as of June 12, 2024

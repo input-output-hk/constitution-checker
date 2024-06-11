@@ -105,3 +105,5 @@ dRepVotingThresholds =
         , ("VT-GEN-01b", "All thresholds must be in the range 50%-100%") `MustBe` NG (1 % 1)
         ]
     ]
+
+-- Complete as of June 12, 2024

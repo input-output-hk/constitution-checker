@@ -23,3 +23,5 @@ stakePoolTargetNum =
     , ("SPTN-03", "stakePoolTargetNum must not be negative") `MustBe` NL 0
     , ("SPTN-04", "stakePoolTargetNum must not be zero") `MustBe` NEQ 0
     ]
+
+-- Complete as of June 12, 2024
