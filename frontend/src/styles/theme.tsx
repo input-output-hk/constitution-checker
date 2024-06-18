@@ -8,7 +8,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
     },
     typography: {
       fontFamily: "Poppins, sans-serif",
-      fontSize: 16,
+      fontSize: 12,
       h1: {
         fontSize: "2.986rem",
       },
@@ -22,13 +22,15 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         fontSize: "1.728rem",
       },
       h5: {
-        fontSize: "1.44rem",
+        fontSize: "15.19px",
+        fontWeight: 500,
       },
       h6: {
-        fontSize: "1.2rem",
+        fontSize: "13.5px",
+        fontWeight: 500,
       },
       body1: {
-        fontSize: '16px',
+        fontSize: '12px',
       },
       paragraphLarge: {
         fontSize: '18px',
@@ -43,13 +45,17 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         fontSize: '14px',
       }
     },
+    spacing: 4,
     components: {
       MuiTypography: {
         styleOverrides: {
+          root: ({theme}) => ({
+            color: theme.palette.onVariant.main,
+          }),
           h5: ({theme}) => ({
             color: theme.palette.primary.main,
           }),
-          body1: ({theme}) => ({
+          h6: ({theme}) => ({
             color: theme.palette.onVariant.main,
           }),
         },
@@ -61,6 +67,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
             textTransform: "none",
             boxShadow: "none",
             padding: "6px 10px",
+            lineHeight: 'normal',
           },
           contained: ({ theme }) => ({
             backgroundColor: theme.palette.primary.main,
@@ -118,27 +125,16 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
               }
           }),
           text: ({ theme }) => ({
-            color: `${theme.palette.primary.main}`,
+            color: `${theme.palette.onVariant.main}`,
               '&:hover': {
-                background: `linear-gradient(
-              0deg, 
-              ${theme.palette.primary.mainOpacity1}, 
-              ${theme.palette.primary.mainOpacity1}
-              )`,
+                color: `${theme.palette.secondary.main}`,
+                background: 'transparent',
                 '&:active': {
-                  background: `linear-gradient(
-                    0deg, 
-                    ${theme.palette.primary.mainOpacity2}, 
-                    ${theme.palette.primary.mainOpacity2}
-                  )`,
+                  background: 'transparent',
                 },
               },  
               '&:focus': {
-                background: `linear-gradient(
-                  0deg, 
-                  ${theme.palette.primary.mainOpacity2}, 
-                  ${theme.palette.primary.mainOpacity2}
-                )`,
+                background: 'transparent',
               }
           }),
         },
@@ -161,6 +157,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
             },
           }),
           colorPrimary: ({ theme }) => ({
+            color: `${theme.palette.primary.main}`,
             '&:hover': {
               backgroundColor: `${theme.palette.primary.mainOpacity1}`,
             },
@@ -196,7 +193,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           groupedOutlined: ({ theme }) => ({
             color: `${theme.palette.onVariant.main}`,
             border: `solid 1px ${theme.palette.outline.main}`,
-            fontSize: '14px',
+            fontSize: '11px',
             '&:hover': {
               border: `solid 1px ${theme.palette.outline.main}`,
             },
@@ -211,13 +208,20 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           colorAction: ({ theme }) => ({
             color: `${theme.palette.onVariant.main}`,
           }),
+          colorDisabled: ({ theme }) => ({
+            color: `${theme.palette.outline.main}`,
+          }),
+          fontSizeSmall: {
+            width: '18px',
+            height: '18px',
+          },
         },
       },
       MuiInputBase: {
         styleOverrides: {
           root: ({ theme }) => ({
             color: `${theme.palette.onSurface.main}`,
-            fontSize: '1rem',
+            fontSize: '12px',
             '&.Mui-error .MuiInputAdornment-root': {
               color: `${theme.palette.error.main}`,
             },
@@ -246,14 +250,12 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         styleOverrides: {
           root: ({ theme }) => ({
             color: theme.palette.primary.main,
-            fontSize: '1rem !important',
           }),
         },
       },
       MuiFormHelperText: {
         styleOverrides: {
           root: ({ theme }) => ({
-            fontSize: '.75rem !important',
             marginLeft: '10px',
             color: `${theme.palette.onVariant.main}`,
           }),
@@ -286,9 +288,9 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           root: ({theme}) => ({
             borderBottom: `1px solid ${theme.palette.outlineVariant.main}`,
             paddingLeft: '16px !important',
+            paddingRight: '16px !important',
             height: '48px !important',
             minHeight: '48px !important',
-            justifyContent: 'space-between',
           }),
         },
       },
@@ -296,7 +298,17 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         styleOverrides: {
           paper: ({theme}) => ({
             backgroundColor: theme.palette.containerLowest.main,
-            borderRight: `1px solid ${theme.palette.outlineVariant.main}`,
+            width: '350px',
+            boxSizing: 'border-box',
+            boxShadow: '0px 2px 6px 0px rgba(16, 24, 40, 6%)',
+          }),
+        },
+      },
+      MuiTableContainer: {
+        styleOverrides: {
+          root: ({theme}) => ({
+            backgroundColor: theme.palette.containerLowest.main,
+            boxShadow: '0px 2px 6px 0px rgba(16, 24, 40, 6%)',
           }),
         },
       },
@@ -305,11 +317,8 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           root: ({ theme }) => ({
             textTransform: 'none',
             color: `${theme.palette.onVariant.main}`,
-            ":hover": {
-              background: `${theme.palette.primary.mainOpacity1}`,
-            },
-            ":focus": {
-              background: `${theme.palette.primary.mainOpacity2}`,
+            ':focus': {
+              background: 'transparent',
             },
           }),
         },
@@ -319,7 +328,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           root: ({theme}) => ({
             minWidth: '40px',
             color: theme.palette.onVariant.main,
-          }),
+          }), 
         },
       },
       MuiListItemButton: {
@@ -331,6 +340,13 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
             ":focus": {
               background: `${theme.palette.primary.mainOpacity2}`,
             },
+          }),
+        },
+      }, 
+      MuiTableRow: {
+        styleOverrides: {
+          hover: ({ theme }) => ({
+              backgroundColor: 'rgba(27, 27, 31, 0.1)',
           }),
         },
       }, 

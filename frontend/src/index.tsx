@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import CssBaseline from '@mui/material/CssBaseline';
+import './index.css';
 import { ThemeModeProvider  } from './styles/themeContext';
 import App from './App';
 import reportWebVitals from './reportWebVitals';

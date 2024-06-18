@@ -64,9 +64,8 @@ export default function NavTabs() {
       onChange={handleChange}
       role="navigation"
     >
-      <LinkTab label="Page One" href="/drafts" />
-      <LinkTab label="Page Two" href="/trash" />
-      <LinkTab label="Page Three" href="/spam" />
+      <LinkTab label="Proposal Parameters" href="/drafts" />
+      <LinkTab label="Guardrails" href="/trash" />
     </Tabs>
   );
 }
