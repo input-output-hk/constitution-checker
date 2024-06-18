@@ -14,7 +14,7 @@ module Cardano.Constitution.Checker.Types (
   mkParametersChangeUnsafe,
   ParamValue (..),
   unParametersChange,
-  allCurrentParamsValues,
+  protocolParamsToEpochParams,
 ) where
 
 import Cardano.Constitution.Checker.Params.Definition
@@ -62,8 +62,8 @@ paramValueFromCurrent currentValues' (ParamWithCurrentValue param@(Collection{})
 paramValueFromCurrent currentValues' (ParamWithCurrentValue param@(CostModels{}) f) =
   MkParamValue param (f currentValues')
 
-allCurrentParamsValues :: ProtocolParams -> EpochParameters
-allCurrentParamsValues currentValues' =
+protocolParamsToEpochParams :: ProtocolParams -> EpochParameters
+protocolParamsToEpochParams currentValues' =
   EpochParameters (_protocolParamsEpoch currentValues') $
     mkParametersChangeUnsafe $
       fmap (paramValueFromCurrent currentValues') allParamsWithCurrentValues

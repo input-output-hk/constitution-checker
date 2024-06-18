@@ -51,8 +51,8 @@ findSuccInFsbTree (c, d, e, f) limNumb =
   -- The successors are in the right subtree, the smallest one is the leftmost leaf
   let (a, b, c', d') = goRightInFsbTree c d e f
       -- Replaced the iterative go_left with a single step since it follows an arithmetic progression
-      n_d = floor @Double $ fromIntegral (limNumb - d') / fromIntegral b
-      n_c = floor @Double $ fromIntegral (limNumb - c') / fromIntegral a
+      n_d = (limNumb - d') `div` b
+      n_c = (limNumb - c') `div` a
       n = min n_d n_c
    in (c' + n * a, d' + n * b)
 
@@ -64,8 +64,8 @@ findPredInFsbTree (a, b, c, d) limNumb =
   -- The predecessors are in the left subtree, the smallest one is the rightmost leaf
   let (c', d', e, f) = goLeftInFsbTree a b c d
       -- Replaced the iterative go_right with a single step since it follows an arithmetic progression
-      n_d = floor @Double $ fromIntegral (limNumb - d') / fromIntegral f
-      n_c = floor @Double $ fromIntegral (limNumb - c') / fromIntegral e
+      n_d = (limNumb - d') `div` f
+      n_c = (limNumb - c') `div` e
       n = min n_d n_c
    in (c' + n * e, d' + n * f)
 

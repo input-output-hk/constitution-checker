@@ -101,6 +101,8 @@ data Context = Context
   { proposal :: !ParamsAccess
   , merged :: !ParamsAccess
   , currentValues :: !ParamsAccess
+  , latestEpoch :: !Epoch
+  , valuesByEpoch :: !(Epoch -> ParamsAccess)
   }
 
 data SatisfactionResult
