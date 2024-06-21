@@ -186,14 +186,16 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         styleOverrides: {
           root: {
             boxShadow: 'none',
+            marginBottom: '8px',
           },
           grouped: {
             width: "auto",
+            minWidth: '55px',
           },
           groupedOutlined: ({ theme }) => ({
             color: `${theme.palette.onVariant.main}`,
             border: `solid 1px ${theme.palette.outline.main}`,
-            fontSize: '11px',
+            fontSize: '12px',
             '&:hover': {
               border: `solid 1px ${theme.palette.outline.main}`,
             },
@@ -244,6 +246,14 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
               borderColor: `${theme.palette.error.main}`,
             },
           }),
+        },
+      },
+      MuiFormControl: {
+        styleOverrides: {
+          root: {
+            marginTop: '12px',
+            marginBottom: '4px',
+          },
         },
       },
       MuiInputLabel: {
@@ -299,6 +309,8 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           paper: ({theme}) => ({
             backgroundColor: theme.palette.containerLowest.main,
             width: '350px',
+            height: '100%',
+            overflow: 'hidden',
             boxSizing: 'border-box',
             boxShadow: '0px 2px 6px 0px rgba(16, 24, 40, 6%)',
           }),

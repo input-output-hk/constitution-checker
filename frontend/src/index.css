@@ -7,9 +7,44 @@ body {
     #FEFBFF; /* Solid light purple background */
 }
 
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; 
+}
+
 main {
   display: grid;
   grid-template-columns: 350px auto;
   grid-template-rows: 100vh;
 }
 
+.perDrawerContainer {
+  height: 100vh;
+}
+
+.child1DrawerContainer {
+  padding: 12px 16px;
+}
+
+.child2DrawerContainer {
+  padding-top: 12px;
+  padding-left: 16px; 
+  height: calc(100vh - 200px);
+}
+
+.spBtwnDiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 4px;
+}
+
+.scrollBar {
+  height: 100%;
+  overflow: auto;
+  padding-right: 16px;
+  padding-bottom: 24px;
+  padding-top: 4px;
+}
