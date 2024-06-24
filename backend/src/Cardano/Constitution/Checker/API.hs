@@ -20,10 +20,11 @@ import Network.HTTP.Conduit (simpleHttp)
 import Servant.Swagger
 
 import Cardano.Constitution.Checker.Blockfrost
+import Cardano.Constitution.Checker.Web
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Aeson
 import Data.String
-import Data.Text (unpack)
+import Data.Text (Text, unpack)
 import Servant.Client (BaseUrl, parseBaseUrl, showBaseUrl)
 
 import qualified Data.Map as Map
@@ -36,19 +37,20 @@ type API =
        )
     :<|> "current-values" :> Get '[JSON] EpochParameters
 
-type HtmxAPI = Raw
+type StaticAPI = Raw
 
-type FullApi = API :<|> HtmxAPI
+type FullApi = HtmxMain :<|> API :<|> StaticAPI
 
 newtype URL = URL BaseUrl
 
 server :: ServerCaps -> Server FullApi
 server ServerCaps{..} =
-  ( ( parametersChange
-        :<|> parametersChangeByUrl
-    )
-      :<|> getAllCurrentParamsValues
-  )
+  (homePageHandler' :<|> paramsCheckHandler')
+    :<|> ( ( parametersChange
+              :<|> parametersChangeByUrl
+           )
+            :<|> getAllCurrentParamsValues
+         )
     :<|> serveDirectoryWebApp "./web"
  where
   getLatestEpochProtocolParams :: Map Epoch ProtocolParams -> Either String ProtocolParams
@@ -57,6 +59,15 @@ server ServerCaps{..} =
      in case Map.lookup maxEpoch protocolParams of
           Nothing -> Left "No protocol parameters available"
           Just params -> Right params
+  homePageHandler' :: Handler RawHtml
+  homePageHandler' = do
+    (EpochParameters _ currentParams) <- getAllCurrentParamsValues
+    homePageHandler currentParams
+  paramsCheckHandler' :: Text -> ParametersChange -> Handler RawHtml
+  paramsCheckHandler' inputName paramChange = do
+    (ctx, EpochParameters _ currentParams) <- mkContext' paramChange
+    let checks = checkParams currentParams ctx paramChange
+    paramsCheckHandler currentParams checks inputName paramChange
 
   getAllCurrentParamsValues :: Handler EpochParameters
   getAllCurrentParamsValues = do
