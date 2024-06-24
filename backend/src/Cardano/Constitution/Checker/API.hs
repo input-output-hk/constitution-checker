@@ -36,14 +36,20 @@ type API =
        )
     :<|> "current-values" :> Get '[JSON] EpochParameters
 
+type HtmxAPI = Raw
+
+type FullApi = API :<|> HtmxAPI
+
 newtype URL = URL BaseUrl
 
-server :: ServerCaps -> Server API
+server :: ServerCaps -> Server FullApi
 server ServerCaps{..} =
-  ( parametersChange
-      :<|> parametersChangeByUrl
+  ( ( parametersChange
+        :<|> parametersChangeByUrl
+    )
+      :<|> getAllCurrentParamsValues
   )
-    :<|> getAllCurrentParamsValues
+    :<|> serveDirectoryWebApp "./web"
  where
   getLatestEpochProtocolParams :: Map Epoch ProtocolParams -> Either String ProtocolParams
   getLatestEpochProtocolParams protocolParams =
@@ -97,7 +103,7 @@ api = Proxy
 
 type APIWithDoc =
   SwaggerSchemaUI "swagger-ui" "swagger.json"
-    :<|> API
+    :<|> FullApi
 
 instance ToSchema URL where
   declareNamedSchema _ = do
