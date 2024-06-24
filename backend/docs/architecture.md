@@ -10,7 +10,7 @@ The parameters' data type verification is not covered by the guardrails check bu
 
 Conceptually, we can divide the backend service into three main components:
 
-- **Restful JSON API**: A regular HTTP/JSON interface for exchanging data with clients.
+- **RESTful JSON API**: A regular HTTP/JSON interface for exchanging data with clients.
 - **Proposal & Parameters Monitor**: A synchronization mechanism for keeping a cache of all past and current proposals and epoch parameters.
 - **Guardrails Checker**: The core service for checking parameter values against the encoded guardrails.
 
