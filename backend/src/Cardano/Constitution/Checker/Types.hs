@@ -30,10 +30,15 @@ import Control.Monad (foldM)
 import Data.Aeson
 import Data.Aeson.Types (Parser)
 import Data.Data (Proxy (..))
+import Data.HashMap.Strict (HashMap)
+import qualified Data.HashMap.Strict as HashMap
 import Data.Map
 import Data.String
 import Data.Swagger hiding (Param)
+import Data.Text (Text)
+import qualified Data.Text as Text
 import qualified GHC.IsList as Haskell
+import Web.FormUrlEncoded
 
 -- import qualified Data.Swagger as SWG
 
@@ -98,6 +103,44 @@ instance ToJSON ParametersChange where
                 "plutusV3":  #{v3}
               }|]
       )
+
+mapLeft :: (a -> c) -> Either a b -> Either c b
+mapLeft f = either (Left . f) Right
+
+instance FromForm ParametersChange where
+  fromForm (Form hs) = do
+    MkParametersChange <$> foldM parseParam empty allParams
+   where
+    parseParam ::
+      Map Integer ParamValue ->
+      Param' ->
+      Either Text (Map Integer ParamValue)
+    parseParam acc (MkParam' param@(Scalar paramIx' paramName' _)) = do
+      valueM <- searchSingleParam hs paramName'
+      case valueM of
+        Nothing -> return acc
+        Just value -> return $ insert paramIx' (MkParamValue param value) acc
+
+    -- searchSingleParam ::
+    -- HashMap Text [Text] -> String -> Either Text (Maybe (Integer, ParamValue))
+    parseParam acc _ = pure acc
+
+searchSingleParam ::
+  (FromJSON a) =>
+  HashMap Text [Text] ->
+  String ->
+  Either Text (Maybe (Identity a))
+searchSingleParam hs pname = do
+  let textM = HashMap.lookup (Text.pack pname) hs
+  case textM of
+    Nothing -> return Nothing
+    Just [] -> return Nothing
+    Just ("" : _) -> return Nothing
+    Just (text : _) ->
+      Just
+        <$> mapLeft
+          (Text.pack . ((pname ++ ": ") ++))
+          (eitherDecode' $ fromString $ Text.unpack text)
 
 instance FromJSON ParametersChange where
   parseJSON = withObject "ParamValue" $ \o -> do
