@@ -537,8 +537,8 @@
   --primitives-color-neutral-variant-neutral-variant-98: rgba(251, 248, 255, 1);
   --primitives-color-neutral-neutral-99: rgba(254, 251, 255, 1);
   --primitives-color-neutral-variant-neutral-variant-95: rgba(241, 239, 250, 1);
-  --primitives-color-neutral-neutral-98: rgba(251, 248, 253, 1);
   --primitives-color-neutral-variant-neutral-variant-90: rgba(227, 225, 236, 1);
+  --primitives-color-neutral-neutral-98: rgba(251, 248, 253, 1);
   --primitives-color-neutral-variant-neutral-variant-80: rgba(198, 197, 208, 1);
   --primitives-color-neutral-variant-neutral-variant-70: rgba(171, 170, 180, 1);
   --primitives-color-neutral-variant-neutral-variant-60: rgba(144, 144, 154, 1);
@@ -656,6 +656,9 @@
   --primitives-color-neutral-neutral-10-opacity-12: rgba(27, 27, 31, 0.12);
   --primitives-color-neutral-neutral-10-opacity-16: rgba(27, 27, 31, 0.16);
   --primitives-color-neutral-neutral-0: rgba(0, 0, 0, 1);
+  --primitives-table-h-pad: 60px;
+  --primitives-row-height: 80px;
+  --primitives-cell-pad-normal: 10px;
   --tokens-primary-light-primary: var(--primitives-color-primary-primary-40);
   --tokens-primary-light-primary-opacity-8: var(--primitives-color-primary-primary-40-opacity-4);
   --tokens-primary-light-primary-opacity-12: var(--primitives-color-primary-primary-40-opacity-12);
