@@ -23,7 +23,7 @@ maxTxExecutionUnits =
         [ ("MTEU-M-01", "maxTxExecutionUnits[memory] must not exceed 40,000,000 units") `MustBe` NG 40_000_000
         , ("MTEU-M-02", "maxTxExecutionUnits[memory] must not be negative") `MustBe` NL 0
         , ("MTEU-M-03", "*maxTxExecutionUnits[memory]* **must not** be decreased") `ShouldSatisfy` \ctx val ->
-            case ctx.merged.byName.getInteger "maxTxExecutionUnits[memory]" of
+            case ctx.currentValues.byName.getInteger "maxTxExecutionUnits[memory]" of
               Just maxTxExecutionUnitsMem' ->
                 if val >= maxTxExecutionUnitsMem'
                   then Satisfied
@@ -39,7 +39,7 @@ maxTxExecutionUnits =
         [ ("MTEU-S-01", "maxTxExecutionUnits[steps] must not exceed 15,000,000,000 (15Bn) units") `MustBe` NG 15_000_000_000
         , ("MTEU-S-02", "maxTxExecutionUnits[steps] must not be negative") `MustBe` NL 0
         , ("MTEU-S-03", "*maxTxExecutionUnits[steps]* **must not** be decreased") `ShouldSatisfy` \ctx val ->
-            case ctx.merged.byName.getInteger "maxTxExecutionUnits[steps]" of
+            case ctx.currentValues.byName.getInteger "maxTxExecutionUnits[steps]" of
               Just maxTxExecutionUnitsSteps' ->
                 if val >= maxTxExecutionUnitsSteps'
                   then Satisfied
