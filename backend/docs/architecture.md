@@ -30,7 +30,7 @@ The project produces two binary artifcats:
 - `Cardano.Constitution.Checker.API` - Handlers and definition of the API structure
 - `Cardano.Constitution.Checker.Blockfrost` - Customization and communication with the Blockfrost API
 - `Cardano.Constitution.Checker.Params` - Generic parameters type definition and utilities
-- `Cardano.Constitution.Checker.Params.Definition` -  Concrete parameter definitionsincluding their guardrails. Every parameter is defined separately in its own file in the `./src/Cardano/Constitution/Checker/Params/Definition` folder.
+- `Cardano.Constitution.Checker.Params.Definition` -  Concrete parameter definitions  including their guardrails. Every parameter is defined separately in its own file in the `./src/Cardano/Constitution/Checker/Params/Definition` folder.
 
 ### API routes description
 
