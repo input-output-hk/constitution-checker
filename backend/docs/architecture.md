@@ -65,7 +65,7 @@ data Assertion a
       | Neutral !String
   ```
 
-This is an example of one of the parameters:
+To illustrate those two concepts, here is an illustration on `govActionLifetime`:
 
 ```haskell
 govActionLifetime :: Param (Identity Integer)
