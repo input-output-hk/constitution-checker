@@ -1,4 +1,4 @@
-# Architecture of the doc based on the Epic A/C
+# Architecture of the constitution checker backend
 
 ## Backend description
 
