@@ -2,7 +2,9 @@
 
 ## Backend description
 
-The backend service is built around one primary scope: to provide the prevalidation of any Cardano parameters change that a user prepares to submit on-chain. The guardrails verified for every parameter are those already embedded in the constitution on-chain contract and additional guardrails validated by the committee. The parameters' data type verification is not covered by the guardrails check but at the schema (JSON) level during the data exchange between the API and the consumer.
++The backend service is built around one primary scope: to provide prevalidation of any Cardano parameter changes that a user prepares to submit on-chain.
+The guardrails verified for every parameter are those already embedded in the constitution on-chain contract and additional guardrails validated by the committee.
+The parameters' data type verification is not covered by the guardrails check but at the schema (JSON) level during the data exchange between the API and the consumer.
 
 ## Components
 
