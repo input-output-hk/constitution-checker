@@ -49,7 +49,7 @@ Anyone can provide their contributions in various sections, but there are three 
 
 ### Guardrails
 
-There are two types of parameter guardrail assertions, which are embedded directly into the parameter definition:
+There are two types of parameter guardrail assertions, which are embedded directly into the parameter definitions:
 
 ```haskell
 data Assertion a
