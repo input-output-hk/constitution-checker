@@ -92,7 +92,7 @@ govActionLifetime =
 - `GAL-02` - is a range constraint specifying that the parameter value shouldn't be greater than `15`
 - `GAL-05` -  is a custom assertion validating that `govActionLifetime` isn't greater or equal to `dRepActivity`:
   - The `dRepActivity` values is taken from the context
-  - `ctx.merged.byName.getInteger "dRepActivity"` -  searches for the `dRepActivity` value first in the proposal, and if it's not found, it searches for the value in the current values of the node.
+  - `ctx.merged.byName.getInteger "dRepActivity"` -  searches for the `dRepActivity` value first in the proposal, and if it's not found, it searches for the value in the current values of the node. This is done to verify this guardrail on the possible future state of the parameters if the proposal is adopted;
 
 ### Context
 
