@@ -100,7 +100,7 @@ govActionLifetime =
 
 Through the context, we can pass additional information about the current and past state of the Cardano Blockchain to the custom guardrails. If needed, anyone can contribute to enriching the context with additional information.
 
-The defition of the context is found in the `src/Cardano/Constitution/Checker/Params/Types`
+The definition of the context is found in the `src/Cardano/Constitution/Checker/Params/Types`
 
 ```haskell
 data Context = Context
