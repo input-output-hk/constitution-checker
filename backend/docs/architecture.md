@@ -117,7 +117,7 @@ data ParamsAccess = ParamsAccess
   }
 ```
 
-- `proposal` , `merged` and `currentValues` allow access to other parameter values within a `custom guardrail`.
+- `proposal` , `merged`, and `currentValues` allow access to other parameter values within a `custom guardrail`.
   - `proposal` - Values provided in the same proposal.
   - `currentValues` - Parameter values in the latest epoch.
   - `merged` -  A merge between the first two. It searches first in the proposal, and if not found, tries in the `currentValues`.
