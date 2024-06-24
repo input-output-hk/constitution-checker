@@ -35,8 +35,7 @@ The project produces two binary artifcats:
 - Functional routes
   - `GET /current-values` - Retrieves the latest Cardano Parameter values (outputs a JSON object in the same shape expected as input by  `POST /parameters/proposal`)
   - `POST /parameters/proposal` - Checks the values provided by a parameters change proposal against all defined guardrails.
-  - `POST /parameters/proposal/by-url` - Same as `POST /parameters/proposal` but as input
-    exepects an URL where the JSON object can be found
+  - `POST /parameters/proposal/by-url` - Same as `POST /parameters/proposal` but exepects a URL where the JSON object can be found
 
 - Swagger utility
 - `GET /swagger-ui` - Swagger HTML iterface
