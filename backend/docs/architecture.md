@@ -40,7 +40,7 @@ The project produces two binary artifcats:
   - `POST /parameters/proposal/by-url` - Same as `POST /parameters/proposal` but exepects a URL where the JSON object can be found
 
 - Swagger utility
-- `GET /swagger-ui` - Swagger HTML iterface
+- `GET /swagger-ui` - Swagger HTML interface
 - `GET /swagger-ui/swagger.json` - swagger.json file
 
 ## How to contribute
