@@ -9,31 +9,107 @@
 
 module Cardano.Constitution.Checker.Web where
 
-import Cardano.Constitution.Checker.Web.Internal
-import Data.ByteString.Lazy.Char8 as BSL8
-import Data.String (fromString)
-import Data.Text as Text
-import Servant.API as Servant
-import Servant.Server
-
-import Data.Text.Encoding
-import Network.HTTP.Media ((//), (/:))
-
 import Cardano.Constitution.Checker.Checks
 import Cardano.Constitution.Checker.Params.Definition (allParams)
 import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
-import Data.Aeson (ToJSON (..), encode)
+import Cardano.Constitution.Checker.Web.Internal
+import Data.Aeson (encode)
+import Data.ByteString.Lazy.Char8 as BSL8
+import Data.Functor.Identity (Identity (..))
 import qualified Data.Map as Map
+import Data.String (fromString)
+import Data.Text as Text
+import Data.Text.Encoding
 import Debug.Trace (traceShow)
-import Web.FormUrlEncoded
+import Network.HTTP.Media ((//), (/:))
+import Servant.API as Servant
+import Servant.Server
 import Prelude as Haskell
 
 homePage :: CurrentParams -> ParamChecks' -> Text
 homePage currentParams checks = [textF|src/Cardano/Constitution/Checker/Web/Template/master.html|]
  where
   inputs =
-    Text.concat $ Haskell.map input (inputsByCurrentParams currentParams checks)
+    Text.concat $
+      Haskell.map
+        input
+        (inputsByCurrentParams currentParams checks)
+  mainView = [textF|src/Cardano/Constitution/Checker/Web/Template/main-view.html|]
+  table = guardrailsTable False checks
+
+type SwapOOB = Bool
+guardrailsTable :: SwapOOB -> ParamChecks' -> Text
+guardrailsTable swapOOB' checks =
+  [textF|src/Cardano/Constitution/Checker/Web/Template/guardrails-table.html|]
+ where
+  swapOOB = if swapOOB' then "true" else "false"
+  checksResults =
+    Haskell.concatMap
+      (uncurry toGuardrailCheckRows)
+      $ Map.toList checks
+  fstColumn =
+    let f GuardrailCheckRow{..} = guardrailFstCell guardrailCheckRowStatus guardrailCheckRowCaption
+     in Text.concat $ Haskell.map f checksResults
+  messageColumn =
+    let f GuardrailCheckRow{..} =
+          guardrailMessageCell
+            (guardrailCheckRowStatus == Just False)
+            guardrailCheckRowDescription
+            guardrailCheckRowMessage
+     in Text.concat $ Haskell.map f checksResults
+  parameterColumn =
+    let f GuardrailCheckRow{..} = guardrailParamCell guardrailCheckRowParamName
+     in Text.concat $ Haskell.map f checksResults
+
+data GuardrailCheckRow = GuardrailCheckRow
+  { guardrailCheckRowStatus :: !(Maybe Bool)
+  , guardrailCheckRowCaption :: !Text
+  , guardrailCheckRowDescription :: !Text
+  , guardrailCheckRowMessage :: !(Maybe Text)
+  , guardrailCheckRowParamName :: !Text
+  }
+
+toGuardrailCheckRows :: String -> GenericParamCheck -> [GuardrailCheckRow]
+toGuardrailCheckRows _ (MkGenericParamCheck check@(ParamCheck{})) =
+  toGuardrailCheckRows' id check
+toGuardrailCheckRows pname (MkGenericParamCheck (ParamCheckList checks)) =
+  let wrapName str = pname ++ " - " ++ str
+   in Haskell.concatMap (toGuardrailCheckRows' wrapName) checks
+toGuardrailCheckRows _ (MkGenericParamCheck (ParamCheckCostModels{})) =
+  error "not implemented"
+
+guardrailFstCell :: Maybe Bool -> Text -> Text
+guardrailFstCell result guardrailName =
+  let ellipseColorClass = case result of
+        Just True -> "green"
+        Just False -> "red"
+        Nothing -> "gray"
+   in [textF|src/Cardano/Constitution/Checker/Web/Template/guardrail-fst-cell.html|]
+
+guardrailMessageCell :: Bool -> Text -> Maybe Text -> Text
+guardrailMessageCell hasError description' message =
+  let description = case message of
+        Just msg | msg /= "" && hasError -> msg
+        _otherwise -> description'
+   in [textF|src/Cardano/Constitution/Checker/Web/Template/guardrail-message-cell.html|]
+
+guardrailParamCell :: Text -> Text
+guardrailParamCell pName =
+  [textF|src/Cardano/Constitution/Checker/Web/Template/guardrail-parameter-cell.html|]
+
+toGuardrailCheckRows' :: (String -> String) -> ParamCheck (Identity a) -> [GuardrailCheckRow]
+toGuardrailCheckRows' wrapParamName (ParamCheck _ param results) =
+  let rows = Haskell.map f $ Map.toList results
+      f (caption, GuardrailResult{..}) =
+        GuardrailCheckRow
+          { guardrailCheckRowStatus = result
+          , guardrailCheckRowCaption = fromString caption
+          , guardrailCheckRowDescription = fromString description
+          , guardrailCheckRowMessage = fromString <$> message
+          , guardrailCheckRowParamName = fromString $ wrapParamName (paramName param)
+          }
+   in rows
 
 sampleInputs :: [Text]
 sampleInputs =
@@ -50,6 +126,7 @@ sampleInputs =
     ]
 
 type ParamChecks' = Map.Map String GenericParamCheck
+
 inputsByCurrentParams :: CurrentParams -> ParamChecks' -> [InputProps]
 inputsByCurrentParams (MkParametersChange mp) checks =
   Haskell.concatMap f $ Map.elems mp
@@ -137,40 +214,26 @@ input InputProps{..} =
 --------------------------------------------------------------------------------
 --  Routes
 --------------------------------------------------------------------------------
--- 22
+
 type HtmxMain =
   Get '[HTML] RawHtml
     :<|> "params-check"
-      :> Capture "param" Text
+      -- :> Capture "param" Text
       :> ReqBody '[FormUrlEncoded] ParametersChange
       :> Post '[HTML] RawHtml
-
-{-
-  ( Get '[HTML] RawHtml
-      :<|> "accounts"
-        :> Get '[HTML] RawHtml
-      :<|> "accounts"
-        :> (Capture "profileId" Integer :> Get '[HTML] RawHtml)
-      :<|> "transactions"
-        :> Get '[HTML] RawHtml
-      :<|> "billing"
-        :> Get '[HTML] RawHtml
-  )
--}
 
 homePageHandler :: CurrentParams -> ParamChecks' -> Handler RawHtml
 homePageHandler currentValues = return . RawHtml . homePage currentValues
 
-paramsCheckHandler :: CurrentParams -> ParamChecks -> Text -> ParametersChange -> Handler RawHtml
-paramsCheckHandler currentParams ParamChecks{..} name paramChange = do
-  let inputs = Text.concat $ Haskell.map input (inputsByCurrentParams currentParams paramChecks)
+paramsCheckHandler :: CurrentParams -> ParamChecks -> ParametersChange -> Handler RawHtml
+paramsCheckHandler currentParams ParamChecks{..} paramChange = do
   traceShow paramChange $
     return $
-      RawHtml inputs
-
--- where
--- genericParamM = case Map.lookup (Text.unpack name) paramChecks of
--- Nothing -> InputProps "asda" name "-" Normal "0"
+      RawHtml $
+        inputs <> table
+ where
+  inputs = Text.concat $ Haskell.map input (inputsByCurrentParams currentParams paramChecks)
+  table = guardrailsTable True paramChecks
 
 data HTML = HTML
 

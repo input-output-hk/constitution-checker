@@ -469,7 +469,8 @@
   --text-styles-p-extrasmall-regular-underline-letter-spacing: 0px;
   --text-styles-p-extrasmall-regular-underline-line-height: 20px;
   --text-styles-p-extrasmall-regular-underline-font-style: normal;
-  --text-styles-p-extrasmall-regular-strikethrough-font-family: "Poppins", Helvetica;
+  --text-styles-p-extrasmall-regular-strikethrough-font-family: "Poppins",
+    Helvetica;
   --text-styles-p-extrasmall-regular-strikethrough-font-weight: 400;
   --text-styles-p-extrasmall-regular-strikethrough-font-size: 12px;
   --text-styles-p-extrasmall-regular-strikethrough-letter-spacing: 0px;
@@ -514,12 +515,14 @@
   --drop-shadow-styles-shadow-small: 0px 2px 6px 0px rgba(16, 24, 40, 0.06);
   --drop-shadow-styles-shadown-medium: 0px 6px 15px -2px rgba(16, 24, 40, 0.08),
     0px 6px 15px -2px rgba(16, 24, 40, 0.08);
-  --drop-shadow-styles-shadow-large: 0px 8px 24px -3px rgba(16, 24, 40, 0.1), 0px 8px 24px -3px rgba(16, 24, 40, 0.05);
+  --drop-shadow-styles-shadow-large: 0px 8px 24px -3px rgba(16, 24, 40, 0.1),
+    0px 8px 24px -3px rgba(16, 24, 40, 0.05);
   --drop-shadow-styles-shadown-xlarge: 0px 20px 40px -8px rgba(16, 24, 40, 0.1),
     0px 20px 40px -8px rgba(16, 24, 40, 0.05);
   --drop-shadow-styles-shadow-xxlarge: 0px 25px 60px -15px rgba(16, 24, 40, 0.2),
     0px 25px 60px -15px rgba(16, 24, 40, 0.12);
-  --drop-shadow-styles-shadow-xsmall: 0px 1px 2px 0px rgba(16, 24, 40, 0.04), 0px 1px 2px 0px rgba(16, 24, 40, 0.04);
+  --drop-shadow-styles-shadow-xsmall: 0px 1px 2px 0px rgba(16, 24, 40, 0.04),
+    0px 1px 2px 0px rgba(16, 24, 40, 0.04);
   --primitives-color-primary-primary-99: rgba(254, 251, 255, 1);
   --primitives-color-primary-primary-98: rgba(251, 248, 255, 1);
   --primitives-color-primary-primary-95: rgba(240, 239, 255, 1);
@@ -601,8 +604,18 @@
   --primitives-color-tertiary-tertiary-10-opacity-8: rgba(32, 28, 0, 0.08);
   --primitives-color-tertiary-tertiary-10-opacity-12: rgba(32, 28, 0, 0.12);
   --primitives-color-secondary-secondary-90: rgba(255, 219, 209, 1);
-  --primitives-color-secondary-secondary-90-opacity-8: rgba(255, 219, 209, 0.08);
-  --primitives-color-secondary-secondary-90-opacity-12: rgba(255, 219, 209, 0.12);
+  --primitives-color-secondary-secondary-90-opacity-8: rgba(
+    255,
+    219,
+    209,
+    0.08
+  );
+  --primitives-color-secondary-secondary-90-opacity-12: rgba(
+    255,
+    219,
+    209,
+    0.12
+  );
   --primitives-color-secondary-secondary-80: rgba(255, 181, 160, 1);
   --primitives-color-secondary-secondary-70: rgba(255, 139, 105, 1);
   --primitives-color-secondary-secondary-60: rgba(255, 87, 33, 1);
@@ -657,113 +670,281 @@
   --primitives-color-neutral-neutral-10-opacity-16: rgba(27, 27, 31, 0.16);
   --primitives-color-neutral-neutral-0: rgba(0, 0, 0, 1);
   --primitives-table-h-pad: 60px;
-  --primitives-row-height: 80px;
+  --primitives-row-height: 100px;
   --primitives-cell-pad-normal: 10px;
   --tokens-primary-light-primary: var(--primitives-color-primary-primary-40);
-  --tokens-primary-light-primary-opacity-8: var(--primitives-color-primary-primary-40-opacity-4);
-  --tokens-primary-light-primary-opacity-12: var(--primitives-color-primary-primary-40-opacity-12);
-  --tokens-primary-light-on-primary: var(--primitives-color-neutral-neutral-100);
-  --tokens-primary-light-primary-container: var(--primitives-color-primary-primary-90);
-  --tokens-primary-light-primary-container-opacity-8: var(--primitives-color-primary-primary-90-opacity-8);
-  --tokens-primary-light-primary-container-opacity-12: var(--primitives-color-primary-primary-90-opacity-12);
-  --tokens-primary-light-on-primary-container: var(--primitives-color-primary-primary-10);
-  --tokens-primary-light-on-primary-opacity-8: var(--primitives-color-primary-primary-10-opacity-8);
-  --tokens-primary-light-on-primary-opacity-12: var(--primitives-color-primary-primary-10-opacity-12);
-  --tokens-primary-light-primary-fixed: var(--primitives-color-primary-primary-90);
-  --tokens-primary-light-primary-fixed-dim: var(--primitives-color-primary-primary-80);
-  --tokens-primary-light-on-primary-fixed: var(--primitives-color-primary-primary-10);
-  --tokens-primary-light-on-primary-fixed-variant: var(--primitives-color-primary-primary-30);
+  --tokens-primary-light-primary-opacity-8: var(
+    --primitives-color-primary-primary-40-opacity-4
+  );
+  --tokens-primary-light-primary-opacity-12: var(
+    --primitives-color-primary-primary-40-opacity-12
+  );
+  --tokens-primary-light-on-primary: var(
+    --primitives-color-neutral-neutral-100
+  );
+  --tokens-primary-light-primary-container: var(
+    --primitives-color-primary-primary-90
+  );
+  --tokens-primary-light-primary-container-opacity-8: var(
+    --primitives-color-primary-primary-90-opacity-8
+  );
+  --tokens-primary-light-primary-container-opacity-12: var(
+    --primitives-color-primary-primary-90-opacity-12
+  );
+  --tokens-primary-light-on-primary-container: var(
+    --primitives-color-primary-primary-10
+  );
+  --tokens-primary-light-on-primary-opacity-8: var(
+    --primitives-color-primary-primary-10-opacity-8
+  );
+  --tokens-primary-light-on-primary-opacity-12: var(
+    --primitives-color-primary-primary-10-opacity-12
+  );
+  --tokens-primary-light-primary-fixed: var(
+    --primitives-color-primary-primary-90
+  );
+  --tokens-primary-light-primary-fixed-dim: var(
+    --primitives-color-primary-primary-80
+  );
+  --tokens-primary-light-on-primary-fixed: var(
+    --primitives-color-primary-primary-10
+  );
+  --tokens-primary-light-on-primary-fixed-variant: var(
+    --primitives-color-primary-primary-30
+  );
   --tokens-primary-dark-primary: var(--primitives-color-primary-primary-80);
   --tokens-primary-dark-on-primary: var(--primitives-color-primary-primary-20);
-  --tokens-primary-dark-primary-container: var(--primitives-color-primary-primary-30);
-  --tokens-primary-dark-on-primary-container: var(--primitives-color-primary-primary-90);
-  --tokens-primary-dark-primary-fixed: var(--primitives-color-primary-primary-90);
-  --tokens-primary-dark-primary-fixed-dim: var(--primitives-color-primary-primary-80);
-  --tokens-primary-dark-on-primary-fixed: var(--primitives-color-primary-primary-10);
-  --tokens-primary-dark-on-primary-fixed-variant: var(--primitives-color-primary-primary-30);
-  --tokens-secondary-light-secondary: var(--primitives-color-secondary-secondary-40);
-  --tokens-secondary-light-on-secondary: var(--primitives-color-neutral-neutral-100);
-  --tokens-secondary-light-secondary-container: var(--primitives-color-secondary-secondary-90);
-  --tokens-secondary-light-secondary-container-opacity-8: var(--primitives-color-secondary-secondary-90-opacity-8);
-  --tokens-secondary-light-secondary-container-opacity-12: var(--primitives-color-secondary-secondary-90-opacity-12);
-  --tokens-secondary-light-on-secondary-container: var(--primitives-color-secondary-secondary-10);
-  --tokens-secondary-light-on-secondary-opacity-8: var(--primitives-color-secondary-secondary-10-opacity-8);
-  --tokens-secondary-light-on-secondary-opacity-12: var(--primitives-color-secondary-secondary-10-opacity-12);
-  --tokens-secondary-light-secondary-fixed: var(--primitives-color-secondary-secondary-90);
-  --tokens-secondary-light-secondary-fixed-dim: var(--primitives-color-secondary-secondary-80);
-  --tokens-secondary-light-on-secondary-fixed: var(--primitives-color-secondary-secondary-10);
-  --tokens-secondary-light-on-secondary-fixed-variant: var(--primitives-color-secondary-secondary-30);
-  --tokens-secondary-dark-secondary: var(--primitives-color-secondary-secondary-80);
-  --tokens-secondary-dark-on-secondary: var(--primitives-color-secondary-secondary-20);
-  --tokens-secondary-dark-secondary-container: var(--primitives-color-secondary-secondary-30);
-  --tokens-secondary-dark-on-secondary-container: var(--primitives-color-secondary-secondary-90);
-  --tokens-secondary-dark-secondary-fixed: var(--primitives-color-secondary-secondary-90);
-  --tokens-secondary-dark-secondary-fixed-dim: var(--primitives-color-secondary-secondary-80);
-  --tokens-secondary-dark-on-secondary-fixed: var(--primitives-color-secondary-secondary-10);
-  --tokens-secondary-dark-on-secondary-fixed-variant: var(--primitives-color-secondary-secondary-30);
-  --tokens-tertiary-light-tertiary: var(--primitives-color-tertiary-tertiary-40);
-  --tokens-tertiary-light-on-secondary: var(--primitives-color-neutral-neutral-100);
-  --tokens-tertiary-light-tertiary-container: var(--primitives-color-tertiary-tertiary-90);
-  --tokens-tertiary-light-tertiary-container-opacity-12: var(--primitives-color-tertiary-tertiary-90-opacity-8);
-  --tokens-tertiary-light-on-tertiary-container: var(--primitives-color-tertiary-tertiary-10);
-  --tokens-tertiary-light-on-tertiary-opacity-8: var(--primitives-color-tertiary-tertiary-10-opacity-8);
-  --tokens-tertiary-light-on-tertiary-opacity-12: var(--primitives-color-tertiary-tertiary-10-opacity-12);
-  --tokens-tertiary-light-tertiary-fixed: var(--primitives-color-tertiary-tertiary-90);
-  --tokens-tertiary-light-tertiary-fixed-dim: var(--primitives-color-tertiary-tertiary-80);
-  --tokens-tertiary-light-on-tertiary-fixed: var(--primitives-color-tertiary-tertiary-10);
-  --tokens-tertiary-light-on-tertiary-fixed-variant: var(--primitives-color-tertiary-tertiary-30);
+  --tokens-primary-dark-primary-container: var(
+    --primitives-color-primary-primary-30
+  );
+  --tokens-primary-dark-on-primary-container: var(
+    --primitives-color-primary-primary-90
+  );
+  --tokens-primary-dark-primary-fixed: var(
+    --primitives-color-primary-primary-90
+  );
+  --tokens-primary-dark-primary-fixed-dim: var(
+    --primitives-color-primary-primary-80
+  );
+  --tokens-primary-dark-on-primary-fixed: var(
+    --primitives-color-primary-primary-10
+  );
+  --tokens-primary-dark-on-primary-fixed-variant: var(
+    --primitives-color-primary-primary-30
+  );
+  --tokens-secondary-light-secondary: var(
+    --primitives-color-secondary-secondary-40
+  );
+  --tokens-secondary-light-on-secondary: var(
+    --primitives-color-neutral-neutral-100
+  );
+  --tokens-secondary-light-secondary-container: var(
+    --primitives-color-secondary-secondary-90
+  );
+  --tokens-secondary-light-secondary-container-opacity-8: var(
+    --primitives-color-secondary-secondary-90-opacity-8
+  );
+  --tokens-secondary-light-secondary-container-opacity-12: var(
+    --primitives-color-secondary-secondary-90-opacity-12
+  );
+  --tokens-secondary-light-on-secondary-container: var(
+    --primitives-color-secondary-secondary-10
+  );
+  --tokens-secondary-light-on-secondary-opacity-8: var(
+    --primitives-color-secondary-secondary-10-opacity-8
+  );
+  --tokens-secondary-light-on-secondary-opacity-12: var(
+    --primitives-color-secondary-secondary-10-opacity-12
+  );
+  --tokens-secondary-light-secondary-fixed: var(
+    --primitives-color-secondary-secondary-90
+  );
+  --tokens-secondary-light-secondary-fixed-dim: var(
+    --primitives-color-secondary-secondary-80
+  );
+  --tokens-secondary-light-on-secondary-fixed: var(
+    --primitives-color-secondary-secondary-10
+  );
+  --tokens-secondary-light-on-secondary-fixed-variant: var(
+    --primitives-color-secondary-secondary-30
+  );
+  --tokens-secondary-dark-secondary: var(
+    --primitives-color-secondary-secondary-80
+  );
+  --tokens-secondary-dark-on-secondary: var(
+    --primitives-color-secondary-secondary-20
+  );
+  --tokens-secondary-dark-secondary-container: var(
+    --primitives-color-secondary-secondary-30
+  );
+  --tokens-secondary-dark-on-secondary-container: var(
+    --primitives-color-secondary-secondary-90
+  );
+  --tokens-secondary-dark-secondary-fixed: var(
+    --primitives-color-secondary-secondary-90
+  );
+  --tokens-secondary-dark-secondary-fixed-dim: var(
+    --primitives-color-secondary-secondary-80
+  );
+  --tokens-secondary-dark-on-secondary-fixed: var(
+    --primitives-color-secondary-secondary-10
+  );
+  --tokens-secondary-dark-on-secondary-fixed-variant: var(
+    --primitives-color-secondary-secondary-30
+  );
+  --tokens-tertiary-light-tertiary: var(
+    --primitives-color-tertiary-tertiary-40
+  );
+  --tokens-tertiary-light-on-secondary: var(
+    --primitives-color-neutral-neutral-100
+  );
+  --tokens-tertiary-light-tertiary-container: var(
+    --primitives-color-tertiary-tertiary-90
+  );
+  --tokens-tertiary-light-tertiary-container-opacity-12: var(
+    --primitives-color-tertiary-tertiary-90-opacity-8
+  );
+  --tokens-tertiary-light-on-tertiary-container: var(
+    --primitives-color-tertiary-tertiary-10
+  );
+  --tokens-tertiary-light-on-tertiary-opacity-8: var(
+    --primitives-color-tertiary-tertiary-10-opacity-8
+  );
+  --tokens-tertiary-light-on-tertiary-opacity-12: var(
+    --primitives-color-tertiary-tertiary-10-opacity-12
+  );
+  --tokens-tertiary-light-tertiary-fixed: var(
+    --primitives-color-tertiary-tertiary-90
+  );
+  --tokens-tertiary-light-tertiary-fixed-dim: var(
+    --primitives-color-tertiary-tertiary-80
+  );
+  --tokens-tertiary-light-on-tertiary-fixed: var(
+    --primitives-color-tertiary-tertiary-10
+  );
+  --tokens-tertiary-light-on-tertiary-fixed-variant: var(
+    --primitives-color-tertiary-tertiary-30
+  );
   --tokens-tertiary-dark-tertiary: var(--primitives-color-tertiary-tertiary-80);
-  --tokens-tertiary-dark-on-tertiary: var(--primitives-color-tertiary-tertiary-20);
-  --tokens-tertiary-dark-tertiary-container: var(--primitives-color-tertiary-tertiary-30);
-  --tokens-tertiary-dark-on-tertiary-container: var(--primitives-color-tertiary-tertiary-90);
-  --tokens-tertiary-dark-tertiary-fixed: var(--primitives-color-tertiary-tertiary-90);
-  --tokens-tertiary-dark-tertiary-fixed-dim: var(--primitives-color-tertiary-tertiary-80);
-  --tokens-tertiary-dark-on-tertiary-fixed: var(--primitives-color-tertiary-tertiary-10);
-  --tokens-tertiary-dark-on-tertiary-fixed-variant: var(--primitives-color-tertiary-tertiary-30);
+  --tokens-tertiary-dark-on-tertiary: var(
+    --primitives-color-tertiary-tertiary-20
+  );
+  --tokens-tertiary-dark-tertiary-container: var(
+    --primitives-color-tertiary-tertiary-30
+  );
+  --tokens-tertiary-dark-on-tertiary-container: var(
+    --primitives-color-tertiary-tertiary-90
+  );
+  --tokens-tertiary-dark-tertiary-fixed: var(
+    --primitives-color-tertiary-tertiary-90
+  );
+  --tokens-tertiary-dark-tertiary-fixed-dim: var(
+    --primitives-color-tertiary-tertiary-80
+  );
+  --tokens-tertiary-dark-on-tertiary-fixed: var(
+    --primitives-color-tertiary-tertiary-10
+  );
+  --tokens-tertiary-dark-on-tertiary-fixed-variant: var(
+    --primitives-color-tertiary-tertiary-30
+  );
   --tokens-error-background: rgba(255, 255, 255, 1);
   --tokens-error-light-error: var(--primitives-color-error-error-40);
-  --tokens-error-light-error-opacity-8: var(--primitives-color-error-error-40-opacity-8);
-  --tokens-error-light-error-opacity-12: var(--primitives-color-error-error-40-opacity-12);
+  --tokens-error-light-error-opacity-8: var(
+    --primitives-color-error-error-40-opacity-8
+  );
+  --tokens-error-light-error-opacity-12: var(
+    --primitives-color-error-error-40-opacity-12
+  );
   --tokens-error-on-backgrou-d: rgba(255, 255, 255, 1);
   --tokens-error-light-on-error: var(--primitives-color-neutral-neutral-100);
   --tokens-error-light-error-container: var(--primitives-color-error-error-90);
-  --tokens-error-light-on-error-container: var(--primitives-color-error-error-10);
+  --tokens-error-light-on-error-container: var(
+    --primitives-color-error-error-10
+  );
   --tokens-error-dark-error: var(--primitives-color-error-error-80);
-  --tokens-error-dark-error-opacity-8: var(--primitives-color-error-error-80-opacity-8);
-  --tokens-error-dark-error-opacity-12: var(--primitives-color-error-error-80-opacity-12);
+  --tokens-error-dark-error-opacity-8: var(
+    --primitives-color-error-error-80-opacity-8
+  );
+  --tokens-error-dark-error-opacity-12: var(
+    --primitives-color-error-error-80-opacity-12
+  );
   --tokens-error-dark-on-error: var(--primitives-color-error-error-20);
   --tokens-error-dark-error-container: var(--primitives-color-error-error-30);
-  --tokens-error-dark-on-error-container: var(--primitives-color-error-error-90);
+  --tokens-error-dark-on-error-container: var(
+    --primitives-color-error-error-90
+  );
   --tokens-neutrals-light-background: var(--primitives-color-neutral-neutral-0);
-  --tokens-neutrals-light-on-background: var(--primitives-color-neutral-neutral-100);
+  --tokens-neutrals-light-on-background: var(
+    --primitives-color-neutral-neutral-100
+  );
   --tokens-neutrals-light-surface: var(--primitives-color-neutral-neutral-10);
-  --tokens-neutrals-light-on-surface: var(--primitives-color-neutral-neutral-95);
+  --tokens-neutrals-light-on-surface: var(
+    --primitives-color-neutral-neutral-95
+  );
   --tokens-neutrals-light-outline: var(--primitives-color-neutral-neutral-50);
-  --tokens-neutrals-light-outline-opacity-75: var(--primitives-color-neutral-neutral-50-opacity-75);
-  --tokens-neutrals-light-surface-variant: var(--primitives-color-neutral-variant-neutral-variant-90);
-  --tokens-neutrals-light-on-surface-variant: var(--primitives-color-neutral-variant-neutral-variant-30);
-  --tokens-neutrals-light-inverse-surface: var(--primitives-color-neutral-neutral-20);
-  --tokens-neutrals-light-inverse-on-surface: var(--primitives-color-neutral-neutral-95);
-  --tokens-neutrals-light-inverse-primary: var(--primitives-color-primary-primary-80);
+  --tokens-neutrals-light-outline-opacity-75: var(
+    --primitives-color-neutral-neutral-50-opacity-75
+  );
+  --tokens-neutrals-light-surface-variant: var(
+    --primitives-color-neutral-variant-neutral-variant-90
+  );
+  --tokens-neutrals-light-on-surface-variant: var(
+    --primitives-color-neutral-variant-neutral-variant-30
+  );
+  --tokens-neutrals-light-inverse-surface: var(
+    --primitives-color-neutral-neutral-20
+  );
+  --tokens-neutrals-light-inverse-on-surface: var(
+    --primitives-color-neutral-neutral-95
+  );
+  --tokens-neutrals-light-inverse-primary: var(
+    --primitives-color-primary-primary-80
+  );
   --tokens-neutrals-light-scrim: var(--primitives-color-neutral-neutral-0);
   --tokens-neutrals-light-shadow: var(--primitives-color-neutral-neutral-0);
-  --tokens-neutrals-light-on-surface-10-opacity-8: var(--primitives-color-neutral-neutral-10-opacity-8);
-  --tokens-neutrals-light-on-surface-10-opacity-12: var(--primitives-color-neutral-neutral-10-opacity-12);
-  --tokens-neutrals-light-on-surface-95-opacity-12: var(--primitives-color-neutral-neutral-95-opacity-12);
+  --tokens-neutrals-light-on-surface-10-opacity-8: var(
+    --primitives-color-neutral-neutral-10-opacity-8
+  );
+  --tokens-neutrals-light-on-surface-10-opacity-12: var(
+    --primitives-color-neutral-neutral-10-opacity-12
+  );
+  --tokens-neutrals-light-on-surface-95-opacity-12: var(
+    --primitives-color-neutral-neutral-95-opacity-12
+  );
   --tokens-neutrals-dark-background: var(--primitives-color-neutral-neutral-10);
-  --tokens-neutrals-dark-on-background: var(--primitives-color-neutral-neutral-90);
+  --tokens-neutrals-dark-on-background: var(
+    --primitives-color-neutral-neutral-90
+  );
   --tokens-neutrals-dark-surface: var(--primitives-color-neutral-neutral-10);
   --tokens-neutrals-dark-on-surface: var(--primitives-color-neutral-neutral-90);
   --tokens-neutrals-dark-outline: var(--primitives-color-neutral-neutral-60);
-  --tokens-neutrals-dark-surface-variant: var(--primitives-color-neutral-variant-neutral-variant-30);
-  --tokens-neutrals-dark-on-surface-variant: var(--primitives-color-neutral-variant-neutral-variant-80);
-  --tokens-neutrals-dark-inverse-surface: var(--primitives-color-neutral-neutral-90);
-  --tokens-neutrals-dark-inverse-surface-opacity-8: var(--primitives-color-neutral-neutral-90-opacity-8);
-  --tokens-neutrals-dark-inverse-surface-opacity-12: var(--primitives-color-neutral-neutral-90-opacity-12);
-  --tokens-neutrals-dark-inverse-on-surface: var(--primitives-color-neutral-neutral-20);
-  --tokens-neutrals-dark-inverse-on-surface-opacity-8: var(--primitives-color-neutral-neutral-20-opacity-8);
-  --tokens-neutrals-dark-inverse-on-surface-opacity-12: var(--primitives-color-neutral-neutral-20-opacity-12);
-  --tokens-neutrals-dark-inverse-primary: var(--primitives-color-primary-primary-40);
+  --tokens-neutrals-dark-surface-variant: var(
+    --primitives-color-neutral-variant-neutral-variant-30
+  );
+  --tokens-neutrals-dark-on-surface-variant: var(
+    --primitives-color-neutral-variant-neutral-variant-80
+  );
+  --tokens-neutrals-dark-inverse-surface: var(
+    --primitives-color-neutral-neutral-90
+  );
+  --tokens-neutrals-dark-inverse-surface-opacity-8: var(
+    --primitives-color-neutral-neutral-90-opacity-8
+  );
+  --tokens-neutrals-dark-inverse-surface-opacity-12: var(
+    --primitives-color-neutral-neutral-90-opacity-12
+  );
+  --tokens-neutrals-dark-inverse-on-surface: var(
+    --primitives-color-neutral-neutral-20
+  );
+  --tokens-neutrals-dark-inverse-on-surface-opacity-8: var(
+    --primitives-color-neutral-neutral-20-opacity-8
+  );
+  --tokens-neutrals-dark-inverse-on-surface-opacity-12: var(
+    --primitives-color-neutral-neutral-20-opacity-12
+  );
+  --tokens-neutrals-dark-inverse-primary: var(
+    --primitives-color-primary-primary-40
+  );
   --tokens-neutrals-dark-scrim: var(--primitives-color-neutral-neutral-0);
   --tokens-neutrals-dark-shadow: var(--primitives-color-neutral-neutral-0);
 }

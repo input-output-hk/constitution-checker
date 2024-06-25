@@ -63,11 +63,11 @@ server ServerCaps{..} =
   homePageHandler' = do
     (EpochParameters _ currentParams) <- getAllCurrentParamsValues
     homePageHandler currentParams Map.empty
-  paramsCheckHandler' :: Text -> ParametersChange -> Handler RawHtml
-  paramsCheckHandler' inputName paramChange = do
+  paramsCheckHandler' :: ParametersChange -> Handler RawHtml
+  paramsCheckHandler' paramChange = do
     (ctx, EpochParameters _ currentParams) <- mkContext' paramChange
     let checks = checkParams currentParams ctx paramChange
-    paramsCheckHandler currentParams checks inputName paramChange
+    paramsCheckHandler currentParams checks paramChange
 
   getAllCurrentParamsValues :: Handler EpochParameters
   getAllCurrentParamsValues = do
