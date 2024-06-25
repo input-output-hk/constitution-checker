@@ -17,6 +17,7 @@ import Cardano.Constitution.Checker.Web.Internal
 import Data.Aeson (encode)
 import Data.ByteString.Lazy.Char8 as BSL8
 import Data.Functor.Identity (Identity (..))
+import Data.List (sortOn)
 import qualified Data.Map as Map
 import Data.String (fromString)
 import Data.Text as Text
@@ -47,6 +48,7 @@ guardrailsTable swapOOB' checks =
   checksResults =
     Haskell.concatMap
       (uncurry toGuardrailCheckRows)
+      $ sortOn fst
       $ Map.toList checks
   fstColumn =
     let f GuardrailCheckRow{..} = guardrailFstCell guardrailCheckRowStatus guardrailCheckRowCaption
@@ -111,25 +113,11 @@ toGuardrailCheckRows' wrapParamName (ParamCheck _ param results) =
           }
    in rows
 
-sampleInputs :: [Text]
-sampleInputs =
-  Haskell.map
-    input
-    [ InputProps "txFeedFixed" "txFeedFixed" "155301" Normal "0"
-    , InputProps "maxBlockBodySize" "maxBlockBodySize" "90112" Normal "0"
-    , InputProps "dRepDeposit" "dRepDeposit" "" Warning "no proposed value"
-    , InputProps "maxBlockHeaderSize" "maxBlockHeaderSize" "1100" Normal "0"
-    , InputProps "stakeAddressDeposit" "stakeAddressDeposit" "21310003" Normal "0"
-    , InputProps "govDeposit" "govDeposit" "150000010008" Normal "0"
-    , InputProps "poolVotingThresholds[mem]" "poolVotingThresholds-mem" "1" Error "0"
-    , InputProps "poolVotingThresholds[steps]" "poolVotingThresholds-steps" "2" Error "0"
-    ]
-
 type ParamChecks' = Map.Map String GenericParamCheck
 
 inputsByCurrentParams :: CurrentParams -> ParamChecks' -> [InputProps]
 inputsByCurrentParams (MkParametersChange mp) checks =
-  Haskell.concatMap f $ Map.elems mp
+  sortOn caption $ Haskell.concatMap f $ Map.elems mp
  where
   f param@(MkParamValue p _) =
     inputsByParamValue param (Map.lookup (paramName p) checks)
