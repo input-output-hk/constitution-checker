@@ -14,6 +14,7 @@ import Cardano.Constitution.Checker.Context
 import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
 import Control.Lens hiding (Context (..), (.=))
+import Data.Map (Map)
 import Data.Swagger as SWG hiding (URL)
 import Network.HTTP.Conduit (simpleHttp)
 import Servant.Swagger
@@ -24,6 +25,8 @@ import Data.Aeson
 import Data.String
 import Data.Text (unpack)
 import Servant.Client (BaseUrl, parseBaseUrl, showBaseUrl)
+
+import qualified Data.Map as Map
 
 type API =
   "parameters"
@@ -42,12 +45,19 @@ server ServerCaps{..} =
   )
     :<|> getAllCurrentParamsValues
  where
+  getLatestEpochProtocolParams :: Map Epoch ProtocolParams -> Either String ProtocolParams
+  getLatestEpochProtocolParams protocolParams =
+    let maxEpoch = maximum $ Map.keys protocolParams
+     in case Map.lookup maxEpoch protocolParams of
+          Nothing -> Left "No protocol parameters available"
+          Just params -> Right params
+
   getAllCurrentParamsValues :: Handler EpochParameters
   getAllCurrentParamsValues = do
-    protocolParamsE <- liftIO getLatestEpochProtocolParams
+    protocolParamsE <- getLatestEpochProtocolParams <$> liftIO getProtocolParams
     case protocolParamsE of
       Left err -> throwError err500{errBody = fromString err}
-      Right protocolParams -> pure $ allCurrentParamsValues protocolParams
+      Right protocolParams -> pure $ protocolParamsToEpochParams protocolParams
 
   parametersChange :: ParametersChange -> Handler ParamChecks
   parametersChange paramChange = do
@@ -61,14 +71,16 @@ server ServerCaps{..} =
 
   mkContext' :: ParametersChange -> Handler (Context, EpochParameters)
   mkContext' paramChange = do
-    protocolParamsE <- liftIO getLatestEpochProtocolParams
+    epochParams <- liftIO getProtocolParams
+    let protocolParamsE = getLatestEpochProtocolParams epochParams
     case protocolParamsE of
       Left err -> throwError err500{errBody = fromString err}
       Right protocolParams ->
-        pure
-          ( mkContext paramChange protocolParams
-          , allCurrentParamsValues protocolParams
-          )
+        let currentEpochParams = protocolParamsToEpochParams protocolParams
+         in pure
+              ( mkContext paramChange protocolParams (epoch currentEpochParams) epochParams
+              , currentEpochParams
+              )
 
 -- TODO: guard checks against exploits
 fetchParamCheck :: URL -> Handler ParametersChange
@@ -90,9 +102,7 @@ type APIWithDoc =
 instance ToSchema URL where
   declareNamedSchema _ = do
     let
-      schema' =
-        mempty
-          & type_ ?~ SwaggerString
+      schema' = mempty & type_ ?~ SwaggerString
     return $ NamedSchema (Just "URL") schema'
 
 instance FromJSON URL where
@@ -115,7 +125,7 @@ swaggerJson =
     & info . description ?~ "This is the API for the Constitution Checker."
 
 newtype ServerCaps = ServerCaps
-  { getLatestEpochProtocolParams :: IO (Either String ProtocolParams)
+  { getProtocolParams :: IO (Map Epoch ProtocolParams)
   }
 
 -- | Servant server for an API
@@ -125,10 +135,3 @@ serverWithDoc caps =
 
 app :: ServerCaps -> Application
 app = serve apiWithDoc . serverWithDoc
-
--- TODO:  replaceThis
-dummyServerCaps :: ServerCaps
-dummyServerCaps =
-  ServerCaps
-    { getLatestEpochProtocolParams = getLatestParams
-    }

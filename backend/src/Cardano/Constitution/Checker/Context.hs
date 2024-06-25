@@ -7,7 +7,7 @@ module Cardano.Constitution.Checker.Context (
   mkContext,
 ) where
 
-import Cardano.Constitution.Checker.Blockfrost (ProtocolParams (..))
+import Cardano.Constitution.Checker.Blockfrost (Epoch, ProtocolParams (..))
 import Cardano.Constitution.Checker.Params.Lookup
 import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
@@ -17,16 +17,29 @@ import qualified GHC.IsList as Haskell
 
 -- import qualified Data.Swagger as SWG
 
-mkContext :: ParametersChange -> ProtocolParams -> Context
-mkContext (MkParametersChange m') currentValues' =
+mkContext ::
+  ParametersChange ->
+  ProtocolParams ->
+  Epoch ->
+  Map Epoch ProtocolParams ->
+  Context
+mkContext (MkParametersChange m') currentValues' latestEpoch' allEpochParams =
   Context
     { proposal = proposal'
     , merged = merged'
     , currentValues = currentParams'
+    , latestEpoch = latestEpoch'
+    , valuesByEpoch = valuesByEpoch'
     }
  where
   proposal' = paramsAccess m'
   currentParams' = paramsAccess currentParams
+  valuesByEpoch' epoch' = paramsAccess $
+    case Data.Map.lookup epoch' allEpochParams of
+      Nothing -> mempty
+      Just x ->
+        let EpochParameters _ (MkParametersChange epochParams) = protocolParamsToEpochParams x
+         in epochParams
   merged' =
     ParamsAccess
       { byName = mergedByParameter byName
@@ -66,7 +79,7 @@ mkContext (MkParametersChange m') currentValues' =
      in a <> b
 
   EpochParameters _ (MkParametersChange currentParams) =
-    allCurrentParamsValues currentValues'
+    protocolParamsToEpochParams currentValues'
 
 paramsAccess :: Map Integer ParamValue -> ParamsAccess
 paramsAccess m = ParamsAccess (byName' xs) (byIx' m)

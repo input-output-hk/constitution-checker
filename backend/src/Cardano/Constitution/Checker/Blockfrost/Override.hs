@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
@@ -17,6 +18,7 @@ module Cardano.Constitution.Checker.Blockfrost.Override (
   bfTokenPath,
   getParamsByEpoch,
   getLatestParams,
+  Epoch (..),
 ) where
 
 import Data.Map (Map)
@@ -24,13 +26,12 @@ import Data.Text (Text)
 import Deriving.Aeson
 
 import Blockfrost.Types.Shared
+import Data.Bifunctor
 
 import qualified Data.Aeson.Key
 import qualified Data.Aeson.KeyMap
 import qualified Data.Char
 import qualified Data.Map
-
--- import Blockfrost.Types.Cardano.Scripts (ScriptType (..))
 
 import Data.Aeson
 import Data.Proxy
@@ -38,9 +39,6 @@ import Data.Proxy
 import Network.HTTP.Client.TLS
 import Servant.API
 import Servant.Client
-
--- curl -H "project_id: sanchonetPqICTnWMuxMyNItm3iXC6qqXU8kPQ5DA"
--- https://cardano-sanchonet.blockfrost.io/api/v0/epochs/225/parameters | jq
 
 bfTokenPath :: String
 bfTokenPath = "./secrets/sanchonet.token"
@@ -209,17 +207,9 @@ instance ToJSON CostModels where
   toJSON =
     object
       . map
-        ( \(lang, params) ->
-            ( Data.Aeson.Key.fromString $ show lang
-            , object
-                $ map
-                  ( \(key, param) ->
-                      ( Data.Aeson.Key.fromText key
-                      , toJSON param
-                      )
-                  )
-                $ Data.Map.toList params
-            )
+        ( bimap
+            (Data.Aeson.Key.fromString . show)
+            (object . map (bimap Data.Aeson.Key.fromText toJSON) . Data.Map.toList)
         )
       . Data.Map.toList
       . unCostModels
@@ -235,7 +225,7 @@ instance FromJSON CostModels where
             l <-
               parseJSON
                 $ toJSON
-                $ ( \lang -> case lang of
+                $ ( \case
                       [] -> fail "Absurd empty language in CostModels"
                       (x : xs) -> Data.Char.toLower x : xs
                   )

@@ -84,6 +84,9 @@ library
         , Cardano.Constitution.Checker.Checks
         , Cardano.Constitution.Checker.Blockfrost
         , Cardano.Constitution.Checker.Blockfrost.Override
+        , Cardano.Constitution.Checker.Blockfrost.Sync
+        , Cardano.Constitution.Checker.Blockfrost.Base
+        , Cardano.Constitution.Checker.Base
 
     build-depends:
           base ^>=4.18.1.0
@@ -111,7 +114,11 @@ library
         , http-client-tls
         , mtl
         , aeson-qq
-
+        , filepath
+        , mtl
+        , directory
+        , bytestring
+        , exceptions
     hs-source-dirs:   src
 
     default-extensions:   OverloadedRecordDot
@@ -131,6 +138,8 @@ executable constitution-checker-backend
         , servant-server  ^>= 0.20
         , warp
         , constitution-checker-backend
+        , mtl
+        , containers
 
     hs-source-dirs:   app
 

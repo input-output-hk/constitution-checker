@@ -282,9 +282,12 @@ paramCheck ctx param'@(CostModels _ av1 av2 av3) val@(v1, v2, v3) =
     , toGuardrailResults ctx av3 v3
     )
 
--- ParamCheckCostModels val param' (toGuardrailResults ctx assertions val)
-
-toGuardrailResults :: (Ord a, Show a) => Context -> [Assertion a] -> a -> Map String GuardrailResult
+toGuardrailResults ::
+  (Ord a, Show a) =>
+  Context ->
+  [Assertion a] ->
+  a ->
+  Map String GuardrailResult
 toGuardrailResults ctx assertions val =
   let checks = fmap (\assertion -> checkAssertion assertion ctx val) assertions
       zipped = zip assertions checks
