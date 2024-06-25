@@ -1,0 +1,30 @@
+name: PI Objective
+description: Template for submitting PI Objective for this repository
+title: '[PI Objective]: '
+labels:
+  - PI objective
+  - to be triaged
+projects: ['input-output-hk/127']
+assignees: "RSoulatIOHK"
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: PI Objective description
+      description: Please provide a detailed description.
+      placeholder: What is the PI objective about?
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Related Epics
+      value: |
+          - [ ] Epic 1
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      description: Is this PI objective commited?
+      options:
+        - Commited
+        - Uncommited
+        - Undecided
