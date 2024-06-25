@@ -58,7 +58,7 @@ instance ToJSON GenericParamCheck where
   toJSON (MkGenericParamCheck check') = toJSON check'
 
 data ParamCheck a where
-  ParamCheck :: !a -> !(Param (Identity a)) -> !(Map String GuardrailResult) -> ParamCheck (Identity a)
+  ParamCheck :: (ToJSON a) => !a -> !(Param (Identity a)) -> !(Map String GuardrailResult) -> ParamCheck (Identity a)
   ParamCheckList :: (ToJSON a) => [ParamCheck (Identity a)] -> ParamCheck [a]
   ParamCheckCostModels ::
     (Maybe PV1, Maybe PV2, Maybe PV3) ->

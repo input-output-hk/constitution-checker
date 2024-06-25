@@ -4,6 +4,7 @@
       <div class="content">
         <div class="input-text-container">
           <input
+            id="$name-input"
             name="$name"
             type="text"
             class="input-text"
@@ -11,6 +12,7 @@
             placeholder="$placeholder"
             hx-post="/params-check/$name"
             hx-target="#$name"
+            hx-select="#$name"
           />
         </div>
         <div class="label-text-5">
