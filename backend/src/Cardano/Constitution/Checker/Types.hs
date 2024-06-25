@@ -123,19 +123,14 @@ instance FromForm ParametersChange where
       let subParamFormName = ((pname ++ "-") ++) . paramName
           subParamFormNames = fmap subParamFormName xs
           anyParamExists =
-            traceShow (subParamFormNames, hs) $
-              any
-                ( \pname' ->
-                    case (`HashMap.lookup` hs) $ Text.pack pname' of
-                      Just (x : _) | x /= "" -> True
-                      _other -> False
-                )
-                subParamFormNames
+            let pExists pname' = case (`HashMap.lookup` hs) $ Text.pack pname' of
+                  Just (x : _) | x /= "" -> True
+                  _other -> False
+             in any pExists subParamFormNames
       xs' <- mapM (searchSingleParam hs) (fmap subParamFormName xs)
       case (sequence xs', anyParamExists) of
         (_, False) -> pure acc
-        (Nothing, _) ->
-          Left $
+        (Nothing, _) -> Left $
             "not all values provided for collection \"" <> Text.pack pname <> "\""
         (Just xs'', _)
           | Identity vs <- sequence xs'' ->

@@ -8,243 +8,71 @@
     <script src="https://unpkg.com/htmx.org@1.9.9"></script>
   </head>
   <body>
-    <div class="desktop">
-      <div class="sidebar">
-        <div class="header">
-          <img class="untitled-design" src="img/untitled-design-1.png" />
-          <div class="text-wrapper">Proposal Parameter Checker</div>
-        </div>
-        <div class="separator">
-          <img class="divider" src="img/divider-1.svg" />
-        </div>
-        <div class="parameters">
-          <div class="params-header">
-            <div class="label-and-refresh">
-              <div class="div">Import Parameters</div>
-              <div class="icon-button">
-                <div class="container">
-                  <div class="state-layer">
-                    <img
-                      class="unselected-icon"
-                      src="img/unselected-icon.png"
-                    />
-                    <img class="selected-icon" src="img/selected-icon.svg" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="buttons">
-              <div class="segment-start">
-                <div class="state-layer-wrapper">
-                  <div class="state-layer-2">
-                    <img class="img" src="img/selected-icon-1.svg" />
-                    <div class="label-text">Local File</div>
-                  </div>
-                </div>
-              </div>
-              <div class="container-wrapper">
-                <div class="div-wrapper">
-                  <div class="label-text-wrapper">
-                    <div class="label-text-2">URL</div>
-                  </div>
-                </div>
-              </div>
-              <div class="container-wrapper">
-                <div class="container-2">
-                  <div class="label-text-wrapper">
-                    <div class="label-text-3">Cardano State</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <button class="button">
-              <div class="state-layer-3">
-                <img class="icon" src="img/icon-3.svg" />
-                <div class="label-text-4">Upload local JSON file</div>
-              </div>
-            </button>
+    <form name="hx-post" ="/params-check">
+      <div class="desktop">
+        <div class="sidebar">
+          <div class="header">
+            <img class="untitled-design" src="img/untitled-design-1.png" />
+            <div class="text-wrapper">Proposal Parameter Checker</div>
           </div>
-          <div class="params-list">
-            <div class="text-wrapper-2">Change Parameter Value</div>
-            <form name="hx-post" ="/params-check">
-              <div class="inputs">$inputs</div>
-            </form>
+          <div class="separator">
+            <img class="divider" src="img/divider-1.svg" />
           </div>
-        </div>
-      </div>
-      <div class="main">
-        <div class="main-section">
-          <div class="header-2">
-            <div class="first"></div>
-            <div class="active">
-              <div class="text-wrapper-4">Proposal Parameters</div>
-            </div>
-            <div class="inactive">
-              <div class="text-wrapper-5">Guardrails</div>
-            </div>
-            <div class="last"></div>
-          </div>
-          <div class="search-row">
-            <button class="button-2">
-              <div class="state-layer-3">
-                <img class="img" src="img/icon-4.svg" />
-                <div class="label-text-9">Export Guardrail Results</div>
-              </div>
-            </button>
-            <div class="search-bar">
-              <div class="state-layer-5">
-                <div class="supporting-text-wrapper">
-                  <div class="supporting-text-2">
-                    &nbsp;&nbsp;&nbsp;&nbsp;Search...
-                  </div>
-                </div>
-                <div class="trailing-elements">
-                  <div class="container-wrapper-2">
-                    <div class="container-3">
-                      <div class="icon-wrapper">
-                        <img class="icon-2" src="img/icon-17.svg" />
-                      </div>
+          <div class="parameters">
+            <div class="params-header">
+              <div class="label-and-refresh">
+                <div class="div">Import Parameters</div>
+                <div class="icon-button">
+                  <div class="container">
+                    <div class="state-layer">
+                      <img
+                        class="unselected-icon"
+                        src="img/unselected-icon.png"
+                      />
+                      <img class="selected-icon" src="img/selected-icon.svg" />
                     </div>
                   </div>
                 </div>
               </div>
+              <div class="buttons">
+                <div class="segment-start">
+                  <div class="state-layer-wrapper">
+                    <div class="state-layer-2">
+                      <img class="img" src="img/selected-icon-1.svg" />
+                      <div class="label-text">Local File</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="container-wrapper">
+                  <div class="div-wrapper">
+                    <div class="label-text-wrapper">
+                      <div class="label-text-2">URL</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="container-wrapper">
+                  <div class="container-2">
+                    <div class="label-text-wrapper">
+                      <div class="label-text-3">Cardano State</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="button">
+                <div class="state-layer-3">
+                  <img class="icon" src="img/icon-3.svg" />
+                  <div class="label-text-4">Upload local JSON file</div>
+                </div>
+              </button>
             </div>
-          </div>
-          <div class="table">
-            <div class="column-leader">
-              <div class="header-cell">
-                <div class="text-wrapper-6">Guardrail Name</div>
-              </div>
-              <div class="cell">
-                <div class="ellipse"></div>
-                <div class="text-wrapper-7">DRD-01</div>
-              </div>
-              <div class="cell">
-                <div class="ellipse-2"></div>
-                <div class="text-wrapper-7">DRD-02</div>
-              </div>
-              <div class="cell">
-                <div class="ellipse"></div>
-                <div class="text-wrapper-7">DRD-03</div>
-              </div>
-              <div class="cell">
-                <div class="ellipse"></div>
-                <div class="text-wrapper-7">DRD-04</div>
-              </div>
-              <div class="cell">
-                <div class="ellipse-2"></div>
-                <div class="text-wrapper-7">DRD-08</div>
-              </div>
-              <div class="cell">
-                <div class="ellipse"></div>
-                <div class="text-wrapper-7">DRD-05</div>
-              </div>
-              <div class="cell">
-                <div class="ellipse-2"></div>
-                <div class="text-wrapper-7">DRD-06</div>
-              </div>
-              <div class="cell">
-                <div class="ellipse"></div>
-                <div class="text-wrapper-7">DRD-07</div>
-              </div>
-              <div class="cell">
-                <div class="ellipse"></div>
-                <div class="text-wrapper-7">DRD-09</div>
-              </div>
-              <div class="cell">
-                <div class="ellipse"></div>
-                <div class="text-wrapper-7">DRD-10</div>
-              </div>
-            </div>
-            <div class="column">
-              <div class="header-cell-2">
-                <div class="text-wrapper-6">Message</div>
-              </div>
-              <div class="cell-2">
-                <p class="text-wrapper-8">dRepDeposit must not be negative</p>
-              </div>
-              <div class="cell-2">
-                <p class="text-wrapper-8">
-                  dRepDeposit must not be reduced below 1,000,000 ada
-                </p>
-              </div>
-              <div class="cell-2">
-                <p class="text-wrapper-8">
-                  dRepDeposit must be no more thatn 100,000,000,000
-                </p>
-              </div>
-              <div class="cell-2">
-                <p class="text-wrapper-8">dRepDeposit must not be negative</p>
-              </div>
-              <div class="cell-2">
-                <p class="text-wrapper-8">
-                  dRepDeposit must not be reduced below 1,000,000 ada
-                </p>
-              </div>
-              <div class="cell-2">
-                <p class="text-wrapper-8">
-                  dRepDeposit must be no more thatn 100,000,000,000
-                </p>
-              </div>
-              <div class="cell-2">
-                <p class="text-wrapper-8">
-                  dRepDeposit must be no more thatn 100,000,000,000
-                </p>
-              </div>
-              <div class="cell-2">
-                <p class="text-wrapper-8">
-                  dRepDeposit must be no more thatn 100,000,000,000
-                </p>
-              </div>
-              <div class="cell-2">
-                <p class="text-wrapper-8">
-                  dRepDeposit must be no more thatn 100,000,000,000
-                </p>
-              </div>
-              <div class="cell-2">
-                <p class="text-wrapper-8">
-                  dRepDeposit must be no more thatn 100,000,000,000
-                </p>
-              </div>
-            </div>
-            <div class="column-2">
-              <div class="header-cell-2">
-                <div class="text-wrapper-6">Parameter</div>
-              </div>
-              <div class="cell-2">
-                <div class="text-wrapper-8">maxBlockBodySize</div>
-              </div>
-              <div class="cell-2">
-                <div class="text-wrapper-8">maxBlockBodySize</div>
-              </div>
-              <div class="cell-2">
-                <div class="text-wrapper-8">maxBlockBodySize</div>
-              </div>
-              <div class="cell-2">
-                <div class="text-wrapper-8">maxBlockBodySize</div>
-              </div>
-              <div class="cell-2">
-                <div class="text-wrapper-8">maxBlockBodySize</div>
-              </div>
-              <div class="cell-2">
-                <div class="text-wrapper-8">maxBlockBodySize</div>
-              </div>
-              <div class="cell-2">
-                <div class="text-wrapper-8">maxBlockBodySize</div>
-              </div>
-              <div class="cell-2">
-                <div class="text-wrapper-8">maxBlockBodySize</div>
-              </div>
-              <div class="cell-2">
-                <div class="text-wrapper-8">maxBlockBodySize</div>
-              </div>
-              <div class="cell-2">
-                <div class="text-wrapper-8">maxBlockBodySize</div>
-              </div>
+            <div class="params-list">
+              <div class="text-wrapper-2">Change Parameter Value</div>
+              <div class="inputs">$inputs</div>
             </div>
           </div>
         </div>
+        $mainView
       </div>
-    </div>
+    </form>
   </body>
 </html>
