@@ -10,13 +10,10 @@
 module Cardano.Constitution.Checker.Web where
 
 import Cardano.Constitution.Checker.Web.Internal
-import qualified Data.ByteString
 import Data.ByteString.Lazy.Char8 as BSL8
 import Data.String (fromString)
 import Data.Text as Text
 import Servant.API as Servant
-import Servant.API.Generic
-import Servant.API.Verbs
 import Servant.Server
 
 import Data.Text.Encoding
@@ -32,11 +29,11 @@ import Debug.Trace (traceShow)
 import Web.FormUrlEncoded
 import Prelude as Haskell
 
-homePage :: CurrentParams -> Text
-homePage currentParams = [textF|src/Cardano/Constitution/Checker/Web/Template/master.html|]
+homePage :: CurrentParams -> ParamChecks' -> Text
+homePage currentParams checks = [textF|src/Cardano/Constitution/Checker/Web/Template/master.html|]
  where
   inputs =
-    Text.concat $ Haskell.map input (inputsByCurrentParams currentParams)
+    Text.concat $ Haskell.map input (inputsByCurrentParams currentParams checks)
 
 sampleInputs :: [Text]
 sampleInputs =
@@ -52,21 +49,55 @@ sampleInputs =
     , InputProps "poolVotingThresholds[steps]" "poolVotingThresholds-steps" "2" Error "0"
     ]
 
-inputsByCurrentParams :: CurrentParams -> [InputProps]
-inputsByCurrentParams (MkParametersChange mp) = Haskell.concatMap inputsByParamValue $ Map.elems mp
+type ParamChecks' = Map.Map String GenericParamCheck
+inputsByCurrentParams :: CurrentParams -> ParamChecks' -> [InputProps]
+inputsByCurrentParams (MkParametersChange mp) checks =
+  Haskell.concatMap f $ Map.elems mp
+ where
+  f param@(MkParamValue p _) =
+    inputsByParamValue param (Map.lookup (paramName p) checks)
 
-inputsByParamValue :: ParamValue -> [InputProps]
-inputsByParamValue (MkParamValue p@(Scalar{}) val) =
+getValueAndIconTypeForScalar :: Maybe GenericParamCheck -> (ByteString, IconType)
+getValueAndIconTypeForScalar checkM = case checkM of
+  (Just (MkGenericParamCheck (ParamCheck checkedVal _ ms))) ->
+    let failed = Haskell.any ((== Just False) . result) $ Map.elems ms
+     in (encode checkedVal, if failed then Error else Normal)
+  _otherwise -> (BSL8.empty, Normal)
+
+inputsByParamValue :: ParamValue -> Maybe GenericParamCheck -> [InputProps]
+inputsByParamValue (MkParamValue p@(Scalar{}) val) checkM =
   let caption = fromString $ paramName p
-   in [InputProps caption caption "" Normal (fromString $ BSL8.unpack $ encode val)]
-inputsByParamValue (MkParamValue p@(Collection _ _ params) val) =
+      (val', iconType) = getValueAndIconTypeForScalar checkM
+   in [ InputProps
+          caption
+          caption
+          (fromString $ BSL8.unpack val')
+          iconType
+          (fromString $ BSL8.unpack $ encode val)
+      ]
+inputsByParamValue (MkParamValue p@(Collection _ _ params) val) checkM =
   let pName = paramName p
-      h (sp, sv) =
+      scalarChecks = extractSubparamsChecks checkM
+      h (sp, sv, scalarCheckM) =
         let caption = fromString $ pName ++ "[" ++ paramName sp ++ "]"
+            (val', iconType) = getValueAndIconTypeForScalar scalarCheckM
             name = fromString $ pName ++ "-" ++ paramName sp
-         in [InputProps caption name "" Normal (fromString $ BSL8.unpack $ encode sv)]
-   in Haskell.concatMap h $ Haskell.zip params val
-inputsByParamValue (MkParamValue CostModels{} _) = []
+         in [ InputProps
+                caption
+                name
+                (fromString $ BSL8.unpack val')
+                iconType
+                (fromString $ BSL8.unpack $ encode sv)
+            ]
+   in Haskell.concatMap h $ Haskell.zip3 params val $ case scalarChecks of
+        _ : _ | Haskell.length scalarChecks >= Haskell.length params -> Haskell.map Just scalarChecks
+        _otherwise -> Haskell.repeat Nothing
+inputsByParamValue (MkParamValue CostModels{} _) check = []
+
+extractSubparamsChecks :: Maybe GenericParamCheck -> [GenericParamCheck]
+extractSubparamsChecks checkM = case checkM of
+  (Just (MkGenericParamCheck (ParamCheckList xs))) -> Haskell.map MkGenericParamCheck xs
+  _otherwise -> []
 
 allParams' :: [Text]
 allParams' = Haskell.concatMap f allParams
@@ -127,19 +158,19 @@ type HtmxMain =
   )
 -}
 
-homePageHandler :: CurrentParams -> Handler RawHtml
-homePageHandler = return . RawHtml . homePage
+homePageHandler :: CurrentParams -> ParamChecks' -> Handler RawHtml
+homePageHandler currentValues = return . RawHtml . homePage currentValues
 
 paramsCheckHandler :: CurrentParams -> ParamChecks -> Text -> ParametersChange -> Handler RawHtml
 paramsCheckHandler currentParams ParamChecks{..} name paramChange = do
+  let inputs = Text.concat $ Haskell.map input (inputsByCurrentParams currentParams paramChecks)
   traceShow paramChange $
     return $
-      RawHtml $
-        input $
-          InputProps "asda" name "-" Normal "0"
- where
-  genericParamM = case Map.lookup (Text.unpack name) paramChecks of
-    Nothing -> InputProps "asda" name "-" Normal "0"
+      RawHtml inputs
+
+-- where
+-- genericParamM = case Map.lookup (Text.unpack name) paramChecks of
+-- Nothing -> InputProps "asda" name "-" Normal "0"
 
 data HTML = HTML
 

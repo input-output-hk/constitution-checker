@@ -62,7 +62,7 @@ server ServerCaps{..} =
   homePageHandler' :: Handler RawHtml
   homePageHandler' = do
     (EpochParameters _ currentParams) <- getAllCurrentParamsValues
-    homePageHandler currentParams
+    homePageHandler currentParams Map.empty
   paramsCheckHandler' :: Text -> ParametersChange -> Handler RawHtml
   paramsCheckHandler' inputName paramChange = do
     (ctx, EpochParameters _ currentParams) <- mkContext' paramChange

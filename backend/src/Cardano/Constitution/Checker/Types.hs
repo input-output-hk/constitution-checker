@@ -17,6 +17,7 @@ module Cardano.Constitution.Checker.Types (
   protocolParamsToEpochParams,
 ) where
 
+import Cardano.Constitution.Checker.Base
 import Cardano.Constitution.Checker.Params.Definition
 import Cardano.Constitution.Checker.Params.Types
 import Data.Aeson.QQ
@@ -103,9 +104,6 @@ instance ToJSON ParametersChange where
                 "plutusV3":  #{v3}
               }|]
       )
-
-mapLeft :: (a -> c) -> Either a b -> Either c b
-mapLeft f = either (Left . f) Right
 
 instance FromForm ParametersChange where
   fromForm (Form hs) = do
