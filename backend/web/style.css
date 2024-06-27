@@ -685,6 +685,16 @@
   border-color: var(--primitives-color-neutral-neutral-80);
 }
 
+.unstyled-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+}
 .desktop .active {
   display: inline-flex;
   align-items: center;
@@ -698,7 +708,7 @@
   border-color: var(--tokens-primary-light-primary);
 }
 
-.desktop .text-wrapper-4 {
+.desktop .tab-text-wrapper-active {
   position: relative;
   width: 209px;
   height: 38px;
@@ -725,7 +735,7 @@
   border-color: var(--primitives-color-neutral-neutral-80);
 }
 
-.desktop .text-wrapper-5 {
+.desktop .tab-text-wrapper-inactive {
   position: relative;
   width: 209px;
   height: 38px;
