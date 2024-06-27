@@ -101,7 +101,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           }),
           outlined: ({ theme }) => ({
             border: `1px solid ${theme.palette.primary.main}`,
-              color: `${theme.palette.primary.main}`,
+              color: theme.palette.primary.main,
               '&:hover': {
                 background: `linear-gradient(
               0deg, 
@@ -125,9 +125,22 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
               }
           }),
           text: ({ theme }) => ({
-            color: `${theme.palette.onVariant.main}`,
+            color: theme.palette.onVariant.main,
               '&:hover': {
-                color: `${theme.palette.secondary.main}`,
+                color: theme.palette.secondary.main,
+                background: 'transparent',
+                '&:active': {
+                  background: 'transparent',
+                },
+              },  
+              '&:focus': {
+                background: 'transparent',
+              }
+          }),
+          textPrimary: ({ theme }) => ({
+            color: theme.palette.primary.onContainer,
+              '&:hover': {
+                color: theme.palette.primary.main,
                 background: 'transparent',
                 '&:active': {
                   background: 'transparent',
@@ -142,10 +155,10 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
       MuiIconButton: {
         styleOverrides: {
           root: ({ theme }) => ({
-            color: `${theme.palette.onVariant.main}`,
+            color: theme.palette.onVariant.main,
           }),
           colorSuccess: ({ theme }) => ({
-            color: `${theme.palette.onVariant.main}`,
+            color: theme.palette.onVariant.main,
             '&:hover': {
               backgroundColor: 'transparent',
             },
@@ -157,27 +170,27 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
             },
           }),
           colorPrimary: ({ theme }) => ({
-            color: `${theme.palette.primary.main}`,
+            color: theme.palette.primary.main,
             '&:hover': {
-              backgroundColor: `${theme.palette.primary.mainOpacity1}`,
+              backgroundColor: theme.palette.primary.mainOpacity1,
             },
             '&:focus': {
-              backgroundColor: `${theme.palette.primary.mainOpacity2}`,
+              backgroundColor: theme.palette.primary.mainOpacity2,
             },
             '&:active': {
-              backgroundColor: `${theme.palette.primary.mainOpacity2}`,
+              backgroundColor: theme.palette.primary.mainOpacity2,
             },
           }),
           colorSecondary: ({ theme }) => ({
-            color: `${theme.palette.onVariant.main}`,
+            color: theme.palette.onVariant.main,
             '&:hover': {
-              backgroundColor: `${theme.palette.onSurface.mainOpacity1}`,
+              backgroundColor: theme.palette.onSurface.mainOpacity1,
             },
             '&:focus': {
-              backgroundColor: `${theme.palette.onSurface.mainOpacity2}`,
+              backgroundColor: theme.palette.onSurface.mainOpacity2,
             },
             '&:active': {
-              backgroundColor: `${theme.palette.onSurface.mainOpacity2}`,
+              backgroundColor: theme.palette.onSurface.mainOpacity2,
             },
           }),
         },
@@ -193,7 +206,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
             minWidth: '55px',
           },
           groupedOutlined: ({ theme }) => ({
-            color: `${theme.palette.onVariant.main}`,
+            color: theme.palette.onVariant.main,
             border: `solid 1px ${theme.palette.outline.main}`,
             fontSize: '12px',
             '&:hover': {
@@ -208,10 +221,10 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         },
         styleOverrides: {
           colorAction: ({ theme }) => ({
-            color: `${theme.palette.onVariant.main}`,
+            color: theme.palette.onVariant.main,
           }),
           colorDisabled: ({ theme }) => ({
-            color: `${theme.palette.outline.main}`,
+            color: theme.palette.outline.main,
           }),
           fontSizeSmall: {
             width: '18px',
@@ -222,10 +235,10 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
       MuiInputBase: {
         styleOverrides: {
           root: ({ theme }) => ({
-            color: `${theme.palette.onSurface.main}`,
+            color: theme.palette.onSurface.main,
             fontSize: '12px',
             '&.Mui-error .MuiInputAdornment-root': {
-              color: `${theme.palette.error.main}`,
+              color: theme.palette.error.main,
             },
           }),
         },
@@ -237,13 +250,13 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
               border: `1px solid ${theme.palette.outline.main}`,
             },
             ":hover .MuiOutlinedInput-notchedOutline": {
-              borderColor: `${theme.palette.onSurface.main}`,
+              borderColor: theme.palette.onSurface.main,
             },
             "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-              borderColor: `${theme.palette.primary.main}`,
+              borderColor: theme.palette.primary.main,
             },
             "&.Mui-error .MuiOutlinedInput-notchedOutline": {
-              borderColor: `${theme.palette.error.main}`,
+              borderColor: theme.palette.error.main,
             },
           }),
         },
@@ -267,14 +280,14 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         styleOverrides: {
           root: ({ theme }) => ({
             marginLeft: '10px',
-            color: `${theme.palette.onVariant.main}`,
+            color: theme.palette.onVariant.main,
           }),
         },
       },
       MuiTooltip: {
         styleOverrides: {
           tooltip: ({ theme }) => ({
-            backgroundColor: `${theme.palette.onVariant.main}`,
+            backgroundColor: theme.palette.onVariant.main,
           })
         },
       },
@@ -288,7 +301,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
       MuiAppBar: {
         styleOverrides: {
           root: ({ theme }) => ({
-            backgroundColor: `${theme.palette.containerLowest.main}`,
+            backgroundColor: theme.palette.containerLowest.main,
             boxShadow: 'none',
           })
         },
@@ -328,7 +341,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         styleOverrides: {
           root: ({ theme }) => ({
             textTransform: 'none',
-            color: `${theme.palette.onVariant.main}`,
+            color: theme.palette.onVariant.main,
             ':focus': {
               background: 'transparent',
             },
@@ -347,10 +360,10 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         styleOverrides: {
           root: ({ theme }) => ({
             ":hover": {
-              background: `${theme.palette.primary.mainOpacity1}`,
+              background: theme.palette.primary.mainOpacity1,
             },
             ":focus": {
-              background: `${theme.palette.primary.mainOpacity2}`,
+              background: theme.palette.primary.mainOpacity2,
             },
           }),
         },
@@ -359,6 +372,17 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         styleOverrides: {
           hover: ({ theme }) => ({
               backgroundColor: 'rgba(27, 27, 31, 0.1)',
+          }),
+        },
+      }, 
+      MuiTableCell: {
+        styleOverrides: {
+          stickyHeader: ({ theme }) => ({
+              background: `linear-gradient(
+                0deg, 
+                ${theme.palette.primary.mainOpacity1}, 
+                ${theme.palette.primary.mainOpacity1}
+                ), ${theme.palette.common.white}`,
           }),
         },
       }, 

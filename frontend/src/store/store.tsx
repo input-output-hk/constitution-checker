@@ -71,30 +71,34 @@ type State = {
     //holdes current JSON value after initial validation
     currentJsonState: InitialJsonState | undefined;
     loading: boolean;
+    error: null | string;
 }
 
 type Action = {
     fetchJsonInitialState: () => void;
     updateInitialJsonState: (json: InitialJsonState) => void;
-    revertToInitialJsonState: () => void;
     setCurrentJsonState: (json: InitialJsonState) => void;
+    revertToInitialJsonState: () => void;
 };
 
 const useStore = create<State & Action>((set) => ({
+    //state variables only for app.tsx
     loading: true,
+    error: null,
     //holds initial JSON state
     initialJsonState: undefined, 
     //holds updated state from returned POST request
     currentJsonState: undefined, 
 
+    //used only to load initial app state from Cardano
     fetchJsonInitialState: async () => {
-        set({ loading: true });
+        set({ loading: true, error: null });
         try {
             const response = await axios.get("http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8080/current-values");
             set({ initialJsonState: response.data, currentJsonState: response.data, loading: false });
         } catch (error) {
             console.error("Failed to fetch initial state:", error);
-            set({ loading: false });
+            set({ error: "Failed to fetch initial state", loading: false });
         }
     },
     
