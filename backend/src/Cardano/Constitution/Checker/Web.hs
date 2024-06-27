@@ -157,7 +157,7 @@ inputsByParamValue (MkParamValue p@(Collection _ _ params) val) checkM =
    in Haskell.concatMap h $ Haskell.zip3 params val $ case scalarChecks of
         _ : _ | Haskell.length scalarChecks >= Haskell.length params -> Haskell.map Just scalarChecks
         _otherwise -> Haskell.repeat Nothing
-inputsByParamValue (MkParamValue CostModels{} _) check = []
+inputsByParamValue (MkParamValue CostModels{} _) _ = []
 
 extractSubparamsChecks :: Maybe GenericParamCheck -> [GenericParamCheck]
 extractSubparamsChecks checkM = case checkM of
@@ -181,6 +181,7 @@ allParams' = Haskell.concatMap f allParams
   f (MkParam' CostModels{}) = []
 
 data IconType = Normal | Warning | Error
+  deriving (Eq)
 
 data InputProps = InputProps
   { caption :: !Text
@@ -198,6 +199,10 @@ input InputProps{..} =
     Normal -> ("7", "text-field-normal", "label-text-normal")
     Warning -> ("11", "text-field-normal", "label-text-normal")
     Error -> ("8", "text-field-error", "label-text-error")
+  onClick =
+    if iconType == Error
+      then ""
+      else "clearAndTriggerHTMX('" <> name <> "-input')"
 
 --------------------------------------------------------------------------------
 --  Routes
@@ -206,7 +211,6 @@ input InputProps{..} =
 type HtmxMain =
   Get '[HTML] RawHtml
     :<|> "params-check"
-      -- :> Capture "param" Text
       :> ReqBody '[FormUrlEncoded] ParametersChange
       :> Post '[HTML] RawHtml
 

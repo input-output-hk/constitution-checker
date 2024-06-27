@@ -6,6 +6,28 @@
     <link rel="stylesheet" href="styleguide.css" />
     <link rel="stylesheet" href="style.css" />
     <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+    <script>
+      function clearAndTriggerHTMX(inputId) {
+        // Clear the input value
+        var inputElement = document.getElementById(inputId);
+        console.log(inputId, inputElement);
+        inputElement.value = "";
+
+        // Manually trigger the changed event
+        var event = new Event("changed", {
+          bubbles: true,
+          cancelable: true,
+        });
+        inputElement.dispatchEvent(event);
+
+        // Manually trigger the blur event
+        var blurEvent = new Event("blur", {
+          bubbles: true,
+          cancelable: true,
+        });
+        inputElement.dispatchEvent(blurEvent);
+      }
+    </script>
   </head>
   <body>
     <form name="hx-post" ="/params-check">
