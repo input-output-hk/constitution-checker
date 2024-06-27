@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Toolbar from '@mui/material/Toolbar';
@@ -9,15 +10,26 @@ import CommonButton from './CommonButton';
 import TextField from './TextField';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DownloadIcon from '@mui/icons-material/Download';
-import useStore from '../store/store'; 
+import useStore, { InitialJsonState } from '../store/store';
 import Button from '@mui/material/Button';
 
 export default function SideDrawerLeft() {
-  const { initialJsonState, currentJsonState, setCurrentJsonState } = useStore(state => ({
+  const { initialJsonState, currentJsonState, setCurrentJsonState, postParametersProposal } = useStore(state => ({
     initialJsonState: state.initialJsonState,
     currentJsonState: state.currentJsonState,
     setCurrentJsonState: state.setCurrentJsonState,
+     postParametersProposal: state.postParametersProposal,
   }));
+
+  const mutation = useMutation({
+    mutationFn: postParametersProposal,
+    onSuccess: (data: any) => {
+      console.log('Post successful:', data);
+    },
+    onError: (error: any) => {
+      console.error('Post failed:', error);
+    },
+  });
 
   const handleInputChange = (
     key: string,
@@ -33,6 +45,9 @@ export default function SideDrawerLeft() {
   };
 
   const handleRunCheck = () => {
+    // if (currentJsonState) {
+    //   mutation.mutate(currentJsonState);
+    // }
     console.log(currentJsonState);
   };
 

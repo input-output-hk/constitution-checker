@@ -1,7 +1,7 @@
 import create from 'zustand';
 import axios from 'axios';
 
-type InitialJsonState = {
+export type InitialJsonState = {
     "0": number,
     "1": number,
     "2": number,
@@ -62,7 +62,6 @@ type InitialJsonState = {
     "31": number,
     "32": number,
     "33": number,
-    "epoch": number
 };
 
 type State = {
@@ -78,6 +77,7 @@ type Action = {
     fetchJsonInitialState: () => void;
     updateInitialJsonState: (json: InitialJsonState) => void;
     setCurrentJsonState: (json: InitialJsonState) => void;
+    postParametersProposal: (data: InitialJsonState) => Promise<any>;
     revertToInitialJsonState: () => void;
 };
 
@@ -102,6 +102,17 @@ const useStore = create<State & Action>((set) => ({
         }
     },
     
+    postParametersProposal: async (data: InitialJsonState) => {
+        const response = await axios.post('http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8080/parameters/proposal', data, {
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Accept': 'application/json;charset=utf-8'
+          }
+        });
+        console.log(response.data);
+        return response.data;
+    },
+
     updateInitialJsonState: (json) => set({ initialJsonState: json }),
     //reverts UI back to initial JSON state when refresh btn click
     setCurrentJsonState: (json) => set({ currentJsonState: json }),
