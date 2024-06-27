@@ -66,7 +66,7 @@ server ServerCaps{..} =
     homePageHandler viewParamsResult currentParams Map.empty
 
   paramsCheckHandler' :: AllInputs -> Handler RawHtml
-  paramsCheckHandler' inputs@(AllInputs paramChange _) = do
+  paramsCheckHandler' inputs@(AllInputs paramChange _ _) = do
     (ctx, EpochParameters _ currentParams) <- mkContext' paramChange
     let checks = checkParams currentParams ctx paramChange
     paramsCheckHandler currentParams checks inputs
