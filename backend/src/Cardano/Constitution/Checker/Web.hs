@@ -34,19 +34,23 @@ homePage :: Bool -> CurrentParams -> ParamChecks' -> Text
 homePage viewParamsResult currentParams checks =
   [textF|src/Cardano/Constitution/Checker/Web/Template/master.html|]
  where
-  inputs =
-    Text.concat $
-      Haskell.map
-        input
-        (inputsByCurrentParams currentParams checks)
+  viewParamResultInput = viewParamResult False viewParamsResult
+  inputs = inputList currentParams checks
   mainView = [textF|src/Cardano/Constitution/Checker/Web/Template/main-view.html|]
-  tabs = tabBar (not viewParamsResult)
-  table = guardrailsTable False checks
+  tabs = tabBar (not viewParamsResult) False
+  table = tableView viewParamsResult False checks
 
 type SwapOOB = Bool
 
-tabButton :: Bool -> Text -> Text
-tabButton active text =
+inputList :: CurrentParams -> ParamChecks' -> Text
+inputList currentParams checks =
+  Text.concat $
+    Haskell.map
+      input
+      (inputsByCurrentParams currentParams checks)
+
+tabButton :: Bool -> Text -> Text -> Text
+tabButton active text btnName =
   [textF|src/Cardano/Constitution/Checker/Web/Template/tab-button.html|]
  where
   (buttonClass, activeClass) =
@@ -54,22 +58,62 @@ tabButton active text =
       then ("active", "active")
       else ("inactive", "inactive")
 
-tabBar :: Bool -> Text
-tabBar fstActive =
+tabBar :: Bool -> Bool -> Text
+tabBar fstActive swapOOB' =
   [textF|src/Cardano/Constitution/Checker/Web/Template/tabs.html|]
  where
+  swapOOB = if swapOOB' then "true" else "false"
   tabButtons =
     Text.concat $
       Haskell.map
-        (\(text, active) -> tabButton active text)
-        [("Guardrails", fstActive), ("Proposal Parameters", not fstActive)]
+        (\(text, active, btnName) -> tabButton active text btnName)
+        [ ("Guardrails", fstActive, "guardRails")
+        , ("Proposal Parameters", not fstActive, "parameters")
+        ]
 
 viewParamResult :: Bool -> Bool -> Text
 viewParamResult swapOOB' viewParams =
   [textF|src/Cardano/Constitution/Checker/Web/Template/view-params-result.html|]
  where
   swapOOB = if swapOOB' then "true" else "false"
-  hiddenInput = ""
+  hiddenInput = if viewParams then "<input type=\"hidden\" name=\"view-params-result\"/>" else ""
+
+type ShowParams = Bool
+
+tableView :: ShowParams -> SwapOOB -> ParamChecks' -> Text
+tableView showParamResult swapOOB checks =
+  if showParamResult
+    then parameterTable swapOOB checks
+    else guardrailsTable swapOOB checks
+
+parameterTable :: SwapOOB -> ParamChecks' -> Text
+parameterTable swapOOB' checks =
+  [textF|src/Cardano/Constitution/Checker/Web/Template/parameters-table.html|]
+ where
+  swapOOB = if swapOOB' then "true" else "false"
+  paramRows =
+    Haskell.concatMap
+      (uncurry toParameterRow)
+      $ sortOn fst
+      $ Map.toList checks
+  fstColumn =
+    let f ParameterRow{..} = parameterFstCell parameterRowStatus parameterRowParamName
+     in Text.concat $ Haskell.map f paramRows
+  proposedColumn =
+    let f ParameterRow{..} = parameterProposedCell parameterRowValue
+     in Text.concat $ Haskell.map f paramRows
+  actionColumn =
+    let f _ = [textF|src/Cardano/Constitution/Checker/Web/Template/parameter-action-cell.html|]
+     in Text.concat $ Haskell.map f paramRows
+
+parameterFstCell :: Bool -> Text -> Text
+parameterFstCell result parameterName =
+  let ellipseColorClass = if result then "green" else "red"
+   in [textF|src/Cardano/Constitution/Checker/Web/Template/parameter-fst-cell.html|]
+
+parameterProposedCell :: Text -> Text
+parameterProposedCell proposedValue =
+  [textF|src/Cardano/Constitution/Checker/Web/Template/parameter-proposed-cell.html|]
 
 guardrailsTable :: SwapOOB -> ParamChecks' -> Text
 guardrailsTable swapOOB' checks =
@@ -102,6 +146,33 @@ data GuardrailCheckRow = GuardrailCheckRow
   , guardrailCheckRowMessage :: !(Maybe Text)
   , guardrailCheckRowParamName :: !Text
   }
+
+data ParameterRow = ParameterRow
+  { parameterRowStatus :: !Bool
+  , parameterRowValue :: !Text
+  , parameterRowParamName :: !Text
+  }
+
+toParameterRow :: String -> GenericParamCheck -> [ParameterRow]
+toParameterRow _ (MkGenericParamCheck check@(ParamCheck{})) =
+  toParameterRow' id check
+toParameterRow pname (MkGenericParamCheck (ParamCheckList checks)) =
+  let wrapName str = pname ++ " - " ++ str
+   in Haskell.concatMap (toParameterRow' wrapName) checks
+toParameterRow _ (MkGenericParamCheck (ParamCheckCostModels{})) =
+  error "not implemented"
+
+paramSucceeded :: [GuardrailResult] -> Bool
+paramSucceeded [] = True
+paramSucceeded ((GuardrailResult (Just False) _ _) : xs) = False
+paramSucceeded (_ : xs) = paramSucceeded xs
+
+toParameterRow' :: (String -> String) -> ParamCheck (Identity a) -> [ParameterRow]
+toParameterRow' wrapName (ParamCheck value param results) =
+  let succeeded = paramSucceeded $ Map.elems results
+      textValue = decodeUtf8 $ toStrict $ encode value
+      paramName' = Text.pack $ wrapName $ paramName param
+   in [ParameterRow succeeded textValue paramName']
 
 toGuardrailCheckRows :: String -> GenericParamCheck -> [GuardrailCheckRow]
 toGuardrailCheckRows _ (MkGenericParamCheck check@(ParamCheck{})) =
@@ -149,12 +220,14 @@ type ParamChecks' = Map.Map String GenericParamCheck
 data AllInputs = AllInputs
   { paramChange :: !ParametersChange
   , viewParamsResult :: !Bool
+  , tabBtnName :: !(Maybe Text)
   }
 
 instance FromForm AllInputs where
   fromForm form@(Form hs) = do
     checks <- fromForm form
-    pure $ AllInputs checks (HashMap.member "view-params-result" hs)
+    let tabBtnName = Text.concat <$> HashMap.lookup "tabBtnName" hs
+    pure $ AllInputs checks (HashMap.member "view-params-result" hs) tabBtnName
 
 inputsByCurrentParams :: CurrentParams -> ParamChecks' -> [InputProps]
 inputsByCurrentParams (MkParametersChange mp) checks =
@@ -259,14 +332,20 @@ homePageHandler viewParamsResult currentValues =
   return . RawHtml . homePage viewParamsResult currentValues
 
 paramsCheckHandler :: CurrentParams -> ParamChecks -> AllInputs -> Handler RawHtml
-paramsCheckHandler currentParams ParamChecks{..} (AllInputs paramChange viewParamsResult) = do
-  traceShow paramChange $
+paramsCheckHandler currentParams ParamChecks{..} (AllInputs _ viewParamsResult' tabBtnName) = do
+  traceShow viewParamsResult' $
     return $
       RawHtml $
-        inputs <> table
+        inputs <> table <> viewParamResultInput <> tabs
  where
-  inputs = Text.concat $ Haskell.map input (inputsByCurrentParams currentParams paramChecks)
-  table = guardrailsTable True paramChecks
+  inputs = inputList currentParams paramChecks
+  table = tableView showParams True paramChecks
+  viewParamResultInput = viewParamResult True showParams
+  showParams = case tabBtnName of
+    Nothing -> viewParamsResult'
+    Just "" -> viewParamsResult'
+    _buttonClicked -> tabBtnName == Just "parameters"
+  tabs = tabBar (not showParams) False
 
 data HTML = HTML
 

@@ -29,8 +29,9 @@
       }
     </script>
   </head>
-  <body>
+  <body hx-boost="true" onkeydown="if(event.keyCode === 13) { return false; }">
     <form hx-post="?">
+      $viewParamResultInput
       <div class="desktop">
         <div class="sidebar">
           <div class="header">
@@ -80,7 +81,7 @@
                   </div>
                 </div>
               </div>
-              <button class="button">
+              <button class="button" hx-post="" hx-target="#inputs">
                 <div class="state-layer-3">
                   <img class="icon" src="img/icon-3.svg" />
                   <div class="label-text-4">Upload local JSON file</div>

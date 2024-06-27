@@ -949,6 +949,18 @@
   font-style: var(--text-styles-p-large-regular-18-font-style);
 }
 
+.desktop .text-wrapper-param-name-table {
+  position: relative;
+  margin-right: -21px;
+  font-family: var(--text-styles-p-large-regular-18-font-family);
+  font-weight: var(--text-styles-p-large-regular-18-font-weight);
+  color: var(--tokens-neutrals-light-on-surface-variant);
+  font-size: var(--text-styles-p-large-regular-18-font-size);
+  letter-spacing: var(--text-styles-p-large-regular-18-letter-spacing);
+  line-height: var(--text-styles-p-large-regular-18-line-height);
+  font-style: var(--text-styles-p-large-regular-18-font-style);
+}
+
 .desktop .ellipse-red {
   background-color: #cd3939;
   position: relative;
@@ -975,6 +987,14 @@
   display: flex;
   flex-direction: column;
   width: 250;
+  align-items: flex-start;
+  position: relative;
+}
+
+.desktop .column-parameter-name {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
   align-items: flex-start;
   position: relative;
 }
@@ -1042,4 +1062,52 @@
   flex-direction: column;
   align-items: flex-start;
   position: relative;
+}
+
+.button-param {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-direction: column;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.button-param .state-layer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px 10px 12px;
+  position: relative;
+  flex: 1;
+  align-self: stretch;
+  width: 100%;
+  flex-grow: 1;
+}
+
+.button-param .icon {
+  position: relative;
+  width: 18px;
+  height: 18px;
+}
+
+.button-param .label-text {
+  position: relative;
+  width: fit-content;
+  margin-top: -1px;
+  font-family: var(--m3-label-large-font-family);
+  font-weight: var(--m3-label-large-font-weight);
+  color: var(--tokens-neutrals-light-on-surface-variant);
+  font-size: var(--m3-label-large-font-size);
+  text-align: center;
+  letter-spacing: var(--m3-label-large-letter-spacing);
+  line-height: var(--m3-label-large-line-height);
+  white-space: nowrap;
+  font-style: var(--m3-label-large-font-style);
 }
