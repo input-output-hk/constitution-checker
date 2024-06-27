@@ -17,6 +17,7 @@ import Cardano.Constitution.Checker.Web.Internal
 import Data.Aeson (encode)
 import Data.ByteString.Lazy.Char8 as BSL8
 import Data.Functor.Identity (Identity (..))
+import qualified Data.HashMap.Strict as HashMap
 import Data.List (sortOn)
 import qualified Data.Map as Map
 import Data.String (fromString)
@@ -26,10 +27,12 @@ import Debug.Trace (traceShow)
 import Network.HTTP.Media ((//), (/:))
 import Servant.API as Servant
 import Servant.Server
+import Web.FormUrlEncoded
 import Prelude as Haskell
 
-homePage :: CurrentParams -> ParamChecks' -> Text
-homePage currentParams checks = [textF|src/Cardano/Constitution/Checker/Web/Template/master.html|]
+homePage :: Bool -> CurrentParams -> ParamChecks' -> Text
+homePage viewParamsResult currentParams checks =
+  [textF|src/Cardano/Constitution/Checker/Web/Template/master.html|]
  where
   inputs =
     Text.concat $
@@ -37,9 +40,37 @@ homePage currentParams checks = [textF|src/Cardano/Constitution/Checker/Web/Temp
         input
         (inputsByCurrentParams currentParams checks)
   mainView = [textF|src/Cardano/Constitution/Checker/Web/Template/main-view.html|]
+  tabs = tabBar (not viewParamsResult)
   table = guardrailsTable False checks
 
 type SwapOOB = Bool
+
+tabButton :: Bool -> Text -> Text
+tabButton active text =
+  [textF|src/Cardano/Constitution/Checker/Web/Template/tab-button.html|]
+ where
+  (buttonClass, activeClass) =
+    if active
+      then ("active", "active")
+      else ("inactive", "inactive")
+
+tabBar :: Bool -> Text
+tabBar fstActive =
+  [textF|src/Cardano/Constitution/Checker/Web/Template/tabs.html|]
+ where
+  tabButtons =
+    Text.concat $
+      Haskell.map
+        (\(text, active) -> tabButton active text)
+        [("Guardrails", fstActive), ("Proposal Parameters", not fstActive)]
+
+viewParamResult :: Bool -> Bool -> Text
+viewParamResult swapOOB' viewParams =
+  [textF|src/Cardano/Constitution/Checker/Web/Template/view-params-result.html|]
+ where
+  swapOOB = if swapOOB' then "true" else "false"
+  hiddenInput = ""
+
 guardrailsTable :: SwapOOB -> ParamChecks' -> Text
 guardrailsTable swapOOB' checks =
   [textF|src/Cardano/Constitution/Checker/Web/Template/guardrails-table.html|]
@@ -114,6 +145,16 @@ toGuardrailCheckRows' wrapParamName (ParamCheck _ param results) =
    in rows
 
 type ParamChecks' = Map.Map String GenericParamCheck
+
+data AllInputs = AllInputs
+  { paramChange :: !ParametersChange
+  , viewParamsResult :: !Bool
+  }
+
+instance FromForm AllInputs where
+  fromForm form@(Form hs) = do
+    checks <- fromForm form
+    pure $ AllInputs checks (HashMap.member "view-params-result" hs)
 
 inputsByCurrentParams :: CurrentParams -> ParamChecks' -> [InputProps]
 inputsByCurrentParams (MkParametersChange mp) checks =
@@ -209,16 +250,16 @@ input InputProps{..} =
 --------------------------------------------------------------------------------
 
 type HtmxMain =
-  Get '[HTML] RawHtml
-    :<|> "params-check"
-      :> ReqBody '[FormUrlEncoded] ParametersChange
+  QueryFlag "view-params" :> Get '[HTML] RawHtml
+    :<|> ReqBody '[FormUrlEncoded] AllInputs
       :> Post '[HTML] RawHtml
 
-homePageHandler :: CurrentParams -> ParamChecks' -> Handler RawHtml
-homePageHandler currentValues = return . RawHtml . homePage currentValues
+homePageHandler :: Bool -> CurrentParams -> ParamChecks' -> Handler RawHtml
+homePageHandler viewParamsResult currentValues =
+  return . RawHtml . homePage viewParamsResult currentValues
 
-paramsCheckHandler :: CurrentParams -> ParamChecks -> ParametersChange -> Handler RawHtml
-paramsCheckHandler currentParams ParamChecks{..} paramChange = do
+paramsCheckHandler :: CurrentParams -> ParamChecks -> AllInputs -> Handler RawHtml
+paramsCheckHandler currentParams ParamChecks{..} (AllInputs paramChange viewParamsResult) = do
   traceShow paramChange $
     return $
       RawHtml $

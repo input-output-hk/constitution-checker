@@ -24,10 +24,11 @@ import Cardano.Constitution.Checker.Web
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Aeson
 import Data.String
-import Data.Text (Text, unpack)
+import Data.Text (unpack)
 import Servant.Client (BaseUrl, parseBaseUrl, showBaseUrl)
 
 import qualified Data.Map as Map
+import Network.Wai.Middleware.Cors
 
 type API =
   "parameters"
@@ -59,15 +60,16 @@ server ServerCaps{..} =
      in case Map.lookup maxEpoch protocolParams of
           Nothing -> Left "No protocol parameters available"
           Just params -> Right params
-  homePageHandler' :: Handler RawHtml
-  homePageHandler' = do
+  homePageHandler' :: Bool -> Handler RawHtml
+  homePageHandler' viewParamsResult = do
     (EpochParameters _ currentParams) <- getAllCurrentParamsValues
-    homePageHandler currentParams Map.empty
-  paramsCheckHandler' :: ParametersChange -> Handler RawHtml
-  paramsCheckHandler' paramChange = do
+    homePageHandler viewParamsResult currentParams Map.empty
+
+  paramsCheckHandler' :: AllInputs -> Handler RawHtml
+  paramsCheckHandler' inputs@(AllInputs paramChange _) = do
     (ctx, EpochParameters _ currentParams) <- mkContext' paramChange
     let checks = checkParams currentParams ctx paramChange
-    paramsCheckHandler currentParams checks paramChange
+    paramsCheckHandler currentParams checks inputs
 
   getAllCurrentParamsValues :: Handler EpochParameters
   getAllCurrentParamsValues = do
@@ -150,5 +152,14 @@ serverWithDoc :: ServerCaps -> Server APIWithDoc
 serverWithDoc caps =
   swaggerSchemaUIServer swaggerJson :<|> server caps
 
+customCorsPolicy :: CorsResourcePolicy
+customCorsPolicy =
+  simpleCorsResourcePolicy
+    { corsOrigins = Nothing -- This allows all origins
+    , corsMethods = ["GET", "POST", "OPTIONS", "PUT", "DELETE"]
+    , corsRequestHeaders = ["Authorization", "Content-Type"]
+    , corsExposedHeaders = Nothing -- Expose all headers
+    , corsMaxAge = Nothing
+    }
 app :: ServerCaps -> Application
-app = serve apiWithDoc . serverWithDoc
+app = cors (const $ Just customCorsPolicy) . serve apiWithDoc . serverWithDoc
