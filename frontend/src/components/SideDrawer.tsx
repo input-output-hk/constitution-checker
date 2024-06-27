@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Toolbar from '@mui/material/Toolbar';
@@ -9,12 +10,46 @@ import CommonButton from './CommonButton';
 import TextField from './TextField';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DownloadIcon from '@mui/icons-material/Download';
-import useStore from '../store/store'; 
+import useStore, { InitialJsonState } from '../store/store';
+import Button from '@mui/material/Button';
 
 export default function SideDrawerLeft() {
-  const { initialJsonState } = useStore(state => ({
+  const { initialJsonState, currentJsonState, setCurrentJsonState, postParametersProposal } = useStore(state => ({
     initialJsonState: state.initialJsonState,
+    currentJsonState: state.currentJsonState,
+    setCurrentJsonState: state.setCurrentJsonState,
+     postParametersProposal: state.postParametersProposal,
   }));
+
+  const mutation = useMutation({
+    mutationFn: postParametersProposal,
+    onSuccess: (data: any) => {
+      console.log('Post successful:', data);
+    },
+    onError: (error: any) => {
+      console.error('Post failed:', error);
+    },
+  });
+
+  const handleInputChange = (
+    key: string,
+    value: number | number[] | { [key: string]: number } | { [key: string]: number[] }
+  ) => {
+    if (currentJsonState) {
+      const updatedJsonState = {
+        ...currentJsonState,
+        [key]: value,
+      };
+      setCurrentJsonState(updatedJsonState);
+    }
+  };
+
+  const handleRunCheck = () => {
+    // if (currentJsonState) {
+    //   mutation.mutate(currentJsonState);
+    // }
+    console.log(currentJsonState);
+  };
 
   const buttons = [
     { label: 'Local File', onClick: () => console.log('Local File clicked') },
@@ -47,120 +82,123 @@ export default function SideDrawerLeft() {
           </div>
 
           <div className="child2DrawerContainer">
-            <Typography variant={'h6'}>
-                Change Parameter Value
-            </Typography>
+            <Box className="spBtwnDiv" >
+              <Typography variant={'h6'}>
+                  Change Parameter Value
+              </Typography>
+              <Button color='primary' variant='text' disableRipple disableFocusRipple onClick={handleRunCheck}>Run</Button>
+            </Box>
 
             <div className="scrollBar">
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[0] ?? 'Default Value'} label="txFeePerByte" error={false}  />
+                <TextField label="txFeePerByte" defaultValue={initialJsonState?.[0] ?? 'Default Value'}  onChange={(value) => handleInputChange("0", value)} error={false} fullWidth={true} />
               
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[1] ?? 'Default Value'}label="txFeeFixed" error={false}  />
+                <TextField label="txFeeFixed" defaultValue={initialJsonState?.[1] ?? 'Default Value'} onChange={(value) => handleInputChange("1", value)} error={false} fullWidth={true} />
+
+                <TextField label="maxBlockBodySize" defaultValue={initialJsonState?.[2] ?? 'Default Value'} onChange={(value) => handleInputChange("2", value)} error={false} fullWidth={true} />
              
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[2] ?? 'Default Value'} label="maxBlockBodySize" error={false}  />
+                <TextField label="maxTxSize" defaultValue={initialJsonState?.[3] ?? 'Default Value'} onChange={(value) => handleInputChange("3", value)} error={false} fullWidth={true} />
               
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[3] ?? 'Default Value'} label="maxTxSize" error={false}  />
+                <TextField label="maxBlockHeaderSize" defaultValue={initialJsonState?.[4] ?? 'Default Value'} onChange={(value) => handleInputChange("4", value)} error={false} fullWidth={true} />
              
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[4] ?? 'Default Value'} label="maxBlockHeaderSize" error={false}  />
+                <TextField label="stakeAddressDeposit" defaultValue={initialJsonState?.[5] ?? 'Default Value'} onChange={(value) => handleInputChange("5", value)} error={false} fullWidth={true} />
               
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[5] ?? 'Default Value'} label="stakeAddressDeposit" error={false}  />
+                <TextField label="stakePoolDeposit" defaultValue={initialJsonState?.[6] ?? 'Default Value'} onChange={(value) => handleInputChange("6", value)} error={false} fullWidth={true} />
               
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[6] ?? 'Default Value'} label="stakePoolDeposit" error={false}  />
+                <TextField label="poolRetireMaxEpoch" defaultValue={initialJsonState?.[7] ?? 'Default Value'} onChange={(value) => handleInputChange("7", value)} error={false} fullWidth={true} />
              
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[7] ?? 'Default Value'} label="poolRetireMaxEpoch" error={false}  />
+                <TextField label="stakePoolTargetNum" defaultValue={initialJsonState?.[8] ?? 'Default Value'} onChange={(value) => handleInputChange("8", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[8] ?? 'Default Value'} label="stakePoolTargetNum" error={false}  />
+                <TextField label="poolPledgeInfluence" defaultValue={`${initialJsonState?.[9][0]}/${initialJsonState?.[9][1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("9", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[9][0]}/${initialJsonState?.[9][1]}` ?? 'Default Value'} label="poolPledgeInfluence" error={false}  />
+                <TextField label="monetaryExpansion" defaultValue={`${initialJsonState?.[10][0]}/${initialJsonState?.[10][1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("10", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[10][0]}/${initialJsonState?.[10][1]}` ?? 'Default Value'} label="monetaryExpansion" error={false}  />
+                <TextField label="treasuryCut" defaultValue={`${initialJsonState?.[11][0]}/${initialJsonState?.[11][1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("11", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[11][0]}/${initialJsonState?.[11][1]}` ?? 'Default Value'} label="treasuryCut" error={false}  />
+                <TextField label="minPoolCost" defaultValue={initialJsonState?.[16] ?? 'Default Value'} onChange={(value) => handleInputChange("16", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[16] ?? 'Default Value'} label="minPoolCost" error={false}  />
+                <TextField label="utxoCostPerByte" defaultValue={initialJsonState?.[17] ?? 'Default Value'} onChange={(value) => handleInputChange("17", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[17] ?? 'Default Value'} label="utxoCostPerByte" error={false}  />
+                <TextField label="maxValueSize" defaultValue={initialJsonState?.[22] ?? 'Default Value'} onChange={(value) => handleInputChange("22", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[22] ?? 'Default Value'} label="maxValueSize" error={false}  />
+                <TextField label="collateralPercentage" defaultValue={initialJsonState?.[23] ?? 'Default Value'} onChange={(value) => handleInputChange("23", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[23] ?? 'Default Value'} label="collateralPercentage" error={false}  />
+                <TextField label="maxCollateralInputs" defaultValue={initialJsonState?.[24] ?? 'Default Value'} onChange={(value) => handleInputChange("24", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[24] ?? 'Default Value'} label="maxCollateralInputs" error={false}  />
+                <TextField label="committeeMinSize" defaultValue={initialJsonState?.[27] ?? 'Default Value'} onChange={(value) => handleInputChange("27", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[27] ?? 'Default Value'} label="committeeMinSize" error={false}  />
+                <TextField label="committeeMaxTermLimit" defaultValue={initialJsonState?.[28] ?? 'Default Value'} onChange={(value) => handleInputChange("28", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[28] ?? 'Default Value'} label="committeeMaxTermLimit" error={false}  />
+                <TextField label="govActionLifetime" defaultValue={initialJsonState?.[29] ?? 'Default Value'} onChange={(value) => handleInputChange("29", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[29] ?? 'Default Value'} label="govActionLifetime" error={false}  />
+                <TextField label="govDeposit" defaultValue={initialJsonState?.[30] ?? 'Default Value'} onChange={(value) => handleInputChange("30", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[30] ?? 'Default Value'} label="govDeposit" error={false}  />
+                <TextField label="dRepDeposit" defaultValue={initialJsonState?.[31] ?? 'Default Value'} onChange={(value) => handleInputChange("31", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[31] ?? 'Default Value'} label="dRepDeposit" error={false}  />
+                <TextField label="dRepActivity" defaultValue={initialJsonState?.[32] ?? 'Default Value'} onChange={(value) => handleInputChange("32", value)} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[32] ?? 'Default Value'} label="dRepActivity" error={false}  />
-
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[33] ?? 'Default Value'} label="minFeeRefScriptCoinsPerByte" error={false}  />
+                <TextField label="minFeeRefScriptCoinsPerByte" defaultValue={initialJsonState?.[33] ?? 'Default Value'} onChange={(value) => handleInputChange("33", value)} error={false} fullWidth={true} />
 
                 <Typography variant={'body1'} sx={{marginTop: '8px'}}>
                   executionUnitPrices
                 </Typography>
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[19].priceSteps[0]}/${initialJsonState?.[19].priceSteps[1]}` ?? 'Default Value'} label="priceSteps" error={false}  />
+                <TextField label="priceMemory" defaultValue={`${initialJsonState?.[19].priceMemory[0]}/${initialJsonState?.[19].priceMemory[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("19", { ...currentJsonState?.[19], priceMemory: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[19].priceMemory[0]}/${initialJsonState?.[19].priceMemory[1]}` ?? 'Default Value'} label="priceMemory" error={false}  />
+                <TextField label="priceSteps"  defaultValue={`${initialJsonState?.[19].priceSteps[0]}/${initialJsonState?.[19].priceSteps[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("19", { ...currentJsonState?.[19], priceSteps: value as [number, number] })} error={false} fullWidth={true} />
 
                 <Typography variant={'body1'} sx={{marginTop: '8px'}}>
                   maxTxExecutionUnits
                 </Typography>
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[20].mem ?? 'Default Value'} label="memory" error={false}  />
+                <TextField label="memory"  defaultValue={initialJsonState?.[20].mem ?? 'Default Value'} onChange={(value) => handleInputChange("20", { mem: value as number, steps: currentJsonState?.[20]?.steps ?? 0 })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[20].steps ?? 'Default Value'} label="steps" error={false}  />
+                <TextField label="steps"  defaultValue={initialJsonState?.[20].steps ?? 'Default Value'} onChange={(value) => handleInputChange("20", { steps: value as number, mem: currentJsonState?.[20]?.mem ?? 0 })} error={false} fullWidth={true} />
 
                 <Typography variant={'body1'} sx={{marginTop: '8px'}}>
                 maxBlockExecutionUnits
                 </Typography>
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[21].memory ?? 'Default Value'} label="memory" error={false}  />
+                <TextField label="memory"  defaultValue={initialJsonState?.[21].memory ?? 'Default Value'} onChange={(value) => handleInputChange("21", { memory: value as number, steps: currentJsonState?.[21]?.steps ?? 0 })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={initialJsonState?.[21].steps ?? 'Default Value'} label="steps" error={false}  />
+                <TextField label="steps"  defaultValue={initialJsonState?.[21].steps ?? 'Default Value'} onChange={(value) => handleInputChange("21", { steps: value as number, memory: currentJsonState?.[21]?.memory ?? 0 })} error={false} fullWidth={true} />
 
                 <Typography variant={'body1'} sx={{marginTop: '8px'}}>
                 poolVotingThresholds
                 </Typography>
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[25].committeeNoConfidence[0]}/${initialJsonState?.[25].committeeNoConfidence[1]}` ?? 'Default Value'} label="committeeNoConfidence" error={false}  />
+                <TextField label="committeeNoConfidence" defaultValue={`${initialJsonState?.[25].committeeNoConfidence[0]}/${initialJsonState?.[25].committeeNoConfidence[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("25", { ...currentJsonState?.[25], committeeNoConfidence: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[25].committeeNormal[0]}/${initialJsonState?.[25].committeeNormal[1]}` ?? 'Default Value'} label="committeeNormal" error={false}  />
+                <TextField label="committeeNormal" defaultValue={`${initialJsonState?.[25].committeeNormal[0]}/${initialJsonState?.[25].committeeNormal[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("25", { ...currentJsonState?.[25], committeeNormal: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[25].hardForkInitiation[0]}/${initialJsonState?.[25].hardForkInitiation[1]}` ?? 'Default Value'} label="hardForkInitiation" error={false}  />
+                <TextField label="hardForkInitiation" defaultValue={`${initialJsonState?.[25].hardForkInitiation[0]}/${initialJsonState?.[25].hardForkInitiation[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("25", { ...currentJsonState?.[25], hardForkInitiation: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[25].motionNoConfidence[0]}/${initialJsonState?.[25].motionNoConfidence[1]}` ?? 'Default Value'} label="motionNoConfidence" error={false}  />
+                <TextField label="motionNoConfidence" defaultValue={`${initialJsonState?.[25].motionNoConfidence[0]}/${initialJsonState?.[25].motionNoConfidence[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("25", { ...currentJsonState?.[25], motionNoConfidence: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[25].ppSecurityGroup[0]}/${initialJsonState?.[25].ppSecurityGroup[1]}` ?? 'Default Value'} label="ppSecurityGroup" error={false}  />
+                <TextField label="ppSecurityGroup" defaultValue={`${initialJsonState?.[25].ppSecurityGroup[0]}/${initialJsonState?.[25].ppSecurityGroup[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("25", { ...currentJsonState?.[25], ppSecurityGroup: value as [number, number] })} error={false} fullWidth={true} />
 
                 <Typography variant={'body1'} sx={{marginTop: '8px'}}>
                 dRepVotingThresholds
                 </Typography>
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[26].committeeNoConfidence[0]}/${initialJsonState?.[26].committeeNoConfidence[1]}` ?? 'Default Value'} label="committeeNoConfidence" error={false}  />
+                <TextField label="committeeNoConfidence" defaultValue={`${initialJsonState?.[26].committeeNoConfidence[0]}/${initialJsonState?.[26].committeeNoConfidence[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("26", { ...currentJsonState?.[26], committeeNoConfidence: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[26].committeeNormal[0]}/${initialJsonState?.[26].committeeNormal[1]}` ?? 'Default Value'} label="committeeNormal" error={false}  />
+                <TextField label="committeeNormal" defaultValue={`${initialJsonState?.[26].committeeNormal[0]}/${initialJsonState?.[26].committeeNormal[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("26", { ...currentJsonState?.[26], committeeNormal: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[26].hardForkInitiation[0]}/${initialJsonState?.[26].hardForkInitiation[1]}` ?? 'Default Value'} label="hardForkInitiation" error={false}  />
+                <TextField label="hardForkInitiation" defaultValue={`${initialJsonState?.[26].hardForkInitiation[0]}/${initialJsonState?.[26].hardForkInitiation[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("26", { ...currentJsonState?.[26], hardForkInitiation: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[26].motionNoConfidence[0]}/${initialJsonState?.[26].motionNoConfidence[1]}` ?? 'Default Value'} label="motionNoConfidence" error={false}  />
+                <TextField label="motionNoConfidence" defaultValue={`${initialJsonState?.[26].motionNoConfidence[0]}/${initialJsonState?.[26].motionNoConfidence[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("26", { ...currentJsonState?.[26], motionNoConfidence: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[26].ppEconomicGroup[0]}/${initialJsonState?.[26].ppEconomicGroup[1]}` ?? 'Default Value'} label="ppEconomicGroup" error={false}  />
+                <TextField label="ppEconomicGroup" defaultValue={`${initialJsonState?.[26].ppEconomicGroup[0]}/${initialJsonState?.[26].ppEconomicGroup[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("26", { ...currentJsonState?.[26], ppEconomicGroup: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[26].ppGovernanceGroup[0]}/${initialJsonState?.[26].ppGovernanceGroup[1]}` || 'Default Value'} label="ppGovernanceGroup" error={false}  />
+                <TextField label="ppGovernanceGroup" defaultValue={`${initialJsonState?.[26].ppGovernanceGroup[0]}/${initialJsonState?.[26].ppGovernanceGroup[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("26", { ...currentJsonState?.[26], ppGovernanceGroup: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[26].ppNetworkGroup[0]}/${initialJsonState?.[26].ppNetworkGroup[1]}` ?? 'Default Value'} label="ppNetworkGroup" error={false}  />
+                <TextField label="ppNetworkGroup" defaultValue={`${initialJsonState?.[26].ppNetworkGroup[0]}/${initialJsonState?.[26].ppNetworkGroup[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("26", { ...currentJsonState?.[26], ppNetworkGroup: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[26].ppTechnicalGroup[0]}/${initialJsonState?.[26].ppTechnicalGroup[1]}` ?? 'Default Value'} label="ppTechnicalGroup" error={false}  />
+                <TextField label="ppTechnicalGroup" defaultValue={`${initialJsonState?.[26].ppTechnicalGroup[0]}/${initialJsonState?.[26].ppTechnicalGroup[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("26", { ...currentJsonState?.[26], ppTechnicalGroup: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[26].treasuryWithdrawal[0]}/${initialJsonState?.[26].treasuryWithdrawal[1]}` ?? 'Default Value'} label="treasuryWithdrawal" error={false}  />
+                <TextField label="treasuryWithdrawal" defaultValue={`${initialJsonState?.[26].treasuryWithdrawal[0]}/${initialJsonState?.[26].treasuryWithdrawal[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("26", { ...currentJsonState?.[26], treasuryWithdrawal: value as [number, number] })} error={false} fullWidth={true} />
 
-                <TextField fullWidth={true} defaultValue={`${initialJsonState?.[26].updateConstitution[0]}/${initialJsonState?.[26].updateConstitution[1]}` ?? 'Default Value'} label="updateConstitution" error={false}  />
+                <TextField label="updateConstitution" defaultValue={`${initialJsonState?.[26].updateConstitution[0]}/${initialJsonState?.[26].updateConstitution[1]}` ?? 'Default Value'} onChange={(value) => handleInputChange("26", { ...currentJsonState?.[26], updateConstitution: value as [number, number] })} error={false} fullWidth={true} />
              
             </div>
           </div>

@@ -5,15 +5,16 @@ import ParameterViewer from './components/ParameterViewer';
 import CircularProgress from '@mui/material/CircularProgress';
 
 function App() {
-  const { initialJsonState, fetchJsonInitialState, loading } = useStore(state => ({
+  const { initialJsonState, fetchJsonInitialState, loading, error } = useStore(state => ({
     initialJsonState: state.initialJsonState,
     fetchJsonInitialState: state.fetchJsonInitialState,
-    loading: state.loading
+    loading: state.loading,
+    error: state.error,
   }));
 
   useEffect(() => {
     fetchJsonInitialState();
-}, [fetchJsonInitialState]);
+}, []);
 
 if (loading && !initialJsonState) {
     return <div className='loadingContainer'><CircularProgress /></div>; 
@@ -21,9 +22,18 @@ if (loading && !initialJsonState) {
 
   return (
     <main>
-      <SideDrawerLeft />
-      <ParameterViewer />
-    </main>
+    {error && (
+      <div className='loadingContainer'>
+        {error}
+      </div>
+    )}
+    {!error && (
+      <>
+        <SideDrawerLeft />
+        <ParameterViewer />
+      </>
+    )}
+  </main>
   );
 }
 

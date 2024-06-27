@@ -1,5 +1,4 @@
 import * as React from 'react';
-import TextField, { TextFieldProps } from '@mui/material/TextField';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import CommonButton from './CommonButton';
@@ -27,7 +26,6 @@ export default function PHATableRow({name, status="disabled", value}: PHATableRo
 
   return (
     <TableRow
-    hover
     sx={{ '&:last-child td, &:last-child th': { border: 0 }, }}
   >
     <TableCell component="th" scope="row">

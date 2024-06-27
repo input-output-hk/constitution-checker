@@ -35,7 +35,7 @@ export default function BasicTable() {
       </Toolbar>
       <Box sx={{height: `calc(100vh - 128px)`, overflowY: 'auto'}}>
       <Table size="small" aria-label="simple table" stickyHeader>
-      <TableHead sx={{backgroundColor: 'rgba(57, 82, 205, .08)'}}>
+      <TableHead>
           <TableRow>
             <TableCell>Parameter Name</TableCell>
             <TableCell align="right">Proposed Value</TableCell>
@@ -72,7 +72,8 @@ export default function BasicTable() {
           <BodyTableRow name='executionUnitPrices[priceMemory]' value={`${initialJsonState?.[19].priceMemory[0]}/${initialJsonState?.[19].priceMemory[1]}`} />
           <BodyTableRow name='maxTxExecutionUnits[memory]' value={initialJsonState?.[20].mem} />
           <BodyTableRow name='maxTxExecutionUnits[steps]' value={initialJsonState?.[20].steps} />
-          <BodyTableRow name='maxBlockExecutionUnits[memory]' value={initialJsonState?.[21].memory} /> <BodyTableRow name='maxBlockExecutionUnits[steps]' value={initialJsonState?.[21].steps} />
+          <BodyTableRow name='maxBlockExecutionUnits[memory]' value={initialJsonState?.[21].memory} /> 
+          <BodyTableRow name='maxBlockExecutionUnits[steps]' value={initialJsonState?.[21].steps} />
           <BodyTableRow name='poolVotingThresholds[committeeNoConfidence]' value={`${initialJsonState?.[25].committeeNoConfidence[0]}/${initialJsonState?.[25].committeeNoConfidence[1]}`} />
           <BodyTableRow name='poolVotingThresholds[committeeNormal]' value={`${initialJsonState?.[25].committeeNormal[0]}/${initialJsonState?.[25].committeeNormal[1]}`} />
           <BodyTableRow name='poolVotingThresholds[hardForkInitiation]' value={`${initialJsonState?.[25].hardForkInitiation[0]}/${initialJsonState?.[25].hardForkInitiation[1]}`} />
