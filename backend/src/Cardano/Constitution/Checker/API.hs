@@ -63,13 +63,13 @@ server ServerCaps{..} =
   homePageHandler' :: Bool -> Handler RawHtml
   homePageHandler' viewParamsResult = do
     (EpochParameters _ currentParams) <- getAllCurrentParamsValues
-    homePageHandler viewParamsResult currentParams Map.empty
+    homePageHandler viewParamsResult currentParams (ParamChecks' Map.empty Map.empty)
 
   paramsCheckHandler' :: AllInputs -> Handler RawHtml
   paramsCheckHandler' inputs@(AllInputs paramChange _ _) = do
     (ctx, EpochParameters _ currentParams) <- mkContext' paramChange
-    let checks = checkParams currentParams ctx paramChange
-    paramsCheckHandler currentParams checks inputs
+    let (ParamChecks proposed' (MissingParams missing)) = checkParams currentParams ctx paramChange
+    paramsCheckHandler currentParams (ParamChecks' proposed' missing) inputs
 
   getAllCurrentParamsValues :: Handler EpochParameters
   getAllCurrentParamsValues = do

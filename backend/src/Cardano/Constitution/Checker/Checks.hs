@@ -32,7 +32,7 @@ import Data.Swagger hiding (Param)
 import Data.Text (Text)
 import qualified GHC.IsList as Haskell
 
-newtype MissingParams = MissingParams (Map String ParamValue)
+newtype MissingParams = MissingParams (Map String GenericParamCheck)
 data ParamChecks = ParamChecks
   { paramChecks :: !(Map String GenericParamCheck)
   , paramChecksMissing :: !MissingParams
@@ -41,8 +41,8 @@ data ParamChecks = ParamChecks
 instance ToJSON MissingParams where
   toJSON (MissingParams missingParams') = object $ f <$> Map.toList missingParams'
    where
-    f :: (String, ParamValue) -> (Key, Value)
-    f (name', MkParamValue param' val') = (fromString name', paramValToValue (MkParamValue param' val'))
+    f :: (String, GenericParamCheck) -> (Key, Value)
+    f (name', MkGenericParamCheck check') = (fromString name', toJSON check')
 
 instance ToJSON ParamChecks where
   toJSON (ParamChecks checks missingParams') =
@@ -190,7 +190,8 @@ paramValToValue (MkParamValue (CostModels{}) (v1, v2, v3)) =
 
 instance ToSchema MissingParams where
   declareNamedSchema _ = do
-    let schemas = map (\(MkParam' param) -> Inline $ paramToSchema param) allParams
+    _ <- declareSchemaRef (Proxy :: Proxy GuardrailResult)
+    let schemas = map (Inline . paramCheckSchema) allParams
         keys = map (\(MkParam' param') -> Haskell.fromString $ paramName param') allParams
         xs = zip keys schemas
     let schema' =
@@ -199,7 +200,6 @@ instance ToSchema MissingParams where
               ?~ SwaggerObject
             & properties
               .~ Haskell.fromList xs
-
     return $ NamedSchema (Just "MissingParams") schema'
 
 instance ToSchema ParamChecks where
@@ -309,18 +309,27 @@ type CurrentParams = ParametersChange
 checkParams :: CurrentParams -> Context -> ParametersChange -> ParamChecks
 checkParams (MkParametersChange currentParams) ctx (unParametersChange -> m) =
   ParamChecks
-    { paramChecks = Map.fromList $ foldr collect mempty (Map.toList m)
+    { paramChecks = Map.fromList proposedChecks
     , paramChecksMissing =
-        MissingParams $
-          Map.fromList $
-            filter (\(k, _) -> not $ Set.member k allProvidedParamsNames) $
-              (\(_, param@(MkParamValue p _)) -> (paramName p, param))
-                <$> Map.toList currentParams
+        MissingParams $ Map.fromList missingChecks
     }
  where
+  merged' :: ParametersChange
+  merged' =
+    MkParametersChange $
+      Map.union m currentParams
+
+  allChecks = foldr collect mempty (Map.toList (unParametersChange merged'))
   allProvidedParamsNames :: Set.Set String =
     Set.fromList $
       (\(MkParamValue p _) -> paramName p) <$> Map.elems m
+
+  proposedChecks :: [(String, GenericParamCheck)]
+  proposedChecks = filter (\(k, _) -> Set.member k allProvidedParamsNames) allChecks
+
+  missingChecks :: [(String, GenericParamCheck)]
+  missingChecks = filter (\(k, _) -> not $ Set.member k allProvidedParamsNames) allChecks
+
   collect ::
     (Integer, ParamValue) ->
     [(String, GenericParamCheck)] ->
