@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -15,9 +16,12 @@ import Data.Functor.Identity
 import qualified Data.Ratio as R
 import Data.Swagger (Schema)
 
+import Data.Text.Read (decimal)
 import qualified GHC.IsList as Haskell
 
+import Data.Char (isSpace)
 import Data.Map (Map)
+import qualified Data.Text as T
 
 import Prelude hiding (Rational)
 
@@ -54,9 +58,24 @@ instance FromJSON Rational where
         num <- parseJSON a
         den <- parseJSON b
         return $ num % den
-      _otherwise -> fail "Rational: Expected a two-element array"
+      _otherwise -> fail rationalParsingFailMsg
   parseJSON (Number n) = return $ MkRational $ toRational n
-  parseJSON _ = fail "Rational: Expected an array or a number"
+  parseJSON (String str) = do
+    case parseRational str of
+      Just (num, den) -> return $ num % den
+      Nothing -> fail rationalParsingFailMsg
+  parseJSON _ = fail rationalParsingFailMsg
+
+rationalParsingFailMsg =
+  "Rational: Expected a number , two-element array or a string in the form of 'numerator/denominator'"
+parseRational :: T.Text -> Maybe (Integer, Integer)
+parseRational input = do
+  let cleaned = T.filter (not . isSpace) input
+  (numerator, rest) <- either (const Nothing) Just (decimal cleaned)
+  denominator <- case T.uncons rest of
+    Just ('/', denomStr) -> fmap fst $ either (const Nothing) Just (decimal denomStr)
+    _ -> Nothing
+  return (numerator, denominator)
 
 instance ToJSON Rational where
   toJSON a = toJSON [toJSON $ numerator a, toJSON $ denominator a]

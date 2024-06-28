@@ -15,21 +15,22 @@ import Cardano.Constitution.Checker.Params.Definition (allParams)
 import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
 import Cardano.Constitution.Checker.Web.Internal
-import Data.Aeson (ToJSON, encode)
+import Data.Aeson (ToJSON)
 import Data.ByteString.Lazy.Char8 as BSL8
 import Data.Functor.Identity (Identity (..))
-import qualified Data.HashMap.Strict as HashMap
 import Data.List (sortOn)
-import qualified Data.Map as Map
 import Data.String (fromString)
 import Data.Text as Text
 import Data.Text.Encoding
-import Debug.Trace (traceShow)
 import Network.HTTP.Media ((//), (/:))
 import Servant.API as Servant
 import Servant.Server
 import Web.FormUrlEncoded
 import Prelude as Haskell
+
+import qualified Data.Aeson as Aeson
+import qualified Data.HashMap.Strict as HashMap
+import qualified Data.Map as Map
 
 homePage :: Bool -> CurrentParams -> ParamChecks' -> Text
 homePage viewParamsResult currentParams checks =
@@ -95,10 +96,8 @@ parameterTable swapOOB' (ParamChecks' proposed missing) =
   paramRows =
     sortOn parameterRowParamName (proposedRows ++ missingRows)
 
-  proposedRows = Haskell.concatMap (uncurry (toParameterRow toValue)) $ Map.toList proposed
+  proposedRows = Haskell.concatMap (uncurry (toParameterRow encodeToForm)) $ Map.toList proposed
   missingRows = Haskell.concatMap (uncurry (toParameterRow (const "-"))) $ Map.toList missing
-  toValue :: (ToJSON a) => a -> Text
-  toValue = decodeUtf8 . toStrict . encode
   fstColumn =
     let f ParameterRow{..} = parameterFstCell parameterRowStatus parameterRowParamName
      in Text.concat $ Haskell.map f paramRows
@@ -245,12 +244,35 @@ inputsByCurrentParams (MkParametersChange mp) ParamChecks'{..} =
   f param@(MkParamValue p _) =
     inputsByParamValue param (Map.lookup (paramName p) proposedChecks)
 
-getValueAndIconTypeForScalar :: Maybe GenericParamCheck -> (ByteString, IconType)
+getValueAndIconTypeForScalar :: Maybe GenericParamCheck -> (Text, IconType)
 getValueAndIconTypeForScalar checkM = case checkM of
   (Just (MkGenericParamCheck (ParamCheck checkedVal _ ms))) ->
     let failed = Haskell.any ((== Just False) . result) $ Map.elems ms
-     in (encode checkedVal, if failed then Error else Normal)
-  _otherwise -> (BSL8.empty, Normal)
+     in (encodeToForm checkedVal, if failed then Error else Normal)
+  _otherwise -> (Text.empty, Normal)
+
+encodeToForm :: (ToJSON a) => a -> Text
+encodeToForm val =
+  let val' = fromString $ BSL8.unpack $ Aeson.encode val
+   in transformBracketToFraction val'
+
+transformBracketToFraction :: Text -> Text
+transformBracketToFraction input' =
+  case Text.stripPrefix "[" <$> Text.stripSuffix "]" input' of
+    Just (Just content) ->
+      let parts = Text.splitOn "," content
+       in if Haskell.length parts == 2
+            then Text.intercalate "/" (Haskell.map Text.strip parts)
+            else input'
+    _otherwise -> input'
+
+-- >>> transformBracketToFraction "[x,y]"
+-- "x/y"
+-- >>> transformBracketToFraction "x,y]"
+-- "x,y]"
+-- >>> transformBracketToFraction "x"
+-- "x"
+-- >>> transformBracketToFraction "x"
 
 inputsByParamValue :: ParamValue -> Maybe GenericParamCheck -> [InputProps]
 inputsByParamValue (MkParamValue p@(Scalar{}) val) checkM =
@@ -259,9 +281,9 @@ inputsByParamValue (MkParamValue p@(Scalar{}) val) checkM =
    in [ InputProps
           caption
           caption
-          (fromString $ BSL8.unpack val')
+          val'
           iconType
-          (fromString $ BSL8.unpack $ encode val)
+          (encodeToForm val)
       ]
 inputsByParamValue (MkParamValue p@(Collection _ _ params) val) checkM =
   let pName = paramName p
@@ -273,9 +295,9 @@ inputsByParamValue (MkParamValue p@(Collection _ _ params) val) checkM =
          in [ InputProps
                 caption
                 name
-                (fromString $ BSL8.unpack val')
+                val'
                 iconType
-                (fromString $ BSL8.unpack $ encode sv)
+                (encodeToForm sv)
             ]
    in Haskell.concatMap h $ Haskell.zip3 params val $ case scalarChecks of
         _ : _ | Haskell.length scalarChecks >= Haskell.length params -> Haskell.map Just scalarChecks
@@ -342,10 +364,9 @@ homePageHandler viewParamsResult currentValues =
 
 paramsCheckHandler :: CurrentParams -> ParamChecks' -> AllInputs -> Handler RawHtml
 paramsCheckHandler currentParams paramChecks (AllInputs _ viewParamsResult' tabBtnName) = do
-  traceShow viewParamsResult' $
-    return $
-      RawHtml $
-        inputs <> table <> viewParamResultInput <> tabs
+  return $
+    RawHtml $
+      inputs <> table <> viewParamResultInput <> tabs
  where
   inputs = inputList currentParams paramChecks
   table = tableView showParams True paramChecks
