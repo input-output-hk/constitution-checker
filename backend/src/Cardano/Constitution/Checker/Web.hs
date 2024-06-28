@@ -3,6 +3,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
@@ -14,7 +15,7 @@ import Cardano.Constitution.Checker.Params.Definition (allParams)
 import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
 import Cardano.Constitution.Checker.Web.Internal
-import Data.Aeson (encode)
+import Data.Aeson (ToJSON, encode)
 import Data.ByteString.Lazy.Char8 as BSL8
 import Data.Functor.Identity (Identity (..))
 import qualified Data.HashMap.Strict as HashMap
@@ -87,15 +88,17 @@ tableView showParamResult swapOOB checks =
     else guardrailsTable swapOOB checks
 
 parameterTable :: SwapOOB -> ParamChecks' -> Text
-parameterTable swapOOB' checks =
+parameterTable swapOOB' (ParamChecks' proposed missing) =
   [textF|src/Cardano/Constitution/Checker/Web/Template/parameters-table.html|]
  where
   swapOOB = if swapOOB' then "true" else "false"
   paramRows =
-    Haskell.concatMap
-      (uncurry toParameterRow)
-      $ sortOn fst
-      $ Map.toList checks
+    sortOn parameterRowParamName (proposedRows ++ missingRows)
+
+  proposedRows = Haskell.concatMap (uncurry (toParameterRow toValue)) $ Map.toList proposed
+  missingRows = Haskell.concatMap (uncurry (toParameterRow (const "-"))) $ Map.toList missing
+  toValue :: (ToJSON a) => a -> Text
+  toValue = decodeUtf8 . toStrict . encode
   fstColumn =
     let f ParameterRow{..} = parameterFstCell parameterRowStatus parameterRowParamName
      in Text.concat $ Haskell.map f paramRows
@@ -116,7 +119,7 @@ parameterProposedCell proposedValue =
   [textF|src/Cardano/Constitution/Checker/Web/Template/parameter-proposed-cell.html|]
 
 guardrailsTable :: SwapOOB -> ParamChecks' -> Text
-guardrailsTable swapOOB' checks =
+guardrailsTable swapOOB' ParamChecks'{..} =
   [textF|src/Cardano/Constitution/Checker/Web/Template/guardrails-table.html|]
  where
   swapOOB = if swapOOB' then "true" else "false"
@@ -124,7 +127,8 @@ guardrailsTable swapOOB' checks =
     Haskell.concatMap
       (uncurry toGuardrailCheckRows)
       $ sortOn fst
-      $ Map.toList checks
+      $ Map.toList
+      $ Map.union proposedChecks restChecks
   fstColumn =
     let f GuardrailCheckRow{..} = guardrailFstCell guardrailCheckRowStatus guardrailCheckRowCaption
      in Text.concat $ Haskell.map f checksResults
@@ -153,24 +157,25 @@ data ParameterRow = ParameterRow
   , parameterRowParamName :: !Text
   }
 
-toParameterRow :: String -> GenericParamCheck -> [ParameterRow]
-toParameterRow _ (MkGenericParamCheck check@(ParamCheck{})) =
-  toParameterRow' id check
-toParameterRow pname (MkGenericParamCheck (ParamCheckList checks)) =
+toParameterRow :: (forall a. (ToJSON a) => a -> Text) -> String -> GenericParamCheck -> [ParameterRow]
+toParameterRow toValue _ (MkGenericParamCheck check@(ParamCheck{})) =
+  toParameterRow' id toValue check
+toParameterRow toValue pname (MkGenericParamCheck (ParamCheckList checks)) =
   let wrapName str = pname ++ " - " ++ str
-   in Haskell.concatMap (toParameterRow' wrapName) checks
-toParameterRow _ (MkGenericParamCheck (ParamCheckCostModels{})) =
-  error "not implemented"
+   in Haskell.concatMap (toParameterRow' wrapName toValue) checks
+toParameterRow _ _ (MkGenericParamCheck (ParamCheckCostModels{})) =
+  -- TODO: implement cost models
+  []
 
 paramSucceeded :: [GuardrailResult] -> Bool
 paramSucceeded [] = True
-paramSucceeded ((GuardrailResult (Just False) _ _) : xs) = False
+paramSucceeded ((GuardrailResult (Just False) _ _) : _) = False
 paramSucceeded (_ : xs) = paramSucceeded xs
 
-toParameterRow' :: (String -> String) -> ParamCheck (Identity a) -> [ParameterRow]
-toParameterRow' wrapName (ParamCheck value param results) =
+toParameterRow' :: (String -> String) -> (a -> Text) -> ParamCheck (Identity a) -> [ParameterRow]
+toParameterRow' wrapName toValue (ParamCheck value param results) =
   let succeeded = paramSucceeded $ Map.elems results
-      textValue = decodeUtf8 $ toStrict $ encode value
+      textValue = toValue value
       paramName' = Text.pack $ wrapName $ paramName param
    in [ParameterRow succeeded textValue paramName']
 
@@ -181,7 +186,8 @@ toGuardrailCheckRows pname (MkGenericParamCheck (ParamCheckList checks)) =
   let wrapName str = pname ++ " - " ++ str
    in Haskell.concatMap (toGuardrailCheckRows' wrapName) checks
 toGuardrailCheckRows _ (MkGenericParamCheck (ParamCheckCostModels{})) =
-  error "not implemented"
+  -- TODO: implement cost models
+  []
 
 guardrailFstCell :: Maybe Bool -> Text -> Text
 guardrailFstCell result guardrailName =
@@ -215,7 +221,10 @@ toGuardrailCheckRows' wrapParamName (ParamCheck _ param results) =
           }
    in rows
 
-type ParamChecks' = Map.Map String GenericParamCheck
+data ParamChecks' = ParamChecks'
+  { proposedChecks :: !(Map.Map String GenericParamCheck)
+  , restChecks :: !(Map.Map String GenericParamCheck)
+  }
 
 data AllInputs = AllInputs
   { paramChange :: !ParametersChange
@@ -230,11 +239,11 @@ instance FromForm AllInputs where
     pure $ AllInputs checks (HashMap.member "view-params-result" hs) tabBtnName
 
 inputsByCurrentParams :: CurrentParams -> ParamChecks' -> [InputProps]
-inputsByCurrentParams (MkParametersChange mp) checks =
+inputsByCurrentParams (MkParametersChange mp) ParamChecks'{..} =
   sortOn caption $ Haskell.concatMap f $ Map.elems mp
  where
   f param@(MkParamValue p _) =
-    inputsByParamValue param (Map.lookup (paramName p) checks)
+    inputsByParamValue param (Map.lookup (paramName p) proposedChecks)
 
 getValueAndIconTypeForScalar :: Maybe GenericParamCheck -> (ByteString, IconType)
 getValueAndIconTypeForScalar checkM = case checkM of
@@ -331,8 +340,8 @@ homePageHandler :: Bool -> CurrentParams -> ParamChecks' -> Handler RawHtml
 homePageHandler viewParamsResult currentValues =
   return . RawHtml . homePage viewParamsResult currentValues
 
-paramsCheckHandler :: CurrentParams -> ParamChecks -> AllInputs -> Handler RawHtml
-paramsCheckHandler currentParams ParamChecks{..} (AllInputs _ viewParamsResult' tabBtnName) = do
+paramsCheckHandler :: CurrentParams -> ParamChecks' -> AllInputs -> Handler RawHtml
+paramsCheckHandler currentParams paramChecks (AllInputs _ viewParamsResult' tabBtnName) = do
   traceShow viewParamsResult' $
     return $
       RawHtml $
