@@ -38,7 +38,6 @@ import Data.String
 import Data.Swagger hiding (Param)
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Debug.Trace (traceShow)
 import qualified GHC.IsList as Haskell
 import Web.FormUrlEncoded
 
@@ -130,7 +129,8 @@ instance FromForm ParametersChange where
       xs' <- mapM (searchSingleParam hs) (fmap subParamFormName xs)
       case (sequence xs', anyParamExists) of
         (_, False) -> pure acc
-        (Nothing, _) -> Left $
+        (Nothing, _) ->
+          Left $
             "not all values provided for collection \"" <> Text.pack pname <> "\""
         (Just xs'', _)
           | Identity vs <- sequence xs'' ->
@@ -150,10 +150,12 @@ searchSingleParam hs pname = do
     Just [] -> pure Nothing
     Just ("" : _) -> pure Nothing
     Just (text : _) ->
-      Just
-        <$> mapLeft
-          (Text.pack . ((pname ++ ": ") ++))
-          (eitherDecode' $ fromString $ Text.unpack text)
+      -- if text contains "/" add " around it
+      let text' = if "/" `Text.isInfixOf` text then "\"" <> text <> "\"" else text
+       in Just
+            <$> mapLeft
+              (Text.pack . ((pname ++ ": ") ++))
+              (eitherDecode' $ fromString $ Text.unpack text')
 
 instance FromJSON ParametersChange where
   parseJSON = withObject "ParamValue" $ \o -> do
