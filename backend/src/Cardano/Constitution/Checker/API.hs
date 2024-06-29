@@ -40,7 +40,7 @@ type API =
 
 type StaticAPI = Raw
 
-type FullApi = HtmxMain :<|> API :<|> StaticAPI
+type FullApi = HtmxAPI :<|> API :<|> StaticAPI
 
 newtype URL = URL BaseUrl
 
@@ -66,7 +66,7 @@ server ServerCaps{..} =
     homePageHandler viewParamsResult currentParams (ParamChecks' Map.empty Map.empty)
 
   paramsCheckHandler' :: AllInputs -> Handler RawHtml
-  paramsCheckHandler' inputs@(AllInputs paramChange _ _) = do
+  paramsCheckHandler' inputs@(AllInputs paramChange _ _ _) = do
     (ctx, EpochParameters _ currentParams) <- mkContext' paramChange
     let (ParamChecks proposed' (MissingParams missing)) = checkParams currentParams ctx paramChange
     paramsCheckHandler currentParams (ParamChecks' proposed' missing) inputs
