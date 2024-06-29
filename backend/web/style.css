@@ -820,6 +820,7 @@
   border-color: var(--tokens-neutrals-light-outline);
   display: flex;
   position: relative;
+  flex-direction: row;
 }
 
 .desktop .state-layer-5 {
@@ -842,9 +843,10 @@
   align-self: stretch;
 }
 
-.desktop .supporting-text-2 {
+.desktop .search-input {
+  border: none;
+  flex: 1;
   position: relative;
-  width: fit-content;
   font-family: var(--m3-body-large-font-family);
   font-weight: var(--m3-body-large-font-weight);
   color: var(--tokens-neutrals-light-on-surface-variant);

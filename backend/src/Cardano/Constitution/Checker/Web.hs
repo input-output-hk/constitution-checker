@@ -31,6 +31,7 @@ import Prelude as Haskell
 import qualified Data.Aeson as Aeson
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Map as Map
+import Debug.Trace (traceShow)
 
 homePage :: Bool -> CurrentParams -> ParamChecks' -> Text
 homePage viewParamsResult currentParams checks =
@@ -40,7 +41,8 @@ homePage viewParamsResult currentParams checks =
   inputs = inputList currentParams checks
   mainView = [textF|src/Cardano/Constitution/Checker/Web/Template/main-view.html|]
   tabs = tabBar (not viewParamsResult) False
-  table = tableView viewParamsResult False checks
+  table = tableView viewParamsResult False checks Nothing
+  searchInput = [textF|src/Cardano/Constitution/Checker/Web/Template/search-bar.html|]
 
 type SwapOOB = Bool
 
@@ -81,20 +83,22 @@ viewParamResult swapOOB' viewParams =
   hiddenInput = if viewParams then "<input type=\"hidden\" name=\"view-params-result\"/>" else ""
 
 type ShowParams = Bool
+type Filter = Maybe Text
 
-tableView :: ShowParams -> SwapOOB -> ParamChecks' -> Text
+tableView :: ShowParams -> SwapOOB -> ParamChecks' -> Filter -> Text
 tableView showParamResult swapOOB checks =
   if showParamResult
     then parameterTable swapOOB checks
     else guardrailsTable swapOOB checks
 
-parameterTable :: SwapOOB -> ParamChecks' -> Text
-parameterTable swapOOB' (ParamChecks' proposed missing) =
+parameterTable :: SwapOOB -> ParamChecks' -> Filter -> Text
+parameterTable swapOOB' (ParamChecks' proposed missing) filterM =
   [textF|src/Cardano/Constitution/Checker/Web/Template/parameters-table.html|]
  where
   swapOOB = if swapOOB' then "true" else "false"
   paramRows =
-    sortOn parameterRowParamName (proposedRows ++ missingRows)
+    Haskell.filter (filterParamRow filterM) $
+      sortOn parameterRowParamName (proposedRows ++ missingRows)
 
   proposedRows = Haskell.concatMap (uncurry (toParameterRow encodeToForm)) $ Map.toList proposed
   missingRows = Haskell.concatMap (uncurry (toParameterRow (const "-"))) $ Map.toList missing
@@ -117,17 +121,15 @@ parameterProposedCell :: Text -> Text
 parameterProposedCell proposedValue =
   [textF|src/Cardano/Constitution/Checker/Web/Template/parameter-proposed-cell.html|]
 
-guardrailsTable :: SwapOOB -> ParamChecks' -> Text
-guardrailsTable swapOOB' ParamChecks'{..} =
-  [textF|src/Cardano/Constitution/Checker/Web/Template/guardrails-table.html|]
+guardrailsTable :: SwapOOB -> ParamChecks' -> Filter -> Text
+guardrailsTable swapOOB' ParamChecks'{..} filterM =
+  traceShow filterM $ [textF|src/Cardano/Constitution/Checker/Web/Template/guardrails-table.html|]
  where
   swapOOB = if swapOOB' then "true" else "false"
   checksResults =
     Haskell.concatMap
-      (uncurry toGuardrailCheckRows)
-      $ sortOn fst
-      $ Map.toList
-      $ Map.union proposedChecks restChecks
+      (Haskell.filter (filterGuardrailCheckRow filterM) . uncurry toGuardrailCheckRows)
+      (sortOn fst $ Map.toList $ Map.union proposedChecks restChecks)
   fstColumn =
     let f GuardrailCheckRow{..} = guardrailFstCell guardrailCheckRowStatus guardrailCheckRowCaption
      in Text.concat $ Haskell.map f checksResults
@@ -142,6 +144,16 @@ guardrailsTable swapOOB' ParamChecks'{..} =
     let f GuardrailCheckRow{..} = guardrailParamCell guardrailCheckRowParamName
      in Text.concat $ Haskell.map f checksResults
 
+filterGuardrailCheckRow :: Filter -> GuardrailCheckRow -> Bool
+filterGuardrailCheckRow Nothing _ = True
+filterGuardrailCheckRow (Just filterText) GuardrailCheckRow{..} =
+  Text.isInfixOf (Text.toLower filterText) (Text.toLower guardrailCheckRowCaption)
+    || Text.isInfixOf (Text.toLower filterText) (Text.toLower guardrailCheckRowDescription)
+    || Text.isInfixOf (Text.toLower filterText) (Text.toLower guardrailCheckRowParamName)
+    || case guardrailCheckRowMessage of
+      Just message -> Text.isInfixOf (Text.toLower filterText) (Text.toLower message)
+      Nothing -> False
+
 data GuardrailCheckRow = GuardrailCheckRow
   { guardrailCheckRowStatus :: !(Maybe Bool)
   , guardrailCheckRowCaption :: !Text
@@ -155,6 +167,12 @@ data ParameterRow = ParameterRow
   , parameterRowValue :: !Text
   , parameterRowParamName :: !Text
   }
+
+filterParamRow :: Filter -> ParameterRow -> Bool
+filterParamRow Nothing _ = True
+filterParamRow (Just filterText) ParameterRow{..} =
+  Text.isInfixOf (Text.toLower filterText) (Text.toLower parameterRowParamName)
+    || Text.isInfixOf (Text.toLower filterText) (Text.toLower parameterRowValue)
 
 toParameterRow :: (forall a. (ToJSON a) => a -> Text) -> String -> GenericParamCheck -> [ParameterRow]
 toParameterRow toValue _ (MkGenericParamCheck check@(ParamCheck{})) =
@@ -229,13 +247,15 @@ data AllInputs = AllInputs
   { paramChange :: !ParametersChange
   , viewParamsResult :: !Bool
   , tabBtnName :: !(Maybe Text)
+  , searchInput :: !(Maybe Text)
   }
 
 instance FromForm AllInputs where
   fromForm form@(Form hs) = do
     checks <- fromForm form
     let tabBtnName = Text.concat <$> HashMap.lookup "tabBtnName" hs
-    pure $ AllInputs checks (HashMap.member "view-params-result" hs) tabBtnName
+    let searchInput = Text.concat <$> HashMap.lookup "searchInput" hs
+    pure $ AllInputs checks (HashMap.member "view-params-result" hs) tabBtnName searchInput
 
 inputsByCurrentParams :: CurrentParams -> ParamChecks' -> [InputProps]
 inputsByCurrentParams (MkParametersChange mp) ParamChecks'{..} =
@@ -265,14 +285,6 @@ transformBracketToFraction input' =
             then Text.intercalate "/" (Haskell.map Text.strip parts)
             else input'
     _otherwise -> input'
-
--- >>> transformBracketToFraction "[x,y]"
--- "x/y"
--- >>> transformBracketToFraction "x,y]"
--- "x,y]"
--- >>> transformBracketToFraction "x"
--- "x"
--- >>> transformBracketToFraction "x"
 
 inputsByParamValue :: ParamValue -> Maybe GenericParamCheck -> [InputProps]
 inputsByParamValue (MkParamValue p@(Scalar{}) val) checkM =
@@ -353,7 +365,7 @@ input InputProps{..} =
 --  Routes
 --------------------------------------------------------------------------------
 
-type HtmxMain =
+type HtmxAPI =
   QueryFlag "view-params" :> Get '[HTML] RawHtml
     :<|> ReqBody '[FormUrlEncoded] AllInputs
       :> Post '[HTML] RawHtml
@@ -363,13 +375,13 @@ homePageHandler viewParamsResult currentValues =
   return . RawHtml . homePage viewParamsResult currentValues
 
 paramsCheckHandler :: CurrentParams -> ParamChecks' -> AllInputs -> Handler RawHtml
-paramsCheckHandler currentParams paramChecks (AllInputs _ viewParamsResult' tabBtnName) = do
+paramsCheckHandler currentParams paramChecks (AllInputs _ viewParamsResult' tabBtnName filterM) = do
   return $
     RawHtml $
       inputs <> table <> viewParamResultInput <> tabs
  where
   inputs = inputList currentParams paramChecks
-  table = tableView showParams True paramChecks
+  table = tableView showParams True paramChecks filterM
   viewParamResultInput = viewParamResult True showParams
   showParams = case tabBtnName of
     Nothing -> viewParamsResult'
