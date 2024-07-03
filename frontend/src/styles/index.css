@@ -48,3 +48,24 @@ main {
   padding-bottom: 24px;
   padding-top: 4px;
 }
+
+.scrollBar2 {
+  height: 100vh;
+  overflow: auto;
+  padding: 16px;
+}
+
+.tableContainerBox {
+  height: 100vh;
+  min-width: 720px;
+  padding: 16px;
+}
+
+.tableToolbar {
+  justify-content: space-between;
+}
+
+.tableBox {
+  height: calc(100vh - 128px);
+  overflow-y: auto;
+}

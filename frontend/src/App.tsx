@@ -1,22 +1,35 @@
 import React, { useEffect } from 'react';
 import useStore from './store/store';
-import SideDrawerLeft from './components/SideDrawer';
-import ParameterViewer from './components/ParameterViewer';
 import CircularProgress from '@mui/material/CircularProgress';
+import SideDrawerLeft from './components/SideDrawer';
+import TableContainer from './components/TableContainer';
+import MoreDetailsDrawer from './components/MoreDetailsDrawer';
+
 
 function App() {
-  const { initialJsonState, fetchJsonInitialState, loading, error } = useStore(state => ({
+  const { initialJsonState, validationResults, fetchJsonInitialState, postParametersProposal, error } = useStore(state => ({
     initialJsonState: state.initialJsonState,
+    validationResults: state.validationResults,
     fetchJsonInitialState: state.fetchJsonInitialState,
-    loading: state.loading,
+    postParametersProposal: state.postParametersProposal,
     error: state.error,
   }));
 
   useEffect(() => {
-    fetchJsonInitialState();
-}, []);
+    const initializeApp = async () => {
+      await fetchJsonInitialState();
+    };
 
-if (loading && !initialJsonState) {
+    initializeApp();
+  }, []);
+
+  useEffect(() => {
+    if (initialJsonState) {
+      postParametersProposal(initialJsonState);
+    }
+  }, [initialJsonState]);
+
+if (!validationResults) {
     return <div className='loadingContainer'><CircularProgress /></div>; 
 }
 
@@ -30,7 +43,8 @@ if (loading && !initialJsonState) {
     {!error && (
       <>
         <SideDrawerLeft />
-        <ParameterViewer />
+        <TableContainer />
+        <MoreDetailsDrawer />
       </>
     )}
   </main>
