@@ -6,6 +6,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import BodyTableRow from './BodyTableRow'
 import useStore from '../store/store';
+import { ParameterValidationResult } from '../store/types';
 
 export default function GuardrailView() {
   const { validationResults, checkedStatus } = useStore(state => ({
@@ -30,18 +31,22 @@ export default function GuardrailView() {
   
     // Check if the key exists in validationResults
     const summaryKeys = paramName.split(/[.[\]]+/).filter(k => k);
-    let result: any = validationResults;
-    for (const k of summaryKeys) {
-      if (result && typeof result === 'object') {
-        result = result[k];
-      } else {
-        return "warning"; 
-      }
+    let jsonKey: any = validationResults;
+    for (const key of summaryKeys) {
+      if (jsonKey[key]) {
+        jsonKey = jsonKey[key];
+      } 
     }
+
+    const guardrails = (jsonKey as ParameterValidationResult).guardrails;
+    if (guardrails) {
+      console.log(guardrails);
+  }
+    
   
     // Handle nested ParameterValidationResult objects
-    return result && typeof result === 'object' && 'summary' in result
-        ? result.summary ? "active" : "inactive"
+    return guardrails 
+        ? guardrails.result ? "active" : "inactive"
         : "warning";
   };
 
@@ -56,8 +61,15 @@ export default function GuardrailView() {
         </TableHead>
        
         <TableBody>
+          {/* txFeePerByte */}
+          <BodyTableRow name="TFPB-01" message={validationResults?.txFeePerByte.guardrails['TFPB-01'].message} parameter="txFeePerByte" status={getStatus('txFeePerByte', '0')}/>
+          <BodyTableRow name="TFPB-02" message={validationResults?.txFeePerByte.guardrails['TFPB-02'].message} parameter="txFeePerByte" status={getStatus('txFeePerByte', '0')}/>
+          <BodyTableRow name="TFPB-03" message={validationResults?.txFeePerByte.guardrails['TFPB-03'].message} parameter="txFeePerByte" status={getStatus('txFeePerByte', '0')}/>
+          <BodyTableRow name="TFGEN-01" message={validationResults?.txFeePerByte.guardrails['TFGEN-01'].message} parameter="txFeePerByte" status={getStatus('txFeePerByte', '0')}/>
+          <BodyTableRow name="TFGEN-02" message={validationResults?.txFeePerByte.guardrails['TFGEN-02'].message} parameter="txFeePerByte" status={getStatus('txFeePerByte', '0')}/>
+
         {/* collateralPercentage */}
-          <BodyTableRow name="CP-01" message={validationResults?.collateralPercentage.guardrails['CP-01'].message} parameter="collateralPercentage" status={getStatus('collateralPercentage', 'CP-01')}/>
+          <BodyTableRow name="CP-01" message={validationResults?.collateralPercentage.guardrails['CP-01'].message} parameter="collateralPercentage" status={getStatus('collateralPercentage', '23')}/>
           <BodyTableRow name="CP-02" message={validationResults?.collateralPercentage.guardrails['CP-02'].message} parameter="collateralPercentage" status={getStatus('collateralPercentage', '23')}/>
           <BodyTableRow name="CP-03" message={validationResults?.collateralPercentage.guardrails['CP-03'].message} parameter="collateralPercentage" status={getStatus('collateralPercentage', '23')}/>
           <BodyTableRow name="CP-04" message={validationResults?.collateralPercentage.guardrails['CP-04'].message} parameter="collateralPercentage" status={getStatus('collateralPercentage', '23')}/>
