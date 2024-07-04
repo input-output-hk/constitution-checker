@@ -1,5 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 import { lightModePalette, darkModePalette} from "./palette";
+import { Padding } from "@mui/icons-material";
 
 export const getTheme = (mode: 'light' | 'dark',) => createTheme({
     palette: {
@@ -32,17 +33,19 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
       body1: {
         fontSize: '12px',
       },
-      paragraphLarge: {
-        fontSize: '18px',
+      successText: {
+        fontSize: '12px',
+        color: '#39CD6B !important',
+        fontWeight: 600,
+        margin: '12px 0px 0px 0px',
+        display: 'block',
       },
-      paragraphMedium: {
-        fontSize: '16px',
-      },
-      paragraphSmall: {
-        fontSize: '14px',
-      },
-      paragraphXSmall: {
-        fontSize: '14px',
+      errorText: {
+        fontSize: '12px',
+        color: '#BA1A1A !important',
+        fontWeight: 600,
+        margin: '12px 0px 0px 0px',
+        display: 'block',
       }
     },
     spacing: 4,
@@ -314,14 +317,32 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
             paddingRight: '16px !important',
             height: '48px !important',
             minHeight: '48px !important',
+            '&.spBtwnToolbar': {
+              height: 'fit-content !important',
+              padding: '12px',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }
           }),
         },
       },
       MuiDrawer: {
         styleOverrides: {
-          paper: ({theme}) => ({
+          paperAnchorDockedLeft: ({theme}) => ({
             backgroundColor: theme.palette.containerLowest.main,
             width: '350px',
+            height: '100%',
+            overflow: 'hidden',
+            boxSizing: 'border-box',
+            boxShadow: '0px 2px 6px 0px rgba(16, 24, 40, 6%)',
+          }),
+          paperAnchorDockedRight: ({theme}) => ({
+            background: `linear-gradient(
+              0deg, 
+              ${theme.palette.primary.mainOpacity1}, 
+              ${theme.palette.primary.mainOpacity1}
+              ), ${theme.palette.common.white}`,
+            width: '300px',
             height: '100%',
             overflow: 'hidden',
             boxSizing: 'border-box',

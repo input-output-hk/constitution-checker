@@ -55,25 +55,19 @@ declare module "@mui/material/styles" {
   }
 
   interface TypographyVariants {
-    paragraphXSmall?: React.CSSProperties;
-    paragraphSmall?: React.CSSProperties;
-    paragraphMedium?: React.CSSProperties;
-    paragraphLarge?: React.CSSProperties;
+    successText?: React.CSSProperties;
+    errorText?: React.CSSProperties;
   }
 
   interface TypographyVariantsOptions {
-    paragraphXSmall?: React.CSSProperties;
-    paragraphSmall?: React.CSSProperties;
-    paragraphMedium?: React.CSSProperties;
-    paragraphLarge?: React.CSSProperties;
+    successText?: React.CSSProperties;
+    errorText?: React.CSSProperties;
   }
 }
 
 declare module '@mui/material/Typography' {
   interface TypographyPropsVariantOverrides {
-    paragraphXSmall: true;
-    paragraphSmall: true;
-    paragraphMedium: true;
-    paragraphLarge: true;
+    successText: true;
+    errorText: true;
   }
 }

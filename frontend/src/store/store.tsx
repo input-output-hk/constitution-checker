@@ -1,94 +1,82 @@
 import create from 'zustand';
 import axios from 'axios';
+import { InitialJsonState, CheckedStatus, State, Action } from './types';
 
-export type InitialJsonState = {
-    "0": number,
-    "1": number,
-    "2": number,
-    "3": number,
-    "4": number,
-    "5": number,
-    "6": number,
-    "7": number,
-    "8": number,
-    "9": [number, number],
-    "10": [number, number],
-    "11": [number, number],
-    "16": number,
-    "17": number,
-    "18": {
-        plutusV1: number[],
-        plutusV2: number[],
-        plutusV3: number[]
-    },
-    "19": {
-        priceMemory: [number, number],
-        priceSteps: [number, number]
-    },
-    "20": {
-        mem: number,
-        steps: number
-    },
-    "21": {
-        memory: number,
-        steps: number
-    },
-    "22": number,
-    "23": number,
-    "24": number,
-    "25": {
-        committeeNoConfidence: [number, number],
-        committeeNormal: [number, number],
-        hardForkInitiation: [number, number],
-        motionNoConfidence: [number, number],
-        ppSecurityGroup: [number, number]
-    },
-    "26": {
-        committeeNoConfidence: [number, number],
-        committeeNormal: [number, number],
-        hardForkInitiation: [number, number],
-        motionNoConfidence: [number, number],
-        ppEconomicGroup: [number, number],
-        ppGovernanceGroup: [number, number],
-        ppNetworkGroup: [number, number],
-        ppTechnicalGroup: [number, number],
-        treasuryWithdrawal: [number, number],
-        updateConstitution: [number, number]
-    },
-    "27": number,
-    "28": number,
-    "29": number,
-    "30": number,
-    "31": number,
-    "32": number,
-    "33": number,
+const initializeCheckedStatus = (): CheckedStatus => {
+    return {
+        "0": 'unchecked',
+        "1": 'unchecked',
+        "2": 'unchecked',
+        "3": 'unchecked',
+        "4": 'unchecked',
+        "5": 'unchecked',
+        "6": 'unchecked',
+        "7": 'unchecked',
+        "8": 'unchecked',
+        "9": 'unchecked',
+        "10": 'unchecked',
+        "11": 'unchecked',
+        "16": 'unchecked',
+        "17": 'unchecked',
+        "18": 'unchecked',
+        "19": {
+            'priceSteps': 'unchecked',
+            'priceMemory': 'unchecked'
+        },
+        "20": {
+            'memory': 'unchecked',
+            'steps': 'unchecked'
+        },
+        "21": {
+            'memory': 'unchecked',
+            'steps': 'unchecked'
+        },
+        "22": 'unchecked',
+        "23": 'unchecked',
+        "24": 'unchecked',
+        "25": {
+            'committeeNoConfidence': 'unchecked',
+            'committeeNormal': 'unchecked',
+            'hardForkInitiation': 'unchecked',
+            'motionNoConfidence': 'unchecked',
+            'ppSecurityGroup': 'unchecked'
+        },
+        "26": {
+            'committeeNoConfidence': 'unchecked',
+            'committeeNormal': 'unchecked',
+            'hardForkInitiation': 'unchecked',
+            'motionNoConfidence': 'unchecked',
+            'ppEconomicGroup': 'unchecked',
+            'ppGovernanceGroup': 'unchecked',
+            'ppNetworkGroup': 'unchecked',
+            'ppTechnicalGroup': 'unchecked',
+            'treasuryWithdrawal': 'unchecked',
+            'updateConstitution': 'unchecked'
+        },
+        "27": 'unchecked',
+        "28": 'unchecked',
+        "29": 'unchecked',
+        "30": 'unchecked',
+        "31": 'unchecked',
+        "32": 'unchecked',
+        "33": 'unchecked'
+    };
 };
 
-type State = {
-    //holds initial value of JSON before validation
-    initialJsonState: InitialJsonState | undefined;
-    //holdes current JSON value after initial validation
-    currentJsonState: InitialJsonState | undefined;
-    loading: boolean;
-    error: null | string;
-}
-
-type Action = {
-    fetchJsonInitialState: () => void;
-    updateInitialJsonState: (json: InitialJsonState) => void;
-    setCurrentJsonState: (json: InitialJsonState) => void;
-    postParametersProposal: (data: InitialJsonState) => Promise<any>;
-    revertToInitialJsonState: () => void;
-};
-
-const useStore = create<State & Action>((set) => ({
+const useStore = create<State & Action>((set, get) => ({
     //state variables only for app.tsx
-    loading: true,
+    loading: false,
     error: null,
     //holds initial JSON state
     initialJsonState: undefined, 
-    //holds updated state from returned POST request
+    //holds updated state from after ui changes
     currentJsonState: undefined, 
+    //holds updated state from POST response
+    validationResults: undefined,
+    checkedStatus: initializeCheckedStatus(),
+    currentTab: 'Proposal Parameters',
+    drawerOpen: false,
+    selectedRowName: '',
 
     //used only to load initial app state from Cardano
     fetchJsonInitialState: async () => {
@@ -103,20 +91,76 @@ const useStore = create<State & Action>((set) => ({
     },
     
     postParametersProposal: async (data: InitialJsonState) => {
-        const response = await axios.post('http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8080/parameters/proposal', data, {
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8',
-            'Accept': 'application/json;charset=utf-8'
-          }
-        });
-        console.log(response.data);
-        return response.data;
+        set({ loading: true, error: null });
+        try {
+            const response = await axios.post('http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8080/parameters/proposal', data, {
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    'Accept': 'application/json;charset=utf-8'
+                }
+            });
+            // Assuming response.data includes the updated validation results
+            set({ validationResults: response.data, loading: false });
+           
+            // Update checked status after the POST request
+            const state = get();
+            const updatedCheckedStatus = {...state.checkedStatus};
+           
+            // Helper function to update nested objects
+            const updateNestedCheckedStatus = (obj: any) => {
+                
+                for (const key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        if (typeof obj[key] === 'object' && obj[key] !== null) {
+                            updateNestedCheckedStatus(obj[key]);
+                        } else {
+                            obj[key] = 'checked';
+                        }
+                    }
+                }
+            };
+            updateNestedCheckedStatus(updatedCheckedStatus);
+            set({ checkedStatus: updatedCheckedStatus });
+            
+        } catch (error) {
+            console.error("Post request failed:", error);
+            set({ error: "Post request failed", loading: false });
+        }
     },
 
     updateInitialJsonState: (json) => set({ initialJsonState: json }),
     //reverts UI back to initial JSON state when refresh btn click
     setCurrentJsonState: (json) => set({ currentJsonState: json }),
     revertToInitialJsonState: () => set((state) => ({ currentJsonState: state.initialJsonState })),
+
+    markFieldAsUnchecked: (key: string) => set((state) => {
+        const keys = key.split('.');
+        const topKey = keys[0];
+        const nestedKey = keys[1];
+        
+        if (nestedKey) {
+            return {
+                checkedStatus: {
+                    ...state.checkedStatus,
+                    [topKey]: {
+                        ...(state.checkedStatus[topKey] as object),
+                        [nestedKey]: 'unchecked'
+                    }
+                }
+            };
+        } else {
+            return {
+                checkedStatus: {
+                    ...state.checkedStatus,
+                    [topKey]: 'unchecked'
+                }
+            };
+        }
+    }),
+
+    changeSelectedTab: (tabName) => set({currentTab: tabName}),
+    toggleMoreDetailsDrawer: (value) => set({drawerOpen: value}),
+    changeSelectedRowName: (rowName) => set({selectedRowName: rowName}),
 }));
 
 export default useStore;
