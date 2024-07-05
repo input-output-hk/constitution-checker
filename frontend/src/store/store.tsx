@@ -24,7 +24,7 @@ const initializeCheckedStatus = (): CheckedStatus => {
             'priceMemory': 'unchecked'
         },
         "20": {
-            'memory': 'unchecked',
+            'mem': 'unchecked',
             'steps': 'unchecked'
         },
         "21": {
