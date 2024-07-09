@@ -17,6 +17,7 @@ module Cardano.Constitution.Checker.Types (
   protocolParamsToEpochParams,
 ) where
 
+import Cardano.Constitution.Checker.Base
 import Cardano.Constitution.Checker.Params.Definition
 import Cardano.Constitution.Checker.Params.Types
 import Data.Aeson.QQ
@@ -30,10 +31,15 @@ import Control.Monad (foldM)
 import Data.Aeson
 import Data.Aeson.Types (Parser)
 import Data.Data (Proxy (..))
+import Data.HashMap.Strict (HashMap)
+import qualified Data.HashMap.Strict as HashMap
 import Data.Map
 import Data.String
 import Data.Swagger hiding (Param)
+import Data.Text (Text)
+import qualified Data.Text as Text
 import qualified GHC.IsList as Haskell
+import Web.FormUrlEncoded
 
 -- import qualified Data.Swagger as SWG
 
@@ -99,6 +105,58 @@ instance ToJSON ParametersChange where
               }|]
       )
 
+instance FromForm ParametersChange where
+  fromForm (Form hs) = do
+    MkParametersChange <$> foldM parseParam empty allParams
+   where
+    parseParam ::
+      Map Integer ParamValue ->
+      Param' ->
+      Either Text (Map Integer ParamValue)
+    parseParam acc (MkParam' param@(Scalar paramIx' paramName' _)) = do
+      valueM <- searchSingleParam hs paramName'
+      case valueM of
+        Nothing -> pure acc
+        Just value -> pure $ insert paramIx' (MkParamValue param value) acc
+    parseParam acc (MkParam' param@(Collection paramIx' pname xs)) = do
+      let subParamFormName = ((pname ++ "-") ++) . paramName
+          subParamFormNames = fmap subParamFormName xs
+          anyParamExists =
+            let pExists pname' = case (`HashMap.lookup` hs) $ Text.pack pname' of
+                  Just (x : _) | x /= "" -> True
+                  _other -> False
+             in any pExists subParamFormNames
+      xs' <- mapM (searchSingleParam hs) (fmap subParamFormName xs)
+      case (sequence xs', anyParamExists) of
+        (_, False) -> pure acc
+        (Nothing, _) ->
+          Left $
+            "not all values provided for collection \"" <> Text.pack pname <> "\""
+        (Just xs'', _)
+          | Identity vs <- sequence xs'' ->
+              pure $ insert paramIx' (MkParamValue param vs) acc
+    -- TODO: asda
+    parseParam acc (MkParam' CostModels{}) = pure acc
+
+searchSingleParam ::
+  (FromJSON a) =>
+  HashMap Text [Text] ->
+  String ->
+  Either Text (Maybe (Identity a))
+searchSingleParam hs pname = do
+  let textM = HashMap.lookup (Text.pack pname) hs
+  case textM of
+    Nothing -> pure Nothing
+    Just [] -> pure Nothing
+    Just ("" : _) -> pure Nothing
+    Just (text : _) ->
+      -- if text contains "/" add " around it
+      let text' = if "/" `Text.isInfixOf` text then "\"" <> text <> "\"" else text
+       in Just
+            <$> mapLeft
+              (Text.pack . ((pname ++ ": ") ++))
+              (eitherDecode' $ fromString $ Text.unpack text')
+
 instance FromJSON ParametersChange where
   parseJSON = withObject "ParamValue" $ \o -> do
     -- for all allParams, parse the value from the object and accumulate them
@@ -109,31 +167,31 @@ instance FromJSON ParametersChange where
     f o acc param = do
       valueM <- parseParam o param
       case valueM of
-        Nothing -> return acc
-        Just (paramIx', value) -> return $ insert paramIx' value acc
+        Nothing -> pure acc
+        Just (paramIx', value) -> pure $ insert paramIx' value acc
 
     parseParam :: Object -> Param' -> Parser (Maybe (Integer, ParamValue))
     parseParam o (MkParam' param@(Scalar paramIx' _ _)) = do
       valueM <- o .:? fromString (show paramIx')
       case valueM of
-        Nothing -> return Nothing
+        Nothing -> pure Nothing
         Just value -> do
           val <- parseScalar param value
-          return $ Just (paramIx', MkParamValue param val)
+          pure $ Just (paramIx', MkParamValue param val)
     parseParam o (MkParam' param@(Collection paramIx' _ _)) = do
       valueM <- o .:? fromString (show paramIx')
       case valueM of
-        Nothing -> return Nothing
+        Nothing -> pure Nothing
         Just value -> do
           val <- parseCollection param value
-          return $ Just (paramIx', MkParamValue param val)
+          pure $ Just (paramIx', MkParamValue param val)
     parseParam o (MkParam' param@(CostModels paramIx' _ _ _)) = do
       valueM <- o .:? fromString (show paramIx')
       case valueM of
-        Nothing -> return Nothing
+        Nothing -> pure Nothing
         Just value -> do
           val <- parseCostModels param value
-          return $ Just (paramIx', MkParamValue param val)
+          pure $ Just (paramIx', MkParamValue param val)
 
 parseCollection :: Param [a] -> Value -> Parser [a]
 parseCollection (Collection _ _ params) = withObject "Collection" $ \obj ->
@@ -144,12 +202,12 @@ parseCollection (Collection _ _ params) = withObject "Collection" $ \obj ->
     let paramName' = fromString $ paramName param
     value <- obj .: paramName'
     val <- parseScalar param value
-    return $ runIdentity val
+    pure $ runIdentity val
 
 parseScalar :: Param (Identity a) -> Value -> Parser (Identity a)
 parseScalar (Scalar _ paramName' _) value =
   case fromJSON value of
-    Success a -> return a
+    Success a -> pure a
     Error e -> fail $ paramName' ++ ": " ++ e
 
 parseCostModels :: Param (Maybe PV1, Maybe PV2, Maybe PV3) -> Value -> Parser (Maybe PV1, Maybe PV2, Maybe PV3)
@@ -158,7 +216,7 @@ parseCostModels CostModels{} = withObject "CostModels" $ \obj ->
 
 instance ToSchema ParametersChange where
   declareNamedSchema _ = do
-    return $
+    pure $
       NamedSchema (Just "ParametersChange") $
         mempty
           & type_ ?~ SwaggerObject
@@ -193,13 +251,13 @@ instance FromJSON EpochParameters where
   parseJSON = withObject "EpochParameters" $ \o -> do
     epoch' <- o .: "epoch"
     params <- parseJSON (Object o)
-    return $ EpochParameters epoch' params
+    pure $ EpochParameters epoch' params
 
 instance ToSchema EpochParameters where
   declareNamedSchema _ = do
     epochSchema <- declareSchemaRef (Proxy :: Proxy Int)
     parametersSchema <- declareSchema (Proxy :: Proxy ParametersChange)
-    return $
+    pure $
       NamedSchema (Just "EpochParameters") $
         parametersSchema
           & properties %~ (`mappend` [("epoch", epochSchema)])

@@ -20,6 +20,7 @@ import Network.HTTP.Conduit (simpleHttp)
 import Servant.Swagger
 
 import Cardano.Constitution.Checker.Blockfrost
+import Cardano.Constitution.Checker.Web
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Aeson
 import Data.String
@@ -27,6 +28,7 @@ import Data.Text (unpack)
 import Servant.Client (BaseUrl, parseBaseUrl, showBaseUrl)
 
 import qualified Data.Map as Map
+import Network.Wai.Middleware.Cors
 
 type API =
   "parameters"
@@ -36,14 +38,21 @@ type API =
        )
     :<|> "current-values" :> Get '[JSON] EpochParameters
 
+type StaticAPI = Raw
+
+type FullApi = HtmxAPI :<|> API :<|> StaticAPI
+
 newtype URL = URL BaseUrl
 
-server :: ServerCaps -> Server API
+server :: ServerCaps -> Server FullApi
 server ServerCaps{..} =
-  ( parametersChange
-      :<|> parametersChangeByUrl
-  )
-    :<|> getAllCurrentParamsValues
+  (homePageHandler' :<|> paramsCheckHandler')
+    :<|> ( ( parametersChange
+              :<|> parametersChangeByUrl
+           )
+            :<|> getAllCurrentParamsValues
+         )
+    :<|> serveDirectoryWebApp "./web"
  where
   getLatestEpochProtocolParams :: Map Epoch ProtocolParams -> Either String ProtocolParams
   getLatestEpochProtocolParams protocolParams =
@@ -51,6 +60,16 @@ server ServerCaps{..} =
      in case Map.lookup maxEpoch protocolParams of
           Nothing -> Left "No protocol parameters available"
           Just params -> Right params
+  homePageHandler' :: Bool -> Handler RawHtml
+  homePageHandler' viewParamsResult = do
+    (EpochParameters _ currentParams) <- getAllCurrentParamsValues
+    homePageHandler viewParamsResult currentParams (ParamChecks' Map.empty Map.empty)
+
+  paramsCheckHandler' :: AllInputs -> Handler RawHtml
+  paramsCheckHandler' inputs@(AllInputs paramChange _ _ _) = do
+    (ctx, EpochParameters _ currentParams) <- mkContext' paramChange
+    let (ParamChecks proposed' (MissingParams missing)) = checkParams currentParams ctx paramChange
+    paramsCheckHandler currentParams (ParamChecks' proposed' missing) inputs
 
   getAllCurrentParamsValues :: Handler EpochParameters
   getAllCurrentParamsValues = do
@@ -97,7 +116,7 @@ api = Proxy
 
 type APIWithDoc =
   SwaggerSchemaUI "swagger-ui" "swagger.json"
-    :<|> API
+    :<|> FullApi
 
 instance ToSchema URL where
   declareNamedSchema _ = do
@@ -133,5 +152,14 @@ serverWithDoc :: ServerCaps -> Server APIWithDoc
 serverWithDoc caps =
   swaggerSchemaUIServer swaggerJson :<|> server caps
 
+customCorsPolicy :: CorsResourcePolicy
+customCorsPolicy =
+  simpleCorsResourcePolicy
+    { corsOrigins = Nothing -- This allows all origins
+    , corsMethods = ["GET", "POST", "OPTIONS", "PUT", "DELETE"]
+    , corsRequestHeaders = ["Authorization", "Content-Type"]
+    , corsExposedHeaders = Nothing -- Expose all headers
+    , corsMaxAge = Nothing
+    }
 app :: ServerCaps -> Application
-app = serve apiWithDoc . serverWithDoc
+app = cors (const $ Just customCorsPolicy) . serve apiWithDoc . serverWithDoc

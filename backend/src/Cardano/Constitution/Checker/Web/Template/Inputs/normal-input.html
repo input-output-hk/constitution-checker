@@ -1,0 +1,32 @@
+<div class="text-field" id="$name">
+  <div class="$containerClass">
+    <div class="state-layer-4">
+      <div class="content">
+        <div class="input-text-container">
+          <input
+            id="$name-input"
+            name="$name"
+            type="text"
+            class="input-text"
+            value="$value"
+            placeholder="$placeholder"
+            hx-post="?"
+            hx-target="#inputs"
+            hx-swap="innerHTML"
+            hx-trigger="blur changed"
+          />
+        </div>
+        <div class="label-text-5">
+          <div class="$labelTextClass">$caption</div>
+        </div>
+      </div>
+      <div class="container-wrapper-2">
+        <div class="container-3">
+          <div class="icon-wrapper" onClick="$onClick">
+            <img class="icon-2" src="img/icon-$icon.svg" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
