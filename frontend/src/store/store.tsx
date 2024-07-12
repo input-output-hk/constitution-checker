@@ -76,13 +76,13 @@ const useStore = create<State & Action>((set, get) => ({
     checkedStatus: initializeCheckedStatus(),
     currentTab: 'Proposal Parameters',
     drawerOpen: false,
-    selectedRowName: '',
+    selectedRowName: [],
 
     //used only to load initial app state from Cardano
     fetchJsonInitialState: async () => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.get("http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8080/current-values");
+            const response = await axios.get("http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/current-values");
             set({ initialJsonState: response.data, currentJsonState: response.data, loading: false });
         } catch (error) {
             console.error("Failed to fetch initial state:", error);
@@ -93,7 +93,7 @@ const useStore = create<State & Action>((set, get) => ({
     postParametersProposal: async (data: InitialJsonState) => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.post('http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8080/parameters/proposal', data, {
+            const response = await axios.post('http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/parameters/proposal', data, {
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8',
                     'Accept': 'application/json;charset=utf-8'
@@ -160,7 +160,9 @@ const useStore = create<State & Action>((set, get) => ({
 
     changeSelectedTab: (tabName) => set({currentTab: tabName}),
     toggleMoreDetailsDrawer: (value) => set({drawerOpen: value}),
-    changeSelectedRowName: (rowName) => set({selectedRowName: rowName}),
+    changeTableDetails: (rowName: string, parameterName?: string) => set({
+        selectedRowName: parameterName ? [rowName, parameterName] : [rowName]
+    }),
 }));
 
 export default useStore;

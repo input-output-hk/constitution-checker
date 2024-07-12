@@ -14,11 +14,7 @@ export default function GuardrailView() {
     checkedStatus: state.checkedStatus || {},
   }));
 
-  const getStatus = (paramName: string, paramId: string, guardrailKey: string, nestedParamId?: string) => {
-    if (validationResults) {
-        console.log(validationResults['poolVotingThresholds']);
-    }
-    
+  const getStatus = (paramName: string, paramId: string, guardrailKey: string, nestedParamId?: string) => {    
     let status = checkedStatus[paramId];  
 
     if (nestedParamId && typeof status === 'object' && status !== null) {
@@ -41,8 +37,6 @@ export default function GuardrailView() {
    }
 
    const guardrails = (jsonKey as ParameterValidationResult).guardrails;
-
-  //  console.log(guardrails);
 
    if (guardrails && guardrailKey in guardrails) {
     const guardrailResult = guardrails[guardrailKey].result;

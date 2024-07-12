@@ -10,7 +10,6 @@ interface PHATableRowProps {
   name: string;
   status: string;
   value?: number | string | undefined;
-  message?: string | null;
   parameter?: string | null;
 }
 
@@ -24,17 +23,21 @@ const statusToColor = (status: string): "disabled" | "inherit" | "primary" | "se
   }
 }
 
-export default function PHATableRow({name, status="disabled", value, message, parameter}: PHATableRowProps) {
-  const { currentTab, toggleMoreDetailsDrawer,changeSelectedRowName } = useStore(state => ({
+export default function PHATableRow({name, status="disabled", value, parameter}: PHATableRowProps) {
+  const { currentTab, toggleMoreDetailsDrawer,changeTableDetails } = useStore(state => ({
     currentTab: state.currentTab,
     toggleMoreDetailsDrawer: state.toggleMoreDetailsDrawer,
-    changeSelectedRowName: state.changeSelectedRowName
+    changeTableDetails: state.changeTableDetails
   }));
   const iconColor = statusToColor(status);
 
   const handleOpenDrawer = () => {
     toggleMoreDetailsDrawer(true);
-    changeSelectedRowName(name);
+    if (parameter) {
+      changeTableDetails(name, parameter);
+    } else {
+      changeTableDetails(name);
+    }
   };
 
   return (

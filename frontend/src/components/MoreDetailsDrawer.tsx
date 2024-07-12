@@ -9,10 +9,11 @@ import useStore from '../store/store';
 import { ParameterValidationResult } from '../store/types';
 
 export default function MoreDetailsDrawer() {
-  const { drawerOpen, validationResults, selectedRowName, toggleMoreDetailsDrawer } = useStore(state => ({
+  const { drawerOpen, validationResults, selectedRowName, currentTab, toggleMoreDetailsDrawer } = useStore(state => ({
     validationResults: state.validationResults,
     drawerOpen: state.drawerOpen,
     selectedRowName: state.selectedRowName,
+    currentTab: state.currentTab,
     toggleMoreDetailsDrawer: state.toggleMoreDetailsDrawer,
   }));
 
@@ -21,40 +22,77 @@ export default function MoreDetailsDrawer() {
   };
    
   const getRowDetails = () => {
-    if (!validationResults || !selectedRowName) {
+    if (!validationResults || !selectedRowName || selectedRowName.length < 1) {
       return null;
     }
 
-    const selectedRowArray = selectedRowName.split(/[.[\]]+/).filter(k => k);
     let rowDetails: any = validationResults;
+    console.log(rowDetails);
+    let guardrails: { [key: string]: any } = {};
 
-    // Navigate through the nested structure
-    for (const key of selectedRowArray) {
-      if (rowDetails[key]) {
-        rowDetails = rowDetails[key];
-      } else {
+    if (currentTab === 'Proposal Parameters') {
+      const selectedRowArray = selectedRowName[0].split(/[.[\]]+/).filter((k: string) => k);
+
+      for (const key of selectedRowArray) {
+        if (rowDetails[key]) {
+          rowDetails = rowDetails[key];
+        } else {
+          return <Typography>No details available for {selectedRowName}</Typography>;
+        }
+      }
+
+      if (!('guardrails' in rowDetails)) {
         return <Typography>No details available for {selectedRowName}</Typography>;
       }
-    }
 
-    if (!('guardrails' in rowDetails)) {
-      return <Typography>No details available for {selectedRowName}</Typography>;
-    }
+      guardrails = (rowDetails as ParameterValidationResult).guardrails;
+    } else if (currentTab === 'Guardrails') {
+      const paramName = selectedRowName[1];
+      const guardrailName = selectedRowName[0];
 
-    const guardrails = (rowDetails as ParameterValidationResult).guardrails;
+      const selectedRowArray = paramName.split(/[.[\]]+/).filter((k: string) => k);
+
+      for (const key of selectedRowArray) {
+        if (rowDetails[key]) {
+          rowDetails = rowDetails[key];
+        } else {
+          return <Typography>No details available for {selectedRowName}</Typography>;
+        }
+      }
+
+      const paramDetails = rowDetails as ParameterValidationResult;
+
+      if (!paramDetails || !('guardrails' in paramDetails)) {
+        return <Typography>No details available for {selectedRowName}</Typography>;
+      }
+
+      const specificGuardrail = paramDetails.guardrails[guardrailName];
+      guardrails = { [guardrailName]: specificGuardrail };
+    }
 
     // Display guardrails content
     return (
       <div>
-        {Object.entries(guardrails).map(([key, value]) => (
-          <div key={key}>
-            <Typography variant={value.result === true ? 'successText' : 'errorText'}>{key}</Typography>
-            <Typography variant='body1'>
-              {value.description}
-            </Typography>
-            <Divider sx={{ margin: '16px 0px' }} />
-          </div>
-        ))}
+        {Object.entries(guardrails).map(([key, value]) => {
+          let variant: 'successText' | 'errorText' | 'body3';
+          if (value.result === true) {
+            variant = 'successText';
+          } else if (value.result === false) {
+            variant = 'errorText';
+          } else {
+            variant = 'body3';
+          }
+
+          return (
+            <div key={key}>
+              <Typography variant={variant}>{key}</Typography>
+              <Typography variant='body1'>
+                {value.description}
+              </Typography>
+              <Divider sx={{ margin: '16px 0px' }} />
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -67,8 +105,8 @@ export default function MoreDetailsDrawer() {
         
       >
         <Toolbar className="spBtwnToolbar">
-            <Typography variant={'h6'}>
-              {selectedRowName} Details
+            <Typography variant={'h6'} sx={{overflowWrap: 'anywhere'}}>
+              {selectedRowName[0]} Details
             </Typography>
             <IconButton icon={<CloseIcon />} color="default" onClick={handleCloseDrawer}/>
         </Toolbar>

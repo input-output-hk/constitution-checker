@@ -57,11 +57,13 @@ declare module "@mui/material/styles" {
   interface TypographyVariants {
     successText?: React.CSSProperties;
     errorText?: React.CSSProperties;
+    body3?: React.CSSProperties;
   }
 
   interface TypographyVariantsOptions {
     successText?: React.CSSProperties;
     errorText?: React.CSSProperties;
+    body3?: React.CSSProperties;
   }
 }
 
@@ -69,5 +71,6 @@ declare module '@mui/material/Typography' {
   interface TypographyPropsVariantOverrides {
     successText: true;
     errorText: true;
+    body3: true;
   }
 }
