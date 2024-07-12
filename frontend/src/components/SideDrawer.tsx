@@ -45,9 +45,11 @@ export default function SideDrawerLeft() {
     value: number | number[] | { [key: string]: number } | { [key: string]: number[] }
   ) => {
     if (currentJsonState) {
+      const keys = key.split('.');
+      const topKey = keys[0] as keyof typeof currentJsonState;
       const updatedJsonState = {
         ...currentJsonState,
-        [key]: value,
+        [topKey]: value,
       };
       setCurrentJsonState(updatedJsonState);
       markFieldAsUnchecked(key);
