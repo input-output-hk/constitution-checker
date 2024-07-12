@@ -27,7 +27,7 @@ maxBlockExecutionUnits =
         , ("MBEU-M-04", "The impact of any change to *maxBlockExecutionUnits[memory]* **must** be confirmed by detailed benchmarking/simulation and not exceed the requirements of the diffusion/propagation time budgets, as also impacted by (*maxBlockExecutionUnits[steps]*).") `ShouldSatisfy` \ctx val ->
             Neutral "Please contribute to this check."
         , ("MEU-M-01", "*maxBlockExecutionUnits[memory]* **must not** be less than *maxTxExecutionUnits[memory]*") `ShouldSatisfy` \ctx val ->
-            case Map.lookup "memory" $ ctx.merged.byName.getIntegers "maxTxExecutionUnits" of
+            case Map.lookup "mem" $ ctx.merged.byName.getIntegers "maxTxExecutionUnits" of
               Nothing -> Unsatisfied "maxTxExecutionUnits[memory] not found"
               Just maxTxExecutionUnitsMem' ->
                 if val >= maxTxExecutionUnitsMem'
