@@ -1,10 +1,9 @@
-import * as React from 'react';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import CommonButton from './CommonButton';
-import CircleIcon from '@mui/icons-material/Circle';
-import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
-import useStore from '../store/store';
+import TableRow from "@mui/material/TableRow";
+import TableCell from "@mui/material/TableCell";
+import CommonButton from "./CommonButton";
+import CircleIcon from "@mui/icons-material/Circle";
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
+import useStore from "../store";
 
 interface PHATableRowProps {
   name: string;

@@ -1,12 +1,11 @@
-import * as React from 'react';
-import Drawer from '@mui/material/Drawer';
-import Toolbar from '@mui/material/Toolbar';
-import { Typography } from '@mui/material';
-import IconButton from './IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import Divider from '@mui/material/Divider';
-import useStore from '../store/store';
-import { ParameterValidationResult } from '../store/types';
+import Drawer from "@mui/material/Drawer";
+import Toolbar from "@mui/material/Toolbar";
+import { Typography } from "@mui/material";
+import IconButton from "./IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Divider from "@mui/material/Divider";
+import useStore from "../store";
+import { ParameterValidationResult } from "../types";
 
 export default function MoreDetailsDrawer() {
   const { drawerOpen, validationResults, selectedRowName, toggleMoreDetailsDrawer } = useStore(state => ({
@@ -60,21 +59,21 @@ export default function MoreDetailsDrawer() {
   };
 
   return (
-      <Drawer
-        variant="persistent"
-        anchor="right"
-        open={drawerOpen}
-        
-      >
-        <Toolbar className="spBtwnToolbar">
-            <Typography variant={'h6'}>
-              {selectedRowName} Details
-            </Typography>
-            <IconButton icon={<CloseIcon />} color="default" onClick={handleCloseDrawer}/>
-        </Toolbar>
-        <div className="scrollBar2">
-          {getRowDetails()}
-        </div>
-      </Drawer>
+    <Drawer
+      variant="persistent"
+      anchor="right"
+      open={drawerOpen}
+      
+    >
+      <Toolbar className="spBtwnToolbar">
+          <Typography variant={'h6'}>
+            {selectedRowName} Details
+          </Typography>
+          <IconButton icon={<CloseIcon />} color="default" onClick={handleCloseDrawer}/>
+      </Toolbar>
+      <div className="scrollBar2">
+        {getRowDetails()}
+      </div>
+    </Drawer>
   );
 }

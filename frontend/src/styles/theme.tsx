@@ -1,6 +1,5 @@
 import { createTheme } from "@mui/material/styles";
 import { lightModePalette, darkModePalette} from "./palette";
-import { Padding } from "@mui/icons-material";
 
 export const getTheme = (mode: 'light' | 'dark',) => createTheme({
     palette: {

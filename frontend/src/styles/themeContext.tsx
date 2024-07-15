@@ -1,7 +1,7 @@
 // ThemeContext.tsx
-import React, { createContext, useContext, useMemo, useState, ReactNode } from 'react';
-import { ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
-import { getTheme } from './theme';
+import { createContext, useContext, useMemo, useState, ReactNode } from "react";
+import { ThemeProvider as MUIThemeProvider } from "@mui/material/styles";
+import { getTheme } from "./theme";
 
 type ThemeModeContextType = {
   toggleTheme: () => void;

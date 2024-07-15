@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
-import useStore from './store/store';
-import CircularProgress from '@mui/material/CircularProgress';
-import SideDrawerLeft from './components/SideDrawer';
-import TableContainer from './components/TableContainer';
-import MoreDetailsDrawer from './components/MoreDetailsDrawer';
+import { useEffect } from "react";
+import useStore from "./store";
+import CircularProgress from "@mui/material/CircularProgress";
+import SideDrawerLeft from "./components/SideDrawer";
+import TableContainer from "./components/TableContainer";
+import MoreDetailsDrawer from "./components/MoreDetailsDrawer";
 
 
 function App() {

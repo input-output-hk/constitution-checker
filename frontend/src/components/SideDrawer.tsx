@@ -1,73 +1,56 @@
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Typography, Button, Toolbar, Drawer, Box } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import DownloadIcon from '@mui/icons-material/Download';
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { Typography, Button, Toolbar, Drawer, Box } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import DownloadIcon from "@mui/icons-material/Download";
 
-import IconButton from './IconButton';
-import ButtonGroup from './ButtonGroup';
-import CommonButton from './CommonButton';
-import InputGroup from './InputGroup';
+import IconButton from "./IconButton";
+import ButtonGroup from "./ButtonGroup";
+import CommonButton from "./CommonButton";
+import InputGroup from "./InputGroup";
 
-import useStore from '../store/store';
-import { fields, resolver, mapJsonStateToForm, Form } from '../utils/sideDrawer';
+import useStore from "../store";
+
+import {
+  mapInitialJsonStateToProposalForm,
+  mapProposalFormToProposalValues,
+} from "../utils/mapper";
+
+import {
+  baseFormFields,
+  executionUnitPricesFields,
+  maxTxExecutionUnitsFields,
+  maxBlockExecutionUnitsFields,
+  poolVotingThresholdsFields,
+  dRepVotingThresholdsFields,
+  resolver,
+} from '../utils/proposalForm';
+
+import type { ProposalForm } from "../types";
 
 export default function SideDrawerLeft() {
-  const { initialJsonState, currentJsonState, validationResults, setCurrentJsonState, postParametersProposal, markFieldAsUnchecked } = useStore(state => ({
-    initialJsonState: state.initialJsonState,
-    currentJsonState: state.currentJsonState,
-    validationResults: state.validationResults,
-    setCurrentJsonState: state.setCurrentJsonState,
-    postParametersProposal: state.postParametersProposal,
-    markFieldAsUnchecked: state.markFieldAsUnchecked,
-  }));
+  const { initialJsonState, postParametersProposal, updateCurrentJsonFieldState } = useStore();
 
-  const defaultValues = initialJsonState ? mapJsonStateToForm(initialJsonState) : undefined;
-  const { register, formState, getFieldState, getValues, setValue, watch } = useForm<Form>({ defaultValues, resolver, mode: 'onChange' });
+  const defaultValues = initialJsonState ? mapInitialJsonStateToProposalForm(initialJsonState) : undefined;
+  const { register, formState, getFieldState, getValues, setValue, watch } = useForm<ProposalForm>({ defaultValues, resolver, mode: 'onChange' });
 
   useEffect(() => {
     const subscription = watch((values, { name }) => {
-      console.log(values, name);
+      if (name) {
+        const [level1, level2] = name.split('.');
+        let value = (values as any)[level1];
+        if (level2) value = value[level2];
+        updateCurrentJsonFieldState(name, value);
+      }
     });
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  const getErrorStatus = (paramName: string) => {
-    if (!validationResults) return false;
-
-    const selectedTBArray = paramName.split(/[.[\]]+/).filter(k => k);
-    let tBDetails: any = validationResults;
-
-    // Navigate through the nested structure
-    for (const key of selectedTBArray) {
-      if (tBDetails[key]) {
-        tBDetails = tBDetails[key];
-      } else {
-        return false; // If any key is not found, return false
-      }
-    }
-
-    return tBDetails?.summary === false;
-  };
-
-  const handleInputChange = (
-    key: string,
-    value: number | number[] | { [key: string]: number } | { [key: string]: number[] }
-  ) => {
-    if (currentJsonState) {
-      const updatedJsonState = {
-        ...currentJsonState,
-        [key]: value,
-      };
-      setCurrentJsonState(updatedJsonState);
-      markFieldAsUnchecked(key);
-    }
-  };
-
   const handleRunCheck = () => {
-    if (currentJsonState) {
-      postParametersProposal(currentJsonState);
-    }
+    postParametersProposal({
+      ...initialJsonState,
+      ...mapProposalFormToProposalValues(getValues()),
+    });
   };
 
   const buttons = [
@@ -103,14 +86,69 @@ export default function SideDrawerLeft() {
           <div className="child2DrawerContainer">
             <Box className="spBtwnDiv" >
               <Typography variant={'h6'}>
-                  Change Parameter Value
+                Change Parameter Value
               </Typography>
               <Button color='primary' variant='text' disableRipple disableFocusRipple onClick={handleRunCheck}>Run</Button>
             </Box>
 
             <div className="scrollBar">
               <InputGroup
-                fields={fields}
+                fields={baseFormFields}
+                formState={formState}
+                register={register}
+                getFieldState={getFieldState}
+                getValues={getValues}
+                setValue={setValue}
+              />
+              <Typography variant={'body1'} sx={{marginTop: '8px'}}>
+                executionUnitPrices
+              </Typography>
+              <InputGroup
+                fields={executionUnitPricesFields}
+                formState={formState}
+                register={register}
+                getFieldState={getFieldState}
+                getValues={getValues}
+                setValue={setValue}
+              />
+              <Typography variant={'body1'} sx={{marginTop: '8px'}}>
+                maxTxExecutionUnits
+              </Typography>
+              <InputGroup
+                fields={maxTxExecutionUnitsFields}
+                formState={formState}
+                register={register}
+                getFieldState={getFieldState}
+                getValues={getValues}
+                setValue={setValue}
+              />
+              <Typography variant={'body1'} sx={{marginTop: '8px'}}>
+                maxBlockExecutionUnits
+              </Typography>
+              <InputGroup
+                fields={maxBlockExecutionUnitsFields}
+                formState={formState}
+                register={register}
+                getFieldState={getFieldState}
+                getValues={getValues}
+                setValue={setValue}
+              />
+              <Typography variant={'body1'} sx={{marginTop: '8px'}}>
+                poolVotingThresholds
+              </Typography>
+              <InputGroup
+                fields={poolVotingThresholdsFields}
+                formState={formState}
+                register={register}
+                getFieldState={getFieldState}
+                getValues={getValues}
+                setValue={setValue}
+              />
+              <Typography variant={'body1'} sx={{marginTop: '8px'}}>
+                dRepVotingThresholds
+              </Typography>
+              <InputGroup
+                fields={dRepVotingThresholdsFields}
                 formState={formState}
                 register={register}
                 getFieldState={getFieldState}
