@@ -18,7 +18,6 @@ export type State = {
 export type Action = {
   fetchJsonInitialState: () => void;
   updateCurrentJsonFieldState: (field: string, value: string) => void;
-  revertToInitialJsonState: () => void;
   postParametersProposal: (data: ProposalValues) => Promise<any>;
   changeSelectedTab: (tabName: string) => void;
   toggleMoreDetailsDrawer: (value: boolean) => void;
@@ -69,9 +68,21 @@ const useStore = create<State & Action>((set, get) => ({
           'Accept': 'application/json;charset=utf-8'
         }
       });
-      // Assuming response.data includes the updated validation results
+
+      const checkedCurrentJsonState = {...get().currentJsonState!};
+      for (const k of Object.keys(checkedCurrentJsonState)) {
+        if ((checkedCurrentJsonState as any)[k].checkStatus) {
+          (checkedCurrentJsonState as any)[k].checkStatus = 'checked';
+        } else {
+          for (const j of Object.keys((checkedCurrentJsonState as any)[k])) {
+            (checkedCurrentJsonState as any)[k][j].checkStatus = 'checked';
+          }
+        }
+      }
+
       set({
         validationResults: response.data,
+        currentJsonState: checkedCurrentJsonState,
         loading: false
       }); 
     } catch (error) {
@@ -104,10 +115,6 @@ const useStore = create<State & Action>((set, get) => ({
       });
     }
   },
-
-  revertToInitialJsonState: () => set({
-    currentJsonState: mapInitialJsonStateToCurrentJsonState(get().initialJsonState!)
-  }),
 
   changeSelectedTab: (tabName) => set({currentTab: tabName}),
   toggleMoreDetailsDrawer: (value) => set({drawerOpen: value}),

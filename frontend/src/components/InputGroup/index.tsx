@@ -25,6 +25,7 @@ export interface InputGroupProps<T extends FieldValues = any> {
   getFieldState: UseFormGetFieldState<T>;
   getValues: UseFormGetValues<T>;
   setValue: UseFormSetValue<T>;
+  getError: (field: string) => boolean;
 }
 
 export interface InputProps<T extends FieldValues = any> {
@@ -34,6 +35,7 @@ export interface InputProps<T extends FieldValues = any> {
   getFieldState: UseFormGetFieldState<T>;
   getValues: UseFormGetValues<T>;
   setValue: UseFormSetValue<T>;
+  getError: (field: string) => boolean;
 }
 
 const InputGroup = (props: InputGroupProps) => {
@@ -48,6 +50,7 @@ const InputGroup = (props: InputGroupProps) => {
           getFieldState={props.getFieldState}
           getValues={props.getValues}
           setValue={props.setValue}
+          getError={props.getError}
         />
       ))}
     </>

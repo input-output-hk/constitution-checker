@@ -15,16 +15,16 @@ export default function ParameterView() {
     let status = (currentJsonState as any || {})[level1];
     if (level2) status = status[level2];
     if (status && status.checkStatus === 'unchecked') {
-      return 'warning';
+      return 'disabled';
     }
 
     let result = (validationResults as any || {})[level1];
     if (level2) result = result[level2];
-    if (result && result.guardrails && result.guardrails.result) {
-      return result.guardrails.result ? 'active' : 'inactive';
+    if (result) {
+      return result.summary ? 'active' : 'inactive';
     } 
 
-    return 'warning';
+    return 'disabled';
   };
 
   return (

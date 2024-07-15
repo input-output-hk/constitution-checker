@@ -29,7 +29,7 @@ import {
 import type { ProposalForm } from "../types";
 
 export default function SideDrawerLeft() {
-  const { initialJsonState, postParametersProposal, updateCurrentJsonFieldState } = useStore();
+  const { initialJsonState, validationResults, postParametersProposal, updateCurrentJsonFieldState } = useStore();
 
   const defaultValues = initialJsonState ? mapInitialJsonStateToProposalForm(initialJsonState) : undefined;
   const { register, formState, getFieldState, getValues, setValue, watch } = useForm<ProposalForm>({ defaultValues, resolver, mode: 'onChange' });
@@ -45,6 +45,14 @@ export default function SideDrawerLeft() {
     });
     return () => subscription.unsubscribe();
   }, [watch]);
+
+  const getError = (field: string): boolean => {
+    const [level1, level2] = field.split('.');
+    let value = (validationResults as any)[level1];
+    if (level2) value = value[level2];
+    if (value) return !value.summary;
+    return false;
+  };
 
   const handleRunCheck = () => {
     postParametersProposal({
@@ -99,6 +107,7 @@ export default function SideDrawerLeft() {
                 getFieldState={getFieldState}
                 getValues={getValues}
                 setValue={setValue}
+                getError={getError}
               />
               <Typography variant={'body1'} sx={{marginTop: '8px'}}>
                 executionUnitPrices
@@ -110,6 +119,7 @@ export default function SideDrawerLeft() {
                 getFieldState={getFieldState}
                 getValues={getValues}
                 setValue={setValue}
+                getError={getError}
               />
               <Typography variant={'body1'} sx={{marginTop: '8px'}}>
                 maxTxExecutionUnits
@@ -121,6 +131,7 @@ export default function SideDrawerLeft() {
                 getFieldState={getFieldState}
                 getValues={getValues}
                 setValue={setValue}
+                getError={getError}
               />
               <Typography variant={'body1'} sx={{marginTop: '8px'}}>
                 maxBlockExecutionUnits
@@ -132,6 +143,7 @@ export default function SideDrawerLeft() {
                 getFieldState={getFieldState}
                 getValues={getValues}
                 setValue={setValue}
+                getError={getError}
               />
               <Typography variant={'body1'} sx={{marginTop: '8px'}}>
                 poolVotingThresholds
@@ -143,6 +155,7 @@ export default function SideDrawerLeft() {
                 getFieldState={getFieldState}
                 getValues={getValues}
                 setValue={setValue}
+                getError={getError}
               />
               <Typography variant={'body1'} sx={{marginTop: '8px'}}>
                 dRepVotingThresholds
@@ -154,6 +167,7 @@ export default function SideDrawerLeft() {
                 getFieldState={getFieldState}
                 getValues={getValues}
                 setValue={setValue}
+                getError={getError}
               />
             </div>
           </div>
