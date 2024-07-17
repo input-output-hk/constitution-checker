@@ -150,7 +150,7 @@ export type State = {
     checkedStatus: CheckedStatus;
     currentTab: string;
     drawerOpen: boolean;
-    selectedRowName: string;
+    selectedRowName: string[];
 };
 
 export type Action = {
@@ -162,5 +162,5 @@ export type Action = {
     markFieldAsUnchecked: (key: string) => void;
     changeSelectedTab: (tabName: string) => void;
     toggleMoreDetailsDrawer: (value: boolean) => void;
-    changeSelectedRowName: (rowName: string) => void;
+    changeTableDetails: (rowName: string, parameterName?: string) => void;
 };
