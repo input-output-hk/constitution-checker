@@ -9,7 +9,6 @@ interface PHATableRowProps {
   name: string;
   status: string;
   value?: number | string | undefined;
-  message?: string | null;
   parameter?: string | null;
 }
 
@@ -23,32 +22,36 @@ const statusToColor = (status: string): "disabled" | "inherit" | "primary" | "se
   }
 }
 
-export default function PHATableRow({name, status="disabled", value, message, parameter}: PHATableRowProps) {
-  const { currentTab, toggleMoreDetailsDrawer,changeSelectedRowName } = useStore(state => ({
+export default function PHATableRow({name, status="disabled", value, parameter}: PHATableRowProps) {
+  const { currentTab, toggleMoreDetailsDrawer,changeTableDetails } = useStore(state => ({
     currentTab: state.currentTab,
     toggleMoreDetailsDrawer: state.toggleMoreDetailsDrawer,
-    changeSelectedRowName: state.changeSelectedRowName
+    changeTableDetails: state.changeTableDetails
   }));
   const iconColor = statusToColor(status);
 
   const handleOpenDrawer = () => {
     toggleMoreDetailsDrawer(true);
-    changeSelectedRowName(name);
+    if (parameter) {
+      changeTableDetails(name, parameter);
+    } else {
+      changeTableDetails(name);
+    }
   };
 
   return (
     <TableRow
-    sx={{ '&:last-child td, &:last-child th': { border: 0 }, }}
-  >
-    <TableCell component="th" scope="row">
-    <CircleIcon color={iconColor} sx={{width: '12px', height: '12px', verticalAlign: 'middle', marginRight: '8px'}} />
-      {name}
-    </TableCell>
-    {currentTab === 'Proposal Parameters' && <TableCell align="right">{value}</TableCell>}
-    {currentTab === 'Guardrails' && <TableCell align="right">{parameter}</TableCell>}
-    <TableCell align="right">
-      <CommonButton variant='text' text='View More Details' startIcon={<RemoveRedEyeOutlinedIcon/>} onClick={handleOpenDrawer}/>
-    </TableCell>
-  </TableRow>
+      sx={{ '&:last-child td, &:last-child th': { border: 0 }, }}
+    >
+      <TableCell component="th" scope="row">
+      <CircleIcon color={iconColor} sx={{width: '12px', height: '12px', verticalAlign: 'middle', marginRight: '8px'}} />
+        {name}
+      </TableCell>
+      {currentTab === 'Proposal Parameters' && <TableCell align="right">{value}</TableCell>}
+      {currentTab === 'Guardrails' && <TableCell align="right">{parameter}</TableCell>}
+      <TableCell align="right">
+        <CommonButton variant='text' text='View More Details' startIcon={<RemoveRedEyeOutlinedIcon/>} onClick={handleOpenDrawer}/>
+      </TableCell>
+    </TableRow>
   );
 }

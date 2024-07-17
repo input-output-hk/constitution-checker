@@ -32,6 +32,10 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
       body1: {
         fontSize: '12px',
       },
+      body3: {
+        fontSize: '12px',
+        fontWeight: 600,
+      },
       successText: {
         fontSize: '12px',
         color: '#39CD6B !important',

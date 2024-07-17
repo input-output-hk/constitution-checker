@@ -9,7 +9,7 @@ export type State = {
   error: null | string;
   currentTab: string;
   drawerOpen: boolean;
-  selectedRowName: string;
+  selectedRowName: string[];
   initialJsonState: InitialJsonState | undefined;
   currentJsonState: CurrentJsonState | undefined;
   validationResults: ValidationResult | undefined;
@@ -21,7 +21,7 @@ export type Action = {
   postParametersProposal: (data: ProposalValues) => Promise<any>;
   changeSelectedTab: (tabName: string) => void;
   toggleMoreDetailsDrawer: (value: boolean) => void;
-  changeSelectedRowName: (rowName: string) => void;
+  changeTableDetails: (rowName: string, parameterName?: string) => void;
 };
 
 const useStore = create<State & Action>((set, get) => ({
@@ -29,7 +29,7 @@ const useStore = create<State & Action>((set, get) => ({
   error: null,
   currentTab: 'Proposal Parameters',
   drawerOpen: false,
-  selectedRowName: '',
+  selectedRowName: [],
   
   // Holds initial JSON state
   initialJsonState: undefined,
@@ -118,7 +118,10 @@ const useStore = create<State & Action>((set, get) => ({
 
   changeSelectedTab: (tabName) => set({currentTab: tabName}),
   toggleMoreDetailsDrawer: (value) => set({drawerOpen: value}),
-  changeSelectedRowName: (rowName) => set({selectedRowName: rowName}),
+
+  changeTableDetails: (rowName: string, parameterName?: string) => set({
+    selectedRowName: parameterName ? [rowName, parameterName] : [rowName]
+  }),
 }));
 
 export default useStore;

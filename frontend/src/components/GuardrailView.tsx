@@ -17,6 +17,166 @@ const FIELDS = [
       'TFGEN-02',
     ],
   },{
+    parameter: ['utxoCostPerByte'],
+    guardrails: [
+      'UCPB-01',
+      'UCPB-02',
+      'UCPB-03',
+      'UCPB-04',
+      'UCPB-05',
+    ],
+  },{
+    parameter: ['stakeAddressDeposit'],
+    guardrails: [
+      'SAD-01',
+      'SAD-02',
+      'SAD-03',
+    ],
+  },{
+    parameter: ['stakePoolDeposit'],
+    guardrails: [
+      'SDP-01',
+      'SDP-02',
+      'SDP-03',
+    ],
+  },{
+    parameter: ['minPoolCost'],
+    guardrails: [
+      'MPC-01',
+      'MPC-02',
+      'MPC-03',
+    ],
+  },{
+    parameter: ['treasuryCut'],
+    guardrails: [
+      'TC-01',
+      'TC-02',
+      'TC-03',
+      'TC-04',
+      'TC-05',
+    ],
+  },{
+    parameter: ['monetaryExpansion'],
+    guardrails: [
+      'ME-01',
+      'ME-02',
+      'ME-03',
+      'ME-04',
+      'ME-05',
+    ],
+  },{
+    parameter: ['executionUnitPrices', 'priceMemory'],
+    guardrails: [
+      'EIUP-GEN-01',
+      'EIUP-GEN-02',
+      'EIUP-PM-01',
+      'EIUP-PM-02',
+    ],
+  },{
+    parameter: ['executionUnitPrices', 'priceSteps'],
+    guardrails: [
+      'EIUP-GEN-01',
+      'EIUP-GEN-02',
+      'EIUP-PS-01',
+      'EIUP-PS-02',
+    ],
+  },{
+    parameter: ['minFeeRefScriptCoinsPerByte'],
+    guardrails: [
+      'MFRS-01',
+      'MFRS-02',
+      'MFRS-03',
+      'MFRS-04',
+    ],
+  },{
+    parameter: ['maxBlockBodySize'],
+    guardrails: [
+      'MBBS-01',
+      'MBBS-02',
+      'MBBS-03',
+      'MBBS-04',
+      'MBBS-04',
+      'MBBS-06',
+      'MBBS-07',
+    ],
+  },{
+    parameter: ['maxTxSize'],
+    guardrails: [
+      'MTS-01',
+      'MTS-02',
+      'MTS-03',
+      'MTS-04',
+      'MTS-04',
+      'MTS-06',
+    ],
+  },{
+    parameter: ['maxBlockExecutionUnits', 'memory'],
+    guardrails: [
+      'MBEU-M-01',
+      'MBEU-M-02',
+      'MBEU-M-03',
+      'MBEU-M-04',
+      'MBEU-M-05',
+      'MEU-M-01',
+    ],
+  },{
+    parameter: ['maxBlockExecutionUnits', 'steps'],
+    guardrails: [
+      'MBEU-M-01',
+      'MBEU-M-02',
+      'MBEU-M-03',
+      'MBEU-M-04',
+      'MBEU-M-05',
+      'MEU-M-01',
+    ],
+  },{
+    parameter: ['maxTxExecutionUnits', 'mem'],
+    guardrails: [
+      'MTEU-M-01',
+      'MTEU-M-02',
+      'MTEU-M-03',
+      'MTEU-M-04',
+    ],
+  },{
+    parameter: ['maxTxExecutionUnits', 'steps'],
+    guardrails: [
+      'MTEU-S-01',
+      'MTEU-S-02',
+      'MTEU-S-03',
+      'MTEU-S-04',
+    ],
+  },{
+    parameter: ['maxBlockHeaderSize'],
+    guardrails: [
+      'MBHS-01',
+      'MBHS-02',
+      'MBHS-03',
+      'MBHS-04',
+      'MBHS-05',
+    ],
+  },{
+    parameter: ['stakePoolTargetNum'],
+    guardrails: [
+      'SPTN-01',
+      'SPTN-02',
+      'SPTN-03',
+      'SPTN-04',
+    ],
+  },{
+    parameter: ['poolPledgeInfluence'],
+    guardrails: [
+      'PPI-01',
+      'PPI-02',
+      'PPI-03',
+      'PPI-04',
+    ],
+  },{
+    parameter: ['poolRetireMaxEpoch'],
+    guardrails: [
+      'PRME-01',
+      'PRME-02',
+    ],
+  },{
     parameter: ['collateralPercentage'],
     guardrails: [
       'CP-01',
@@ -25,20 +185,34 @@ const FIELDS = [
       'CP-04',
     ],
   },{
-    parameter: ['committeeMaxTermLimit'],
+    parameter: ['maxCollateralInputs'],
     guardrails: [
-      'CMTL-01',
-      'CMTL-02',
-      'CMTL-03',
-      'CMTL-04',
-      'CMTL-05',
+      'MCI-01',
     ],
   },{
-    parameter: ['committeeMinSize'],
+    parameter: ['maxValueSize'],
     guardrails: [
-      'CMS-01',
-      'CMS-02',
-      'CMS-03',
+      'MVS-01',
+      'MVS-02',
+      'MVS-03',
+      'MVS-04',
+      'MVS-05',
+    ],
+  },{
+    parameter: ['govDeposit'],
+    guardrails: [
+      'GD-01',
+      'GD-02',
+      'GD-03',
+      'GD-04',
+    ],
+  },{
+    parameter: ['dRepDeposit'],
+    guardrails: [
+      'DRD-01',
+      'DRD-02',
+      'DRD-03',
+      'DRD-04',
     ],
   },{
     parameter: ['dRepActivity'],
@@ -48,13 +222,6 @@ const FIELDS = [
       'DRA-03',
       'DRA-04',
       'DRA-05',
-    ],
-  },{
-    parameter: ['dRepDeposit'],
-    guardrails: [
-      'DRD-01',
-      'DRD-02',
-      'DRD-03',
     ],
   },{
     parameter: ['dRepVotingThresholds', 'committeeNoConfidence'],
@@ -67,6 +234,8 @@ const FIELDS = [
   },{
     parameter: ['dRepVotingThresholds', 'committeeNormal'],
     guardrails: [
+      'VT-CC-01',
+      'VT-CC-01b',
       'VT-GEN-01',
       'VT-GEN-01b',
     ],
@@ -133,18 +302,67 @@ const FIELDS = [
       'VT-GEN-01b',
     ],
   },{
-    parameter: ['executionUnitPrices', 'priceMemory'],
+    parameter: ['poolVotingThresholds', 'committeeNoConfidence'],
     guardrails: [
-      'EIUP-GEN-01',
-      'EIUP-GEN-02',
-      'EIUP-PM-01',
-      'EIUP-PM-02',
+      'VT-CC-01',
+      'VT-CC-01b',
+      'VT-GEN-01',
+      'VT-GEN-01b',
     ],
   },{
-    parameter: ['executionUnitPrices', 'priceSteps'],
+    parameter: ['poolVotingThresholds', 'committeeNormal'],
     guardrails: [
-      'EIUP-PS-01',
-      'EIUP-PS-02',
+      'VT-CC-01',
+      'VT-CC-01b',
+      'VT-GEN-01',
+      'VT-GEN-01b',
+    ],
+  },{
+    parameter: ['poolVotingThresholds', 'hardForkInitiation'],
+    guardrails: [
+      'VT-GEN-01',
+      'VT-GEN-01b',
+      'VT-HF-01',
+      'VT-HF-01b',
+    ],
+  },{
+    parameter: ['poolVotingThresholds', 'motionNoConfidence'],
+    guardrails: [
+      'VT-GEN-01',
+      'VT-GEN-01b',
+      'VT-NC-01',
+      'VT-NC-01b',
+    ],
+  },{
+    parameter: ['poolVotingThresholds', 'ppSecurityGroup'],
+    guardrails: [
+      'VT-GEN-01',
+      'VT-GEN-01b',
+    ],
+  },{
+    parameter: ['govActionLifetime'],
+    guardrails: [
+      'GAL-01',
+      'GAL-02',
+      'GAL-03',
+      'GAL-04',
+      'GAL-05',
+    ],
+  },{
+    parameter: ['committeeMaxTermLimit'],
+    guardrails: [
+      'CMTL-01',
+      'CMTL-02',
+      'CMTL-03',
+      'CMTL-04',
+      'CMTL-05',
+    ],
+  },{
+    parameter: ['committeeMinSize'],
+    guardrails: [
+      'CMS-01',
+      'CMS-02',
+      'CMS-03',
     ],
   },
 ];
@@ -158,14 +376,6 @@ export default function GuardrailView() {
       return field[0];
     } else {
       return `${field[0]}[${field[1]}]`;
-    }
-  }
-
-  const getMessage = (field: string[], guardrail: string) => {
-    if (field.length === 1) {
-      return (validationResults as any || {})[field[0]]?.guardrails?.[guardrail]?.message;
-    } else {
-      return (validationResults as any || {})[field[0]]?.[field[1]]?.guardrails?.[guardrail]?.message;
     }
   }
 
@@ -205,7 +415,6 @@ export default function GuardrailView() {
               key={`${fieldIndex}.${guardrailIndex}`}
               name={guardrail}
               parameter={getParameter(field.parameter)}
-              message={getMessage(field.parameter, guardrail)}
               status={getStatus(field.parameter, guardrail)}
             />
           ))
