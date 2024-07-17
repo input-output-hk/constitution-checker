@@ -33,7 +33,7 @@ const FIELDS = [
   ['minFeeRefScriptCoinsPerByte'],
   ['executionUnitPrices', 'priceSteps'],
   ['executionUnitPrices', 'priceMemory'],
-  ['maxTxExecutionUnits', 'memory'],
+  ['maxTxExecutionUnits', 'mem'],
   ['maxTxExecutionUnits', 'steps'],
   ['maxBlockExecutionUnits', 'memory'], 
   ['maxBlockExecutionUnits', 'steps'],

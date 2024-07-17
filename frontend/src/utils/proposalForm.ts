@@ -144,7 +144,7 @@ const internalExecutionUnitPricesFields: Field[] = [
 
 const internalMaxTxExecutionUnitsFields: Field[] = [
   {
-    label: 'memory',
+    label: 'mem',
     name: 'mem',
     type: FieldType.Rational,
     required: true,
