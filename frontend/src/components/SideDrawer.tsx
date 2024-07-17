@@ -46,8 +46,8 @@ export default function SideDrawerLeft() {
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  const getError = (field: string): boolean => {
-    const [level1, level2] = field.split('.');
+  const getError = (name: string): boolean => {
+    const [level1, level2] = name.split('.');
     let value = (validationResults as any)[level1];
     if (level2) value = value[level2];
     if (value) return !value.summary;
