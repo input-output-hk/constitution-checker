@@ -27,7 +27,6 @@ export default function MoreDetailsDrawer() {
     }
 
     let rowDetails: any = validationResults;
-    console.log(rowDetails);
     let guardrails: { [key: string]: any } = {};
 
     if (currentTab === 'Proposal Parameters') {
