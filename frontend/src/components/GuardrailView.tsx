@@ -380,11 +380,11 @@ export default function GuardrailView() {
   }
 
   const getStatus = (field: string[], guardrail: string) => { 
-    let paramDetails = (currentJsonState as any || {})[field[0]];  
+    let guardrailDetails = (currentJsonState as any || {})[field[0]];  
     if (field.length > 1) {
-      paramDetails = paramDetails[field[1]];
+      guardrailDetails = guardrailDetails[field[1]];
     }
-    if (paramDetails && paramDetails.checkStatus === 'unchecked') {
+    if (guardrailDetails && guardrailDetails.checkStatus === 'unchecked') {
       return 'pending';
     }
 
