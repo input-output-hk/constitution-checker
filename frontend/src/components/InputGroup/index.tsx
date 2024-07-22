@@ -10,7 +10,7 @@ export enum FieldType {
   Array
 }
 
-export interface Field {
+export type Field = {
   name: string;
   type: FieldType;
   label?: string;
@@ -18,7 +18,7 @@ export interface Field {
   fields?: Field[];
 }
 
-export interface InputGroupProps<T extends FieldValues = any> {
+export type InputGroupProps<T extends FieldValues = any> = {
   fields: Field[];
   formState: FormState<T>;
   register: UseFormRegister<T>;
@@ -28,7 +28,7 @@ export interface InputGroupProps<T extends FieldValues = any> {
   getError: (field: string) => boolean;
 }
 
-export interface InputProps<T extends FieldValues = any> {
+export type InputProps<T extends FieldValues = any> = {
   field: Field;
   formState: FormState<T>;
   register: UseFormRegister<T>;
