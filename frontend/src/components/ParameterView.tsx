@@ -74,11 +74,11 @@ export default function ParameterView() {
   }
 
   const getStatus = (field: string[]) => { 
-    let status = (currentJsonState as any || {})[field[0]];  
+    let paramDetails = (currentJsonState as any || {})[field[0]];  
     if (field.length > 1) {
-      status = status[field[1]];
+      paramDetails = paramDetails[field[1]];
     }
-    if (status && status.checkStatus === 'unchecked') {
+    if (paramDetails && paramDetails.checkStatus === 'unchecked') {
       return 'disabled';
     }
 
