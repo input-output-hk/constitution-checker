@@ -1,10 +1,9 @@
-import * as React from 'react';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import CommonButton from './CommonButton';
-import CircleIcon from '@mui/icons-material/Circle';
-import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
-import useStore from '../store/store';
+import TableRow from "@mui/material/TableRow";
+import TableCell from "@mui/material/TableCell";
+import CommonButton from "./CommonButton";
+import CircleIcon from "@mui/icons-material/Circle";
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
+import useStore from "../store";
 
 interface PHATableRowProps {
   name: string;
@@ -42,17 +41,17 @@ export default function PHATableRow({name, status="disabled", value, parameter}:
 
   return (
     <TableRow
-    sx={{ '&:last-child td, &:last-child th': { border: 0 }, }}
-  >
-    <TableCell component="th" scope="row">
-    <CircleIcon color={iconColor} sx={{width: '12px', height: '12px', verticalAlign: 'middle', marginRight: '8px'}} />
-      {name}
-    </TableCell>
-    {currentTab === 'Proposal Parameters' && <TableCell align="right">{value}</TableCell>}
-    {currentTab === 'Guardrails' && <TableCell align="right">{parameter}</TableCell>}
-    <TableCell align="right">
-      <CommonButton variant='text' text='View More Details' startIcon={<RemoveRedEyeOutlinedIcon/>} onClick={handleOpenDrawer}/>
-    </TableCell>
-  </TableRow>
+      sx={{ '&:last-child td, &:last-child th': { border: 0 }, }}
+    >
+      <TableCell component="th" scope="row">
+      <CircleIcon color={iconColor} sx={{width: '12px', height: '12px', verticalAlign: 'middle', marginRight: '8px'}} />
+        {name}
+      </TableCell>
+      {currentTab === 'Proposal Parameters' && <TableCell align="right">{value}</TableCell>}
+      {currentTab === 'Guardrails' && <TableCell align="right">{parameter}</TableCell>}
+      <TableCell align="right">
+        <CommonButton variant='text' text='View More Details' startIcon={<RemoveRedEyeOutlinedIcon/>} onClick={handleOpenDrawer}/>
+      </TableCell>
+    </TableRow>
   );
 }

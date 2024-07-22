@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@hookform/resolvers": "^3.7.0",
     "@mui/icons-material": "^5.15.16",
     "@mui/material": "^5.15.16",
     "@tanstack/react-query": "^5.45.1",
@@ -18,9 +19,11 @@
     "axios": "^1.7.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.52.0",
     "react-scripts": "5.0.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
+    "yup": "^1.4.0",
     "zustand": "^4.5.2"
   },
   "scripts": {

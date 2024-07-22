@@ -1,12 +1,11 @@
-import * as React from 'react';
-import Drawer from '@mui/material/Drawer';
-import Toolbar from '@mui/material/Toolbar';
-import { Typography } from '@mui/material';
-import IconButton from './IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import Divider from '@mui/material/Divider';
-import useStore from '../store/store';
-import { ParameterValidationResult } from '../store/types';
+import Drawer from "@mui/material/Drawer";
+import Toolbar from "@mui/material/Toolbar";
+import { Typography } from "@mui/material";
+import IconButton from "./IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Divider from "@mui/material/Divider";
+import useStore from "../store";
+import { ParameterValidationResult } from "../types";
 
 export default function MoreDetailsDrawer() {
   const { drawerOpen, validationResults, selectedRowName, currentTab, toggleMoreDetailsDrawer } = useStore(state => ({
@@ -49,24 +48,26 @@ export default function MoreDetailsDrawer() {
       const paramName = selectedRowName[1];
       const guardrailName = selectedRowName[0];
 
-      const selectedRowArray = paramName.split(/[.[\]]+/).filter((k: string) => k);
+      if (paramName) {
+        const selectedRowArray = paramName.split(/[.[\]]+/).filter((k: string) => k);
 
-      for (const key of selectedRowArray) {
-        if (rowDetails[key]) {
-          rowDetails = rowDetails[key];
-        } else {
+        for (const key of selectedRowArray) {
+          if (rowDetails[key]) {
+            rowDetails = rowDetails[key];
+          } else {
+            return <Typography>No details available for {selectedRowName}</Typography>;
+          }
+        }
+
+        const paramDetails = rowDetails as ParameterValidationResult;
+
+        if (!paramDetails || !('guardrails' in paramDetails)) {
           return <Typography>No details available for {selectedRowName}</Typography>;
         }
+
+        const specificGuardrail = paramDetails.guardrails[guardrailName];
+        guardrails = { [guardrailName]: specificGuardrail };
       }
-
-      const paramDetails = rowDetails as ParameterValidationResult;
-
-      if (!paramDetails || !('guardrails' in paramDetails)) {
-        return <Typography>No details available for {selectedRowName}</Typography>;
-      }
-
-      const specificGuardrail = paramDetails.guardrails[guardrailName];
-      guardrails = { [guardrailName]: specificGuardrail };
     }
 
     // Display guardrails content
@@ -97,21 +98,20 @@ export default function MoreDetailsDrawer() {
   };
 
   return (
-      <Drawer
-        variant="persistent"
-        anchor="right"
-        open={drawerOpen}
-        
-      >
-        <Toolbar className="spBtwnToolbar">
-            <Typography variant={'h6'} sx={{overflowWrap: 'anywhere'}}>
-              {selectedRowName[0]} Details
-            </Typography>
-            <IconButton icon={<CloseIcon />} color="default" onClick={handleCloseDrawer}/>
-        </Toolbar>
-        <div className="scrollBar2">
-          {getRowDetails()}
-        </div>
-      </Drawer>
+    <Drawer
+      variant="persistent"
+      anchor="right"
+      open={drawerOpen}
+    >
+      <Toolbar className="spBtwnToolbar">
+        <Typography variant={'h6'} sx={{overflowWrap: 'anywhere'}}>
+          {selectedRowName[0]} Details
+        </Typography>
+        <IconButton icon={<CloseIcon />} color="default" onClick={handleCloseDrawer}/>
+      </Toolbar>
+      <div className="scrollBar2">
+        {getRowDetails()}
+      </div>
+    </Drawer>
   );
 }
