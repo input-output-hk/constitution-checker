@@ -11,7 +11,14 @@ interface PHAButtonProps {
 }
 
 export default function PHACommonButton({ disabled, size='medium', fullWidth, startIcon, variant='contained', text, onClick }: PHAButtonProps) {
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    if (onClick) {
+      onClick(event);
+    }
+    event.currentTarget.blur();
+  };
+
   return (
-    <Button disabled={disabled} size={size} fullWidth={fullWidth} startIcon={startIcon} variant={variant} disableFocusRipple disableRipple onClick={onClick}>{text}</Button>
+    <Button disabled={disabled} size={size} fullWidth={fullWidth} startIcon={startIcon} variant={variant} disableFocusRipple disableRipple onClick={handleClick}>{text}</Button>
   );
 }

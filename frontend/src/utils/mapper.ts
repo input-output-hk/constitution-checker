@@ -6,6 +6,8 @@ const stringToNumber = (value: string): number => parseInt(value);
 const stringToRational = (value: string): [number, number] => value.split('/').map(v => parseInt(v)) as [number, number];
 const numberToCurrentFieldState = (value: number): CurrentFieldState => ({ value: value.toString(), checkStatus: 'unchecked' });
 const rationalToCurrentFieldState = (value: [number, number]): CurrentFieldState => ({ value: `${value[0]}/${value[1]}`, checkStatus: 'unchecked' });
+const currentFieldStateToNumber = (value: CurrentFieldState): number => parseInt(value.value);
+const currentFieldStateToRational = (value: CurrentFieldState): [number, number] => value.value.split('/').map(v => parseInt(v)) as [number, number];
 
 export const mapInitialJsonStateToProposalForm = (values: InitialJsonState): ProposalForm => ({
   txFeePerByte: numberToString(values[0]),
@@ -179,4 +181,62 @@ export const mapInitialJsonStateToCurrentJsonState = (values: InitialJsonState):
     treasuryWithdrawal: rationalToCurrentFieldState(values[26].treasuryWithdrawal),
     updateConstitution: rationalToCurrentFieldState(values[26].updateConstitution),
   },
+});
+
+export const mapCurrentJsonStateToExportParams = (values: CurrentJsonState): ProposalValues => ({
+  0: currentFieldStateToNumber(values.txFeePerByte),
+  1: currentFieldStateToNumber(values.txFeeFixed),
+  2: currentFieldStateToNumber(values.maxBlockBodySize),
+  3: currentFieldStateToNumber(values.maxTxSize),
+  4: currentFieldStateToNumber(values.maxBlockHeaderSize),
+  5: currentFieldStateToNumber(values.stakeAddressDeposit),
+  6: currentFieldStateToNumber(values.stakePoolDeposit),
+  7: currentFieldStateToNumber(values.poolRetireMaxEpoch),
+  8: currentFieldStateToNumber(values.stakePoolTargetNum),
+  9: currentFieldStateToRational(values.poolPledgeInfluence),
+  10: currentFieldStateToRational(values.monetaryExpansion),
+  11: currentFieldStateToRational(values.treasuryCut),
+  16: currentFieldStateToNumber(values.minPoolCost),
+  17: currentFieldStateToNumber(values.utxoCostPerByte),
+  19: {
+    priceMemory: currentFieldStateToRational(values.executionUnitPrices.priceMemory),
+    priceSteps: currentFieldStateToRational(values.executionUnitPrices.priceSteps),
+  },
+  20: {
+    mem: currentFieldStateToNumber(values.maxTxExecutionUnits.mem),
+    steps: currentFieldStateToNumber(values.maxTxExecutionUnits.steps),
+  },
+  21: {
+    memory: currentFieldStateToNumber(values.maxBlockExecutionUnits.memory),
+    steps: currentFieldStateToNumber(values.maxBlockExecutionUnits.steps),
+  },
+  22: currentFieldStateToNumber(values.maxValueSize),
+  23: currentFieldStateToNumber(values.collateralPercentage),
+  24: currentFieldStateToNumber(values.maxCollateralInputs),
+  25: {
+    committeeNoConfidence: currentFieldStateToRational(values.poolVotingThresholds.committeeNoConfidence),
+    committeeNormal: currentFieldStateToRational(values.poolVotingThresholds.committeeNormal),
+    hardForkInitiation: currentFieldStateToRational(values.poolVotingThresholds.hardForkInitiation),
+    motionNoConfidence: currentFieldStateToRational(values.poolVotingThresholds.motionNoConfidence),
+    ppSecurityGroup: currentFieldStateToRational(values.poolVotingThresholds.ppSecurityGroup),
+  },
+  26: {
+    committeeNoConfidence: currentFieldStateToRational(values.dRepVotingThresholds.committeeNoConfidence),
+    committeeNormal: currentFieldStateToRational(values.dRepVotingThresholds.committeeNormal),
+    hardForkInitiation: currentFieldStateToRational(values.dRepVotingThresholds.hardForkInitiation),
+    motionNoConfidence: currentFieldStateToRational(values.dRepVotingThresholds.motionNoConfidence),
+    ppEconomicGroup: currentFieldStateToRational(values.dRepVotingThresholds.ppEconomicGroup),
+    ppGovernanceGroup: currentFieldStateToRational(values.dRepVotingThresholds.ppGovernanceGroup),
+    ppNetworkGroup: currentFieldStateToRational(values.dRepVotingThresholds.ppNetworkGroup),
+    ppTechnicalGroup: currentFieldStateToRational(values.dRepVotingThresholds.ppTechnicalGroup),
+    treasuryWithdrawal: currentFieldStateToRational(values.dRepVotingThresholds.treasuryWithdrawal),
+    updateConstitution: currentFieldStateToRational(values.dRepVotingThresholds.updateConstitution),
+  },
+  27: currentFieldStateToNumber(values.committeeMinSize),
+  28: currentFieldStateToNumber(values.committeeMaxTermLimit),
+  29: currentFieldStateToNumber(values.govActionLifetime),
+  30: currentFieldStateToNumber(values.govDeposit),
+  31: currentFieldStateToNumber(values.dRepDeposit),
+  32: currentFieldStateToNumber(values.dRepActivity),
+  33: currentFieldStateToNumber(values.minFeeRefScriptCoinsPerByte),
 });
