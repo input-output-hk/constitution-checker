@@ -369,7 +369,7 @@ const FIELDS = [
 
 export default function GuardrailView() {
 
-  const { currentJsonState, validationResults } = useStore();
+  const { currentJsonState, validationResults, searchValue } = useStore();
 
   const getParameter = (field: string[]) => {
     if (field.length === 1) {
@@ -399,6 +399,12 @@ export default function GuardrailView() {
     return 'disabled';
   };
 
+  const filteredFields = searchValue
+    ? FIELDS.filter(field => 
+      getParameter(field.guardrails).toLowerCase().includes(searchValue.toLowerCase())
+      )
+    : FIELDS;
+
   return (
     <Table size="small" aria-label="simple table" stickyHeader>
       <TableHead>
@@ -409,7 +415,7 @@ export default function GuardrailView() {
         </TableRow>
       </TableHead>
       <TableBody>
-        {FIELDS.map((field, fieldIndex) => (
+        {filteredFields.map((field, fieldIndex) => (
           field.guardrails.map((guardrail, guardrailIndex) => (
             <BodyTableRow
               key={`${fieldIndex}.${guardrailIndex}`}
