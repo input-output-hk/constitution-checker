@@ -12,6 +12,7 @@ const getFieldSchema = (fieldType: FieldType, required: boolean): AnySchema => {
   switch (fieldType) {
     case FieldType.Rational: schema = Schema.Rational; break;
     case FieldType.Number: schema = Schema.Number; break;
+    case FieldType.GitHubRepository: schema = Schema.GitHubRepository; break;
   }
   return !required ? schema : schema.required('The field is required');
 };

@@ -1,12 +1,9 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Typography, Button, Toolbar, Drawer, Box } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import DownloadIcon from "@mui/icons-material/Download";
 
-import IconButton from "./IconButton";
+import MenuButton from "./MenuButton";
 import ButtonGroup from "./ButtonGroup";
-import CommonButton from "./CommonButton";
 import InputGroup from "./InputGroup";
 
 import useStore from "../store";
@@ -29,10 +26,18 @@ import {
 import type { ProposalForm } from "../types";
 
 export default function SideDrawerLeft() {
-  const { initialJsonState, validationResults, postParametersProposal, updateCurrentJsonFieldState } = useStore();
+  const { resetForm, initialJsonState, validationResults, postParametersProposal, updateCurrentJsonFieldState } = useStore();
 
   const defaultValues = initialJsonState ? mapInitialJsonStateToProposalForm(initialJsonState) : undefined;
-  const { register, formState, getFieldState, getValues, setValue, watch } = useForm<ProposalForm>({ defaultValues, resolver, mode: 'onChange' });
+  const { register, formState, getFieldState, getValues, setValue, watch, reset } = useForm<ProposalForm>({ defaultValues, resolver, mode: 'onChange' });
+
+  useEffect(() => {
+    if (resetForm && initialJsonState) {
+      const newDefaultValues = mapInitialJsonStateToProposalForm(initialJsonState);
+      reset(newDefaultValues);
+      useStore.setState({ resetForm: false }); 
+    }
+  }, [resetForm, initialJsonState, reset]);
 
   useEffect(() => {
     const subscription = watch((values, { name }) => {
@@ -62,10 +67,9 @@ export default function SideDrawerLeft() {
   };
 
   const buttons = [
-    { label: 'Local File', onClick: () => console.log('Local File clicked') },
-    { label: 'URL', onClick: () => console.log('URL clicked') },
-    { label: 'Transaction ID', onClick: () => console.log('Transaction ID clicked') },
-    { label: 'Start New', onClick: () => console.log('Start New') },
+    { label: 'Local File' },
+    { label: 'URL' },
+    { label: 'Transaction ID' },
   ];
 
   return (
@@ -85,10 +89,10 @@ export default function SideDrawerLeft() {
               <Typography variant={'h6'}>
                 Import Parameters
               </Typography>
-              <IconButton icon={<RefreshIcon />} />
+              <MenuButton />
             </Box>
             <ButtonGroup buttons={buttons} />
-            <CommonButton fullWidth={true} text="Load Current Cardano State" startIcon={<DownloadIcon />}/>
+            
           </div>
 
           <div className="child2DrawerContainer">

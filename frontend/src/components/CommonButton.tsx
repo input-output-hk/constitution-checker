@@ -5,13 +5,14 @@ interface PHAButtonProps {
   size?: ButtonProps['size'];
   fullWidth?: boolean;
   startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
   variant?: ButtonProps['variant']; 
   text?: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>; 
 }
 
-export default function PHACommonButton({ disabled, size='medium', fullWidth, startIcon, variant='contained', text, onClick }: PHAButtonProps) {
+export default function PHACommonButton({ disabled, size='medium', fullWidth, startIcon, endIcon, variant='contained', text, onClick }: PHAButtonProps) {
   return (
-    <Button disabled={disabled} size={size} fullWidth={fullWidth} startIcon={startIcon} variant={variant} disableFocusRipple disableRipple onClick={onClick}>{text}</Button>
+    <Button disabled={disabled} size={size} fullWidth={fullWidth} startIcon={startIcon} endIcon={endIcon} variant={variant} disableFocusRipple disableRipple onClick={onClick}>{text}</Button>
   );
 }

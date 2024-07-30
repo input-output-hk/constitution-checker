@@ -6,9 +6,11 @@ import type { InitialJsonState, CurrentJsonState, ProposalValues, ValidationResu
 
 export type State = {
   loading: boolean;
+  resetForm: boolean;
   error: null | string;
   currentTab: string;
   drawerOpen: boolean;
+  importOption: number;
   selectedRowName: string[];
   initialJsonState: InitialJsonState | undefined;
   currentJsonState: CurrentJsonState | undefined;
@@ -17,17 +19,21 @@ export type State = {
 
 export type Action = {
   fetchJsonInitialState: () => void;
+  updateInitialJsonValue: (importValue: InitialJsonState) => void;
   updateCurrentJsonFieldState: (field: string, value: string) => void;
   postParametersProposal: (data: ProposalValues) => Promise<any>;
   changeSelectedTab: (tabName: string) => void;
+  changeImportMethod: (tabName: number) => void;
   toggleMoreDetailsDrawer: (value: boolean) => void;
   changeTableDetails: (rowName: string, parameterName?: string) => void;
 };
 
 const useStore = create<State & Action>((set, get) => ({
   loading: false,
+  resetForm: false,
   error: null,
   currentTab: 'Proposal Parameters',
+  importOption: 0,
   drawerOpen: false,
   selectedRowName: [],
   
@@ -42,7 +48,7 @@ const useStore = create<State & Action>((set, get) => ({
 
   // Used only to load initial app state from Cardano
   fetchJsonInitialState: async () => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, validationResults: undefined });
     try {
       const response = await axios.get("http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/current-values");
       set({
@@ -116,7 +122,34 @@ const useStore = create<State & Action>((set, get) => ({
     }
   },
 
+  updateInitialJsonValue: (importValue) => {
+    set({resetForm: true});
+    const newState = mapInitialJsonStateToCurrentJsonState(importValue);
+    const currentState = get().currentJsonState;
+
+    for (const k of Object.keys(newState)) {
+      if ((newState as any)[k].value) {
+        (newState as any)[k].value !== (currentState as any)[k].value 
+        ? (newState as any)[k].checkStatus = 'unchecked'
+        : (newState as any)[k].checkStatus = 'checked'
+      } else {
+        for (const j of Object.keys((newState as any)[k])) {
+          (newState as any)[k][j].value !== (currentState as any)[k][j].value 
+        ? (newState as any)[k][j].checkStatus = 'unchecked'
+        : (newState as any)[k][j].checkStatus = 'checked'
+        }
+      }
+    }
+
+    set({
+      initialJsonState: importValue,
+      currentJsonState: newState,
+    });
+  },
+  
+
   changeSelectedTab: (tabName) => set({currentTab: tabName}),
+  changeImportMethod: (importOpt) => set({importOption: importOpt}),
   toggleMoreDetailsDrawer: (value) => set({drawerOpen: value}),
 
   changeTableDetails: (rowName: string, parameterName?: string) => set({

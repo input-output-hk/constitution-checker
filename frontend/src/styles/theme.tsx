@@ -208,8 +208,9 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
             marginBottom: '8px',
           },
           grouped: {
-            width: "auto",
-            minWidth: '55px',
+            flexGrow: 1,
+            flexBasis: 'auto',
+            whiteSpace: 'nowrap',
           },
           groupedOutlined: ({ theme }) => ({
             color: theme.palette.onVariant.main,
