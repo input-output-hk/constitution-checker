@@ -35,7 +35,7 @@ export default function BasicTable() {
   };
 
   const handleGuardrailExport = () => {
-    if (currentJsonState) {
+    if (validationResults) {
       const data = JSON.stringify(validationResults, null, 2); 
       downloadJSON(data);
     }
