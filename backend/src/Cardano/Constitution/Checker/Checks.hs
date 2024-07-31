@@ -76,15 +76,19 @@ instance (ToJSON a) => ToJSON (ParamCheck a) where
     object
       [ "value" .= paramValToValue (MkParamValue param' (Identity val))
       , "guardrails" .= check'
-      , "summary" .= checkGuardrailsMap check'
+      , "summary" .= checkAllGuardrailsMap check'
+      , "summaryMandatory" .= checkMandatoryGuardrailsMap check'
       ]
   toJSON (ParamCheckList checks) =
     let keys = flip fmap checks \(ParamCheck _ (paramName -> name') _) ->
           Haskell.fromString name'
         values = fmap toJSON checks
-        allResults = map (\(ParamCheck _ _ results) -> checkGuardrailsMap results) checks
+        allResults = map (\(ParamCheck _ _ results) -> checkAllGuardrailsMap results) checks
+        mandatoryResults = map (\(ParamCheck _ _ results) -> checkMandatoryGuardrailsMap results) checks
         allValid = and allResults
-     in object $ zip keys values <> [("summary", toJSON allValid)]
+     in object $
+          zip keys values
+            <> [("summary", toJSON allValid), ("summaryMandatory", toJSON mandatoryResults)]
   toJSON (ParamCheckCostModels (v1, v2, v3) _ (check1, check2, check3)) =
     let
       keys = map Haskell.fromString ["plutusV1" :: String, "plutusV2", "plutusV3"]
@@ -92,16 +96,25 @@ instance (ToJSON a) => ToJSON (ParamCheck a) where
         object
           [ "value" .= toJSON value
           , "guardrails" .= check'
-          , "summary" .= checkGuardrailsMap check'
+          , "summary" .= checkAllGuardrailsMap check'
+          , "summaryMandatory" .= checkMandatoryGuardrailsMap check'
           ]
       values = map f [(v1, check1), (v2, check2), (v3, check3)]
-      allResults = map checkGuardrailsMap [check1, check2, check3]
+      allResults = map checkAllGuardrailsMap [check1, check2, check3]
+      mandatoryResults = map checkMandatoryGuardrailsMap [check1, check2, check3]
       allValid = and allResults
      in
-      object $ zip keys values <> [("summary", toJSON allValid)]
+      object $
+        zip keys values
+          <> [("summary", toJSON allValid), ("summaryMandatory", toJSON mandatoryResults)]
 
-checkGuardrailsMap :: Map a GuardrailResult -> Bool
-checkGuardrailsMap = not . any failed . Map.toList
+checkAllGuardrailsMap :: Map a GuardrailResult -> Bool
+checkAllGuardrailsMap = not . any failed . Map.toList
+ where
+  failed (_, GuardrailResult result' _ _ _) = result' == Just False
+
+checkMandatoryGuardrailsMap :: Map a GuardrailResult -> Bool
+checkMandatoryGuardrailsMap = not . any failed . Map.toList
  where
   failed (_, GuardrailResult result' _ _ isMandatory') = result' == Just False && isMandatory'
 
@@ -136,10 +149,11 @@ paramCheckSchema (MkParam' param'@(Scalar{})) =
     & type_ ?~ SwaggerObject
     & properties
       .~ [ ("summary", toSchemaRef (Proxy :: Proxy Bool))
+         , ("summaryMandatory", toSchemaRef (Proxy :: Proxy Bool))
          , ("value", Inline $ paramToSchema param')
          , ("guardrails", getParamGuardrailsSchema param')
          ]
-    & required .~ ["summary", "value", "guardrails"]
+    & required .~ ["summary", "value", "guardrails", "summaryMandatory"]
 paramCheckSchema (MkParam' (Collection _ _ params)) =
   let subParamSchemas = map (Inline . paramCheckSchema . MkParam') params
       subParamKeys = map (Haskell.fromString . paramName) params
