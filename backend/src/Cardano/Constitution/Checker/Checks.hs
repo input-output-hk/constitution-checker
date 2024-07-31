@@ -103,7 +103,7 @@ instance (ToJSON a) => ToJSON (ParamCheck a) where
 checkGuardrailsMap :: Map a GuardrailResult -> Bool
 checkGuardrailsMap = not . any failed . Map.toList
  where
-  failed (_, GuardrailResult result' _ _) = result' == Just False
+  failed (_, GuardrailResult result' _ _ isMandatory') = result' == Just False && isMandatory'
 
 getParamGuardrailsSchema :: Param (Identity a) -> Referenced Schema
 getParamGuardrailsSchema (Scalar _ _ assertions) =
@@ -222,14 +222,16 @@ data GuardrailResult = GuardrailResult
   { result :: !(Maybe Bool)
   , description :: !String
   , message :: !(Maybe String)
+  , isMandatory :: !Bool
   }
 
 instance ToJSON GuardrailResult where
-  toJSON (GuardrailResult result' description' message') =
+  toJSON (GuardrailResult result' description' message' isMandatory') =
     object
       [ "result" .= result'
       , "description" .= description'
       , "message" .= message'
+      , "isMandatory" .= isMandatory'
       ]
 
 instance ToSchema GuardrailResult where
@@ -244,8 +246,9 @@ instance ToSchema GuardrailResult where
               .~ [ ("result", boolSchema)
                  , ("description", stringSchema)
                  , ("message", stringSchema)
+                 , ("isMandatory", boolSchema)
                  ]
-            & required .~ ["description"]
+            & required .~ ["description", "isMandatory"]
     return $ NamedSchema (Just "GuardrailResult") schema'
 
 checkAssertion :: (Ord a, Show a) => Assertion a -> Context -> a -> SatisfactionResult
@@ -267,7 +270,11 @@ checkAssertion ((_, _) `MustBe` constraint) _ val =
   getUnsatisfiedMessage (NEQ e) = prefix' ++ "equal to " ++ show e
 
   prefix' = "Value (" ++ show val ++ ") must not be "
+checkAssertion (desc `ShouldBe` f) ctx val =
+  checkAssertion (desc `MustBe` f) ctx val
 checkAssertion ((_, _) `ShouldSatisfy` f) ctx val = f ctx val
+checkAssertion (desc `MustSatisfy` f) ctx val =
+  checkAssertion (desc `ShouldSatisfy` f) ctx val
 
 paramCheck :: forall a. Context -> Param a -> a -> ParamCheck a
 paramCheck ctx param'@(Scalar _ _ assertions) (Identity val) =
@@ -300,10 +307,17 @@ toGuardrailResults ctx assertions val =
    in guardRailResults
 
 toGuardrailResult :: Assertion a -> SatisfactionResult -> (String, GuardrailResult)
-toGuardrailResult (assertionDescription -> (gId, desc)) = \case
-  Satisfied -> (gId, GuardrailResult (Just True) desc Nothing)
-  Unsatisfied msg -> (gId, GuardrailResult (Just False) desc (Just msg))
-  Neutral msg -> (gId, GuardrailResult Nothing desc (Just msg))
+toGuardrailResult assertion = \case
+  Satisfied -> (gId, GuardrailResult (Just True) desc Nothing isMandatory')
+  Unsatisfied msg -> (gId, GuardrailResult (Just False) desc (Just msg) isMandatory')
+  Neutral msg -> (gId, GuardrailResult Nothing desc (Just msg) isMandatory')
+ where
+  (gId, desc) = assertionDescription assertion
+  isMandatory' = case assertion of
+    MustBe{} -> True
+    MustSatisfy{} -> True
+    ShouldSatisfy{} -> False
+    ShouldBe{} -> False
 
 type CurrentParams = ParametersChange
 checkParams :: CurrentParams -> Context -> ParametersChange -> ParamChecks

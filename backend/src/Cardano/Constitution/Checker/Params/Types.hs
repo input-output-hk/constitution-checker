@@ -66,16 +66,17 @@ instance FromJSON Rational where
       Nothing -> fail rationalParsingFailMsg
   parseJSON _ = fail rationalParsingFailMsg
 
+rationalParsingFailMsg :: String
 rationalParsingFailMsg =
   "Rational: Expected a number , two-element array or a string in the form of 'numerator/denominator'"
 parseRational :: T.Text -> Maybe (Integer, Integer)
 parseRational input = do
   let cleaned = T.filter (not . isSpace) input
-  (numerator, rest) <- either (const Nothing) Just (decimal cleaned)
-  denominator <- case T.uncons rest of
-    Just ('/', denomStr) -> fmap fst $ either (const Nothing) Just (decimal denomStr)
-    _ -> Nothing
-  return (numerator, denominator)
+  (numerator', rest) <- either (const Nothing) Just (decimal cleaned)
+  denominator' <- case T.uncons rest of
+    Just ('/', denomStr) -> fst <$> either (const Nothing) Just (decimal denomStr)
+    _otherwise -> Nothing
+  return (numerator', denominator')
 
 instance ToJSON Rational where
   toJSON a = toJSON [toJSON $ numerator a, toJSON $ denominator a]
@@ -85,11 +86,15 @@ instance Show Rational where
 
 data Assertion a
   = MustBe !(String, String) !(RangeConstraint a)
+  | ShouldBe !(String, String) !(RangeConstraint a)
+  | MustSatisfy !(String, String) !(Context -> a -> SatisfactionResult)
   | ShouldSatisfy !(String, String) !(Context -> a -> SatisfactionResult)
 
 assertionDescription :: Assertion a -> (String, String)
 assertionDescription (MustBe desc' _) = desc'
 assertionDescription (ShouldSatisfy desc' _) = desc'
+assertionDescription (MustSatisfy desc' _) = desc'
+assertionDescription (ShouldBe desc' _) = desc'
 
 data ByParameter a = ByParameter
   { getInteger :: !(a -> Maybe Integer)
