@@ -95,14 +95,14 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
                   ), ${theme.palette.primary.main}`,
                   boxShadow: "none !important", 
               },
-            },
-            '&:focus': {
+              '&:focus': {
               background: `linear-gradient( 
                 0deg,
                 ${theme.palette.primary.conOpacity2}, 
                 ${theme.palette.primary.conOpacity2}
                 ), ${theme.palette.primary.main}`,
                 boxShadow: "none !important", 
+              },
             },
           }),
           outlined: ({ theme }) => ({

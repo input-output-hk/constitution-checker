@@ -12,7 +12,7 @@ export const Number = yup.number()
   .min(0, "The field value must be a valid number greater than 0");
 
 export const GitHubRepository = yup.string()
-.matches(/^https:\/\/github\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+(?:\/)?$/, {
-  message: 'URL entered should be in the format - https://github.com/<username>/<repository> (with an optional trailing backslash).',
+.matches(/^https:\/\/raw\.githubusercontent\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-\/]+\/[a-zA-Z0-9-]+\.[a-zA-Z0-9]+$/, {
+  message: 'URL entered should be in the format - https://raw.githubusercontent.com/<username>/<filepath> .',
   excludeEmptyString: true 
 });

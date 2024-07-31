@@ -122,6 +122,11 @@ export type CurrentJsonState = {
   };
 };
 
+export type importForm = {
+  url: string,
+  transactionID: string
+}
+
 export type ProposalForm = {
   txFeePerByte: string;
   txFeeFixed: string;

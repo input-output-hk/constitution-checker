@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import CommonButton from "./CommonButton";
 import Input from './InputGroup/Input';
-import { Field } from "../components/InputGroup";
+import type { importForm } from "../types";
 import useStore from "../store";
 
 import DownloadIcon from "@mui/icons-material/Download";
@@ -22,14 +22,20 @@ interface PHAButtonGroupProps {
   buttons: ButtonInfo[];  
 }
 
+type FormValues = {
+  url: string;
+  transactionId: string;
+};
+
 export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
-  const { importOption, changeImportMethod, updateInitialJsonValue } = useStore(state => ({
+  const { importOption, changeImportMethod, updateInitialJsonValue, postParametersURL } = useStore(state => ({
     importOption: state.importOption,
     changeImportMethod: state.changeImportMethod,
     updateInitialJsonValue: state.updateInitialJsonValue,
+    postParametersURL: state.postParametersURL,
   }));
 
-  const { register, formState, getFieldState, getValues, setValue } = useForm<Field>({ resolver, mode: 'onChange' });
+  const { register, formState, getFieldState, getValues, setValue } = useForm<importForm>({ resolver, mode: 'onChange' });
 
   const handleButtonClick = (index: number) => {
     return () => {
@@ -58,6 +64,11 @@ export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
     return false;
   }
 
+  const handleURLUpload = () => {
+  const url = getValues('url'); 
+  postParametersURL(JSON.stringify(url));
+  }
+
   return (
     <>
     <ButtonGroup variant="outlined"  disableRipple fullWidth>
@@ -83,7 +94,8 @@ export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
         onChange={handleFileChange}
       />
     {importOption === 1 && 
-    <Input
+    <> 
+      <Input
         field={UrlField}
         formState={formState}
         register={register}
@@ -91,7 +103,10 @@ export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
         getValues={getValues}
         setValue={setValue}
         getError={getError}
-      />}
+      />
+      <CommonButton fullWidth={true} text="Submit" startIcon={<DownloadIcon />} onClick={handleURLUpload} />
+    </>
+      }
     {importOption === 2 && 
     <Input
         field={TransactionIDField}

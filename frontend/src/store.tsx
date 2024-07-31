@@ -22,6 +22,7 @@ export type Action = {
   updateInitialJsonValue: (importValue: InitialJsonState) => void;
   updateCurrentJsonFieldState: (field: string, value: string) => void;
   postParametersProposal: (data: ProposalValues) => Promise<any>;
+  postParametersURL: (url: String) => Promise<any>;
   changeSelectedTab: (tabName: string) => void;
   changeImportMethod: (tabName: number) => void;
   toggleMoreDetailsDrawer: (value: boolean) => void;
@@ -91,6 +92,28 @@ const useStore = create<State & Action>((set, get) => ({
         currentJsonState: checkedCurrentJsonState,
         loading: false
       }); 
+    } catch (error) {
+      console.error("Post request failed:", error);
+      set({
+        error: "Post request failed",
+        loading: false
+      });
+    }
+  },
+
+  postParametersURL: async (url: String) => {
+    set({ loading: true, error: null });
+    console.log(url);
+    try {
+      const response = await axios.post('http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/parameters/proposal/by-url', url, {
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          'Accept': 'application/json;charset=utf-8',
+        }
+      });
+
+      console.log(response);
+      
     } catch (error) {
       console.error("Post request failed:", error);
       set({
