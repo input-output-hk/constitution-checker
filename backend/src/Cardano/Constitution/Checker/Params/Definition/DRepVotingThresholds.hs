@@ -31,8 +31,8 @@ dRepVotingThresholds =
         -- (2 % 3)
         [ ("VT-GEN-01", "All thresholds must be in the range 50%-100%") `MustBe` NL (1 % 2)
         , ("VT-GEN-01b", "All thresholds must be in the range 50%-100%") `MustBe` NG (1 % 1)
-        , ("VT-CC-01", "Update Constitutional Committee action thresholds must be in the range 65%-90%") `MustBe` NL (65 % 100)
-        , ("VT-CC-01b", "Update Constitutional Committee action thresholds must be in the range 65%-90%") `MustBe` NG (90 % 100)
+        , ("VT-CC-01", "Update Constitutional Committee action thresholds must be in the range 51%-90%") `MustBe` NL (51 % 100)
+        , ("VT-CC-01b", "Update Constitutional Committee action thresholds must be in the range 51%-90%") `MustBe` NG (90 % 100)
         ]
     , Scalar
         2
@@ -40,8 +40,8 @@ dRepVotingThresholds =
         -- (2 % 3)
         [ ("VT-GEN-01", "All thresholds must be in the range 50%-100%") `MustBe` NL (1 % 2)
         , ("VT-GEN-01b", "All thresholds must be in the range 50%-100%") `MustBe` NG (1 % 1)
-        , ("VT-CC-01", "Update Constitutional Committee action thresholds must be in the range 65%-90%") `MustBe` NL (65 % 100)
-        , ("VT-CC-01b", "Update Constitutional Committee action thresholds must be in the range 65%-90%") `MustBe` NG (90 % 100)
+        , ("VT-CC-01", "Update Constitutional Committee action thresholds must be in the range 51%-90%") `MustBe` NL (51 % 100)
+        , ("VT-CC-01b", "Update Constitutional Committee action thresholds must be in the range 51%-90%") `MustBe` NG (90 % 100)
         ]
     , Scalar
         3
