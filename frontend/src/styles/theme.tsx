@@ -77,6 +77,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           },
           contained: ({ theme }) => ({
             backgroundColor: theme.palette.primary.main,
+            marginTop: '8px',
             '&:hover': {
               background: `linear-gradient(
                 0deg, 
@@ -205,7 +206,6 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         styleOverrides: {
           root: {
             boxShadow: 'none',
-            marginBottom: '8px',
           },
           grouped: {
             flexGrow: 1,

@@ -7,6 +7,7 @@ import type { importForm } from "../types";
 import useStore from "../store";
 
 import DownloadIcon from "@mui/icons-material/Download";
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 import {
   UrlField,
@@ -28,11 +29,11 @@ type FormValues = {
 };
 
 export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
-  const { importOption, changeImportMethod, updateInitialJsonValue, postParametersURL } = useStore(state => ({
+  const { importOption, changeImportMethod, updateInitialValues, updateValuesFromURL } = useStore(state => ({
     importOption: state.importOption,
     changeImportMethod: state.changeImportMethod,
-    updateInitialJsonValue: state.updateInitialJsonValue,
-    postParametersURL: state.postParametersURL,
+    updateInitialValues: state.updateInitialValues,
+    updateValuesFromURL: state.updateValuesFromURL,
   }));
 
   const { register, formState, getFieldState, getValues, setValue } = useForm<importForm>({ resolver, mode: 'onChange' });
@@ -50,7 +51,7 @@ export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
       reader.onload = (e) => {
         try {
           const json = JSON.parse(e.target?.result as string);
-          updateInitialJsonValue(json); 
+          updateInitialValues(json); 
           (event.target as HTMLInputElement).value = '';
         } catch (error) {
           console.error("Error parsing JSON:", error);
@@ -66,7 +67,7 @@ export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
 
   const handleURLUpload = () => {
   const url = getValues('url'); 
-  postParametersURL(JSON.stringify(url));
+  updateValuesFromURL(JSON.stringify(url));
   }
 
   return (
@@ -104,7 +105,7 @@ export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
         setValue={setValue}
         getError={getError}
       />
-      <CommonButton fullWidth={true} text="Submit" startIcon={<DownloadIcon />} onClick={handleURLUpload} />
+      <CommonButton fullWidth={true} text="Fetch Values from Github" startIcon={<GitHubIcon />} onClick={handleURLUpload} />
     </>
       }
     {importOption === 2 && 
