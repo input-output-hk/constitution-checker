@@ -21,10 +21,10 @@ txFeePerByte =
     [ ("TFPB-01", "txFeePerByte must not be lower than 30 (0.000030 ada)") `MustBe` NL 30
     , ("TFPB-02", "txFeePerByte must not exceed 1,000 (0.001 ada)") `MustBe` NG 1_000
     , ("TFPB-03", "txFeePerByte must not be negative") `MustBe` NL 0
-    , ("TFGEN-01", "To maintain a consistent level of protection against denial-of-service attacks, *txFeeFixed* and *txFeeFixed* **should** be adjusted whenever Plutus Execution prices are adjusted (executionUnitPrices[steps/memory])") `ShouldSatisfy` \ctx val -> 
-      Neutral "Please contribute to the check"
-    , ("TFGEN-02", "Any changes to  *txFeeFixed* or *txFeeFixed* **must** consider the implications of reducing the cost of a denial-of-service attack or increasing the maximum transaction fee so that it becomes impossible to construct a transaction.") `ShouldSatisfy` \ctx val -> 
-      Neutral "Please contribute to the check"
+    , ("TFGEN-01", "To maintain a consistent level of protection against denial-of-service attacks, *txFeeFixed* and *txFeeFixed* **should** be adjusted whenever Plutus Execution prices are adjusted (executionUnitPrices[steps/memory])") `ShouldSatisfy` \ctx val ->
+        Neutral "Please contribute to the check"
+    , ("TFGEN-02", "Any changes to  *txFeeFixed* or *txFeeFixed* **must** consider the implications of reducing the cost of a denial-of-service attack or increasing the maximum transaction fee so that it becomes impossible to construct a transaction.") `ShouldSatisfy` \ctx val ->
+        Neutral "Please contribute to the check"
     ]
 
 -- Complete as of June 12, 2024
