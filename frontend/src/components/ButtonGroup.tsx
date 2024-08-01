@@ -16,9 +16,9 @@ import {
 } from '../utils/importForm';
 
 const buttons = [
-  { label: 'Local File' },
-  { label: 'URL' },
-  { label: 'Transaction ID' },
+  'Local File' ,
+  'URL',
+  'Transaction ID',
 ];
 
 export default function PHAButtonGroup() {
@@ -68,7 +68,7 @@ export default function PHAButtonGroup() {
           backgroundColor: index === importOption ? 'rgba(57, 82, 205, 0.12)' : '#fff',
         }}
       >
-        {button.label}
+        {button}
       </Button>
       ))}
     </ButtonGroup>
