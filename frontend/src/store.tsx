@@ -12,6 +12,7 @@ export type State = {
   drawerOpen: boolean;
   importOption: number;
   selectedRowName: string[];
+  searchValue: string;
   initialJsonState: InitialJsonState | undefined;
   currentJsonState: CurrentJsonState | undefined;
   validationResults: ValidationResult | undefined;
@@ -23,6 +24,7 @@ export type Action = {
   updateCurrentJsonFieldState: (field: string, value: string) => void;
   postParametersProposal: (data: ProposalValues) => Promise<any>;
   changeSelectedTab: (tabName: string) => void;
+  changeSearchValue: (value: string) => void;
   changeImportMethod: (tabName: number) => void;
   toggleMoreDetailsDrawer: (value: boolean) => void;
   changeTableDetails: (rowName: string, parameterName?: string) => void;
@@ -36,6 +38,7 @@ const useStore = create<State & Action>((set, get) => ({
   importOption: 0,
   drawerOpen: false,
   selectedRowName: [],
+  searchValue: '',
   
   // Holds initial JSON state
   initialJsonState: undefined,
@@ -149,6 +152,7 @@ const useStore = create<State & Action>((set, get) => ({
   
 
   changeSelectedTab: (tabName) => set({currentTab: tabName}),
+  changeSearchValue: (value) => set({searchValue: value}),
   changeImportMethod: (importOpt) => set({importOption: importOpt}),
   toggleMoreDetailsDrawer: (value) => set({drawerOpen: value}),
 
