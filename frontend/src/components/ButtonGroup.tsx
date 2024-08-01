@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
@@ -14,18 +15,16 @@ import {
   resolver,
 } from '../utils/importForm';
 
-interface ButtonInfo {
-  label: string; 
-}
+const buttons = [
+  { label: 'Local File' },
+  { label: 'URL' },
+  { label: 'Transaction ID' },
+];
 
-interface PHAButtonGroupProps {
-  buttons: ButtonInfo[];  
-}
+export default function PHAButtonGroup() {
+  const [importOption, setimportOption] = useState(0);
 
-export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
-  const { importOption, changeImportMethod, updateInitialJsonValue } = useStore(state => ({
-    importOption: state.importOption,
-    changeImportMethod: state.changeImportMethod,
+  const { updateInitialJsonValue } = useStore(state => ({
     updateInitialJsonValue: state.updateInitialJsonValue,
   }));
 
@@ -33,7 +32,7 @@ export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
 
   const handleButtonClick = (index: number) => {
     return () => {
-      changeImportMethod(index);
+      setimportOption(index);
     };
   };
 
@@ -103,6 +102,5 @@ export default function PHAButtonGroup({ buttons }: PHAButtonGroupProps) {
         getError={getError}
       />}
     </>
-    
   );
 }
