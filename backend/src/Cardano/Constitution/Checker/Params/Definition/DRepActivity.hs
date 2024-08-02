@@ -9,8 +9,11 @@ import Cardano.Constitution.Checker.Params.Intervals
 import Cardano.Constitution.Checker.Params.Lookup ()
 import Cardano.Constitution.Checker.Params.Swagger ()
 import Cardano.Constitution.Checker.Params.Types
+import Cardano.Constitution.Checker.Params.Definition.Base
 import Data.Functor.Identity
 import Prelude hiding (Rational)
+
+
 
 dRepActivity :: Param (Identity Integer)
 dRepActivity =
@@ -27,8 +30,12 @@ dRepActivity =
           | val > govActionLifetime' -> Satisfied
           | otherwise -> Unsatisfied "dRepActivity must be greater than govActionLifetime"
         Nothing -> Unsatisfied "govActionLifetime not found"
-    , ("DRA-05", "dRepActivity should be calculated in human terms (2 months etc.)") `ShouldSatisfy` \_ _ ->
-      Neutral "Please contribute to this check."
+    , ("DRA-05", "dRepActivity should be calculated in human terms (2 months etc.)") `ShouldSatisfy` \_ val ->
+      ( let (check, [years,months,weeks,days]) = epochIsHumanReadable val in
+        if check
+          then Satisfied
+          else Unsatisfied $ "dRepActivity should be calculated in human terms (2 months etc.) but it is " ++ show (val*5) ++ " days, which is " ++ show years ++ " years, " ++ show months ++ " months, " ++ show weeks ++ " weeks, " ++ show days ++ " days"
+      )
     ]
 
 -- Complete as of June 12, 2024

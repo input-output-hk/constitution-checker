@@ -227,6 +227,7 @@ getParamAssertions (Scalar _ _ assertions) = assertions
 -- getAssertionRangeAndStr :: Assertion (RangeConstraint a) -> (String, RangeConstraint a)
 -- getAssertionRangeAndStr (MustBe (g, _) range) = (g, range)
 
+
 getAllRangeConstraints :: forall a. Param (Identity a) -> [(String, RangeConstraint a)]
 getAllRangeConstraints (Scalar _ _ assertions) =
   foldr f [] assertions
@@ -283,3 +284,4 @@ boundaries' domain' x =
         (Closed a, Open b) -> (a, boundarySucc $ Open b)
         (Open a, Closed b) -> (boundaryPred $ Open a, b)
         (Closed a, Closed b) -> (a, b)
+

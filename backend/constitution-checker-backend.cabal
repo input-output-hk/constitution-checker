@@ -90,7 +90,8 @@ library
         , Cardano.Constitution.Checker.Base
         , Cardano.Constitution.Checker.Web
     other-modules:
-        Cardano.Constitution.Checker.Web.Internal
+          Cardano.Constitution.Checker.Web.Internal
+        , Cardano.Constitution.Checker.Params.Definition.Base
     build-depends:
           base ^>=4.18.1.0
         , servant  ^>= 0.20
