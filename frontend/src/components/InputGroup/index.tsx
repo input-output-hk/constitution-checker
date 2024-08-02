@@ -7,7 +7,9 @@ export enum FieldType {
   Rational,
   Number,
   Object,
-  Array
+  Array,
+  GitHubRepository,
+  TransactionID,
 }
 
 export type Field = {
