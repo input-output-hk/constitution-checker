@@ -170,7 +170,7 @@ const internalMaxBlockExecutionUnitsFields: Field[] = [
   },
 ];
 
-const internalDRepVotingThresholdsFields: Field[] = [
+const internalPoolVotingThresholdsFields: Field[] = [
   {
     label: 'committeeNoConfidence',
     name: 'committeeNoConfidence',
@@ -199,7 +199,7 @@ const internalDRepVotingThresholdsFields: Field[] = [
   },
 ];
 
-const internalPoolVotingThresholdsFields: Field[] = [
+const internalDRepVotingThresholdsFields: Field[] = [
   {
     label: 'committeeNoConfidence',
     name: 'committeeNoConfidence',

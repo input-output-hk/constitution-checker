@@ -10,8 +10,8 @@ export type State = {
   error: null | string;
   currentTab: string;
   drawerOpen: boolean;
-  importOption: number;
   selectedRowName: string[];
+  searchValue: string;
   initialJsonState: InitialJsonState | undefined;
   currentJsonState: CurrentJsonState | undefined;
   validationResults: ValidationResult | undefined;
@@ -25,7 +25,7 @@ export type Action = {
   updateValuesFromURL: (url: String) => Promise<any>;
   fetchParametersByURL: (url: String) => Promise<any>;
   changeSelectedTab: (tabName: string) => void;
-  changeImportMethod: (tabName: number) => void;
+  changeSearchValue: (value: string) => void;
   toggleMoreDetailsDrawer: (value: boolean) => void;
   changeTableDetails: (rowName: string, parameterName?: string) => void;
 };
@@ -35,9 +35,9 @@ const useStore = create<State & Action>((set, get) => ({
   resetForm: false,
   error: null,
   currentTab: 'Proposal Parameters',
-  importOption: 0,
   drawerOpen: false,
   selectedRowName: [],
+  searchValue: '',
   
   // Holds initial JSON state
   initialJsonState: undefined,
@@ -179,7 +179,7 @@ const useStore = create<State & Action>((set, get) => ({
   
 
   changeSelectedTab: (tabName) => set({currentTab: tabName}),
-  changeImportMethod: (importOpt) => set({importOption: importOpt}),
+  changeSearchValue: (value) => set({searchValue: value}),
   toggleMoreDetailsDrawer: (value) => set({drawerOpen: value}),
 
   changeTableDetails: (rowName: string, parameterName?: string) => set({

@@ -186,7 +186,7 @@ toParameterRow _ _ (MkGenericParamCheck (ParamCheckCostModels{})) =
 
 paramSucceeded :: [GuardrailResult] -> Bool
 paramSucceeded [] = True
-paramSucceeded ((GuardrailResult (Just False) _ _) : _) = False
+paramSucceeded ((GuardrailResult (Just False) _ _ _) : _) = False
 paramSucceeded (_ : xs) = paramSucceeded xs
 
 toParameterRow' :: (String -> String) -> (a -> Text) -> ParamCheck (Identity a) -> [ParameterRow]

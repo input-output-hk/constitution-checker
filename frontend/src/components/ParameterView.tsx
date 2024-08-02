@@ -55,7 +55,7 @@ const FIELDS = [
 ];
 
 export default function ParameterView() {
-  const { currentJsonState, validationResults } = useStore();
+  const { currentJsonState, validationResults, searchValue } = useStore();
 
   const getName = (field: string[]) => {
     if (field.length === 1) {
@@ -93,6 +93,12 @@ export default function ParameterView() {
     return 'disabled';
   };
 
+  const filteredFields = searchValue
+    ? FIELDS.filter(field => 
+        getName(field).toLowerCase().includes(searchValue.toLowerCase())
+      )
+    : FIELDS;
+
   return (
     <Table size="small" aria-label="simple table" stickyHeader>
       <TableHead>
@@ -103,7 +109,7 @@ export default function ParameterView() {
         </TableRow>
       </TableHead>
       <TableBody>
-        {FIELDS.map((field, index) => (
+        {filteredFields.map((field, index) => (
           <BodyTableRow
             key={index}
             name={getName(field)}

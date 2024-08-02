@@ -66,12 +66,6 @@ export default function SideDrawerLeft() {
     });
   };
 
-  const buttons = [
-    { label: 'Local File' },
-    { label: 'URL' },
-    { label: 'Transaction ID' },
-  ];
-
   return (
     <div className="perDrawerContainer">
       <Drawer
@@ -91,7 +85,7 @@ export default function SideDrawerLeft() {
               </Typography>
               <MenuButton />
             </Box>
-            <ButtonGroup buttons={buttons} />
+            <ButtonGroup />
             
           </div>
 
