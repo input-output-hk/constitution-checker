@@ -395,10 +395,12 @@ export default function GuardrailView() {
     }
     if (result && result.guardrails && result.guardrails[guardrail] && result.guardrails[guardrail].result !== null) {
       
-      if (!result.guardrails[guardrail].isMandatory) {
-        return result.guardrails[guardrail].result ? 'notMandatory' : 'inactive';
+      if (result.guardrails[guardrail].isMandatory && !result.guardrails[guardrail].result) {
+        return 'inactive';
+      } else if (!result.guardrails[guardrail].isMandatory && !result.guardrails[guardrail].result) {
+        return 'notMandatory'
       } else {
-        return result.guardrails[guardrail].result ? 'active' : 'inactive';
+        return 'active';
       }
     } 
     return 'disabled';

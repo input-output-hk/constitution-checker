@@ -87,9 +87,14 @@ export default function ParameterView() {
       result = result[field[1]];
     }
     if (result) {
-      return result.summary ? 'active' : 'inactive';
-    } 
-
+      if (!result.summaryMandatory) {
+        return 'inactive';
+      } else if (result.summaryMandatory && !result.summary) {
+        return 'notMandatory';
+      } else {
+        return 'active';
+      }
+    }  
     return 'disabled';
   };
 
