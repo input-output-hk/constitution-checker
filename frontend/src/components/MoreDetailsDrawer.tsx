@@ -74,9 +74,11 @@ export default function MoreDetailsDrawer() {
     return (
       <div>
         {Object.entries(guardrails).map(([key, value]) => {
-          let variant: 'successText' | 'errorText' | 'body3';
-          if (value.result === true) {
+          let variant: 'successText' | 'warningText' | 'errorText' | 'body3';
+          if (value.isMandatory && (value.result)) {
             variant = 'successText';
+          } else if (!value.isMandatory && (value.result)) {
+            variant = 'warningText';
           } else if (value.result === false) {
             variant = 'errorText';
           } else {
