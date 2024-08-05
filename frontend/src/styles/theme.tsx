@@ -43,6 +43,13 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         margin: '12px 0px 0px 0px',
         display: 'block',
       },
+      warningText: {
+        fontSize: '12px',
+        color: '#C1CD39 !important',
+        fontWeight: 600,
+        margin: '12px 0px 0px 0px',
+        display: 'block',
+      },
       errorText: {
         fontSize: '12px',
         color: '#BA1A1A !important',
@@ -227,6 +234,9 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           fontSize: 'small', 
         },
         styleOverrides: {
+          colorSecondary: {
+            color: '#C1CD39',
+          },
           colorAction: ({ theme }) => ({
             color: theme.palette.onVariant.main,
           }),

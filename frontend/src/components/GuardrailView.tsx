@@ -380,12 +380,13 @@ export default function GuardrailView() {
   }
 
   const getStatus = (field: string[], guardrail: string) => { 
-    let guardrailDetails = (currentJsonState as any || {})[field[0]];  
+    let guardrailDetails = (currentJsonState as any || {})[field[0]]; 
+    
     if (field.length > 1) {
       guardrailDetails = guardrailDetails[field[1]];
     }
-    if (guardrailDetails && guardrailDetails.checkStatus === 'unchecked') {
-      return 'pending';
+    if (guardrailDetails && (guardrailDetails.checkStatus === 'unchecked')) {
+      return 'disabled';
     }
 
     let result = (validationResults as any || {})[field[0]];  
@@ -393,9 +394,13 @@ export default function GuardrailView() {
       result = result[field[1]];
     }
     if (result && result.guardrails && result.guardrails[guardrail] && result.guardrails[guardrail].result !== null) {
-      return result.guardrails[guardrail].result ? 'active' : 'inactive';
+      
+      if (!result.guardrails[guardrail].isMandatory) {
+        return result.guardrails[guardrail].result ? 'notMandatory' : 'inactive';
+      } else {
+        return result.guardrails[guardrail].result ? 'active' : 'inactive';
+      }
     } 
-
     return 'disabled';
   };
 
