@@ -25,7 +25,8 @@ import Data.Aeson.QQ
 import qualified Data.Aeson.KeyMap as KM
 
 import Blockfrost.Client (Epoch)
-import Cardano.Constitution.Checker.Blockfrost (ProtocolParams (..))
+import Cardano.Constitution.Checker.Blockfrost.Base (ProtocolParams (..))
+import Control.Applicative ((<|>))
 import Control.Lens hiding (Context, (.=))
 import Control.Monad (foldM)
 import Data.Aeson
@@ -171,27 +172,33 @@ instance FromJSON ParametersChange where
         Just (paramIx', value) -> pure $ insert paramIx' value acc
 
     parseParam :: Object -> Param' -> Parser (Maybe (Integer, ParamValue))
-    parseParam o (MkParam' param@(Scalar paramIx' _ _)) = do
-      valueM <- o .:? fromString (show paramIx')
+    parseParam o (MkParam' param@(Scalar paramIx' paramName' _)) = do
+      valueM <- extractFromIxOrName o paramIx' paramName'
       case valueM of
         Nothing -> pure Nothing
         Just value -> do
           val <- parseScalar param value
           pure $ Just (paramIx', MkParamValue param val)
-    parseParam o (MkParam' param@(Collection paramIx' _ _)) = do
-      valueM <- o .:? fromString (show paramIx')
+    parseParam o (MkParam' param@(Collection paramIx' paramName' _)) = do
+      valueM <- extractFromIxOrName o paramIx' paramName'
       case valueM of
         Nothing -> pure Nothing
         Just value -> do
           val <- parseCollection param value
           pure $ Just (paramIx', MkParamValue param val)
     parseParam o (MkParam' param@(CostModels paramIx' _ _ _)) = do
-      valueM <- o .:? fromString (show paramIx')
+      valueM <- extractFromIxOrName o paramIx' "costModels"
       case valueM of
         Nothing -> pure Nothing
         Just value -> do
           val <- parseCostModels param value
           pure $ Just (paramIx', MkParamValue param val)
+
+extractFromIxOrName :: Object -> Integer -> String -> Parser (Maybe Value)
+extractFromIxOrName o paramIx' paramName' = do
+  valueFromIxM :: Maybe Value <- o .:? fromString (show paramIx')
+  valueFromNameM :: Maybe Value <- o .:? fromString paramName'
+  pure $ valueFromIxM <|> valueFromNameM
 
 parseCollection :: Param [a] -> Value -> Parser [a]
 parseCollection (Collection _ _ params) = withObject "Collection" $ \obj ->

@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Cardano.Constitution.Checker.Blockfrost.Sync where
 
@@ -15,8 +14,8 @@ import Cardano.Constitution.Checker.Base (mapLeft)
 import Control.Monad
 import Control.Monad.Except
 
-import Control.Concurrent (MVar, modifyMVar, modifyMVar_, threadDelay)
-import Control.Exception (SomeException (SomeException))
+import Control.Concurrent (MVar, modifyMVar_, threadDelay)
+import Control.Exception (SomeException)
 import Control.Monad.Catch (MonadCatch, catchAll)
 import Control.Monad.IO.Class
 import Control.Monad.Reader

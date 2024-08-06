@@ -7,7 +7,7 @@
 
 module Cardano.Constitution.Checker.Params.Types where
 
-import Cardano.Constitution.Checker.Blockfrost
+import Cardano.Constitution.Checker.Blockfrost.Base hiding (CostModels (..))
 import Cardano.Constitution.Checker.Params.Farey
 import Cardano.Constitution.Checker.Params.Intervals
 import Data.Aeson
