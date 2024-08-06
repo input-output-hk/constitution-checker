@@ -17,7 +17,7 @@ const statusToColor = (status: string): "disabled" | "inherit" | "primary" | "se
   switch (status) {
       case "active": return "success"; // passing check
       case "inactive": return "error"; // failing check
-      case "pending": return "warning"; // not checked
+      case "notMandatory": return "secondary"; // not checked
       default: return "disabled";
   }
 }

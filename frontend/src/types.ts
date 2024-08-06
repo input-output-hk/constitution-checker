@@ -189,6 +189,7 @@ export type GuardrailResult = {
   description: string;
   message: string | null;
   result: boolean | null;
+  resultMandatory: boolean | null;
 };
 
 export type ParameterValidationResult = {
