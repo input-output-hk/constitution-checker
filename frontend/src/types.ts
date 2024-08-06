@@ -122,7 +122,7 @@ export type CurrentJsonState = {
   };
 };
 
-export type importForm = {
+export type ImportForm = {
   url: string,
   transactionID: string
 }

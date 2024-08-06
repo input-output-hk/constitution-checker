@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import CommonButton from "./CommonButton";
 import Input from './InputGroup/Input';
-import type { importForm } from "../types";
+import type { ImportForm } from "../types";
 import useStore from "../store";
 
 import DownloadIcon from "@mui/icons-material/Download";
@@ -30,7 +30,7 @@ export default function PHAButtonGroup() {
     updateValuesFromURL: state.updateValuesFromURL,
   }));
 
-  const { register, formState, getFieldState, getValues, setValue } = useForm<importForm>({ resolver, mode: 'onChange' });
+  const { register, formState, getFieldState, getValues, setValue } = useForm<ImportForm>({ resolver, mode: 'onChange' });
 
   const handleButtonClick = (index: number) => {
     return () => {
