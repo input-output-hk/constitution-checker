@@ -86,10 +86,11 @@ export default function ParameterView() {
     if (field.length > 1) {
       result = result[field[1]];
     }
+   
     if (result) {
-      if (!result.summaryMandatory) {
+      if (result.summaryMandatory === false) {
         return 'inactive';
-      } else if (result.summaryMandatory && !result.summary) {
+      } else if (result.summaryMandatory && (result.summary === false)) {
         return 'notMandatory';
       } else {
         return 'active';
