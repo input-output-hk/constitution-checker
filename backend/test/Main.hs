@@ -6,6 +6,7 @@ import Data.Aeson.QQ
 import Test.Tasty
 import Test.Tasty.HUnit
 
+import Cardano.Constitution.Checker.Blockfrost
 import Cardano.Constitution.Checker.Params.Definition
 import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
@@ -26,6 +27,37 @@ unitTests =
     [ testCase "Simple parameter encoding" $
         let bs = encode [aesonQQ| { "0":  1 }|]
          in decode bs @?= Just (mkParametersChangeUnsafe [MkParamValue txFeePerByte 1])
+    , testCase "Simple blockfrost parameter decoding" $
+        let expect = ProposalTx $ mkParametersChangeUnsafe [MkParamValue stakeAddressDeposit 1000000]
+            bs =
+              encode
+                [aesonQQ|
+          {
+            "tx_hash": "4864566ddbf27933f7c85f9ab0c58e345de0e40ce03926f5a83be3da2f928ffe",
+            "cert_index": 0,
+            "governance_type": "parameter_change",
+            "governance_description": {
+              "tag": "ParameterChange",
+              "contents": [
+                null,
+                {
+                  "stakeAddressDeposit": 1000000
+                },
+                "edcd84c10e36ae810dc50847477083069db796219b39ccde790484e0"
+              ]
+            },
+            "deposit": "100000000000",
+            "return_address": "stake_test1uqy0zgdnd2ljhnwhm23928q7vef5zwnccsv7zuxnxxvjf5c0swgr8",
+            "ratified_epoch": null,
+            "enacted_epoch": null,
+            "dropped_epoch": null,
+            "expired_epoch": null,
+            "expiration": 425,
+            "anchor_url": "https://raw.githubusercontent.com/Ryun1/metadata/main/cip108/treasury-withdrawal.jsonld",
+            "anchor_hash": "931f1d8cdfdc82050bd2baadfe384df8bf99b00e36cb12bfb8795beab3ac7fe5"
+          }
+        |]
+         in decode bs @?= Just expect
     , testCase "Simple rational parameter encoding works with tuple of integers" $
         let bs = encode [aesonQQ| { "11":  [6,5] }|]
          in decode bs @?= Just (mkParametersChangeUnsafe [MkParamValue treasuryCut (Identity (6 % 5))])

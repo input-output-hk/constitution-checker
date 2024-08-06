@@ -24,7 +24,7 @@ import Cardano.Constitution.Checker.Web
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Aeson
 import Data.String
-import Data.Text (unpack)
+import Data.Text (Text, unpack)
 import Servant.Client (BaseUrl, parseBaseUrl, showBaseUrl)
 
 import qualified Data.Map as Map
@@ -37,6 +37,7 @@ type API =
           :<|> "by-url" :> ReqBody '[JSON] URL :> Post '[JSON] ParamChecks
        )
     :<|> "current-values" :> Get '[JSON] EpochParameters
+    :<|> "transactions" :> Capture "transactionId" Text :> Get '[JSON] ParametersChange
 
 type StaticAPI = Raw
 
@@ -51,9 +52,17 @@ server ServerCaps{..} =
               :<|> parametersChangeByUrl
            )
             :<|> getAllCurrentParamsValues
+            :<|> transactionHandler
          )
     :<|> serveDirectoryWebApp "./web"
  where
+  transactionHandler :: Text -> Handler ParametersChange
+  transactionHandler transactionId = do
+    resp <- liftIO $ getProposal transactionId
+    case resp of
+      Right (ProposalTx change) -> return change
+      Left err -> throwError err500{errBody = fromString err}
+
   getLatestEpochProtocolParams :: Map Epoch ProtocolParams -> Either String ProtocolParams
   getLatestEpochProtocolParams protocolParams =
     let maxEpoch = maximum $ Map.keys protocolParams
