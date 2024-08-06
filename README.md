@@ -3,7 +3,7 @@
 Constitution checker is a web-based tool that checks the constitutionality of a Parameter Update Proposal.
 It implements checks for the guardrails from the [Constitution](https://raw.githubusercontent.com/IntersectMBO/interim-constitution/main/cardano-constitution-0.txt).
 
-We are currently checking for 104 out of the 143 guardrails. If you would like to help us complete the list, please feel free to contribute.
+We are currently checking for 112 out of the 143 guardrails. If you would like to help us complete the list, please feel free to contribute.
 
 Here is the list of guardrails we are currently checking for:
 
@@ -68,7 +68,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] ME-01
 - [x] ME-02
 - [x] ME-03
-- [ ] ME-04
+- [x] ME-04
 - [ ] ME-05
 
 #### Plutus Script Execution Prices (executionUnitPrices[priceSteps/priceMemory])
@@ -84,7 +84,7 @@ Here is the list of guardrails we are currently checking for:
 
 - [x] MFRS-01
 - [x] MFRS-02
-- [ ] MFRS-03
+- [x] MFRS-03
 - [ ] MFRS-04
 
 ## Network Parameters
@@ -100,7 +100,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] MBBS-02
 - [x] MBBS-03 (partial)
 - [x] MBBS-04
-- [ ] MBBS-05
+- [x] MBBS-05
 - [ ] MBBS-06
 - [ ] MBBS-07
 
@@ -111,14 +111,14 @@ Here is the list of guardrails we are currently checking for:
 - [x] MTS-03
 - [x] MTS-04
 - [ ] MTS-05
-- [ ] MTS-06
+- [x] MTS-06
 
 #### Memory Unit Limits (maxBlockExecutionUnits[memory], maxTxExecutionUnits[memory])
 
 - [x] MTEU-M-01
 - [x] MTEU-M-02
 - [x] MTEU-M-03
-- [ ] MTEU-M-04
+- [x] MTEU-M-04
 - [x] MBEU-M-01
 - [x] MBEU-M-02
 - [x] MBEU-M-03
@@ -131,10 +131,10 @@ Here is the list of guardrails we are currently checking for:
 - [x] MTEU-S-01
 - [x] MTEU-S-02
 - [x] MTEU-S-03
-- [ ] MTEU-S-04
+- [x] MTEU-S-04
 - [x] MBEU-S-01
 - [x] MBEU-S-02
-- [ ] MBEU-S-03
+- [x] MBEU-S-03
 - [ ] MBEU-S-04
 
 - [x] MEU-S-01
@@ -220,7 +220,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] DRA-02
 - [x] DRA-03
 - [x] DRA-04
-- [ ] DRA-05
+- [x] DRA-05
 
 #### DRep and SPO Governance Action Thresholds (dRepVotingThresholds[...],poolVotingThresholds[...])
 
@@ -237,7 +237,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] GAL-01
 - [x] GAL-02
 - [x] GAL-03
-- [ ] GAL-04
+- [x] GAL-04
 - [x] GAL-05
 
 #### Maximum Constitutional Committee Term (committeeMaxTermLimit)

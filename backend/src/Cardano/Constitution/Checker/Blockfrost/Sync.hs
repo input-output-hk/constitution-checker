@@ -181,7 +181,7 @@ getLastStoredEpoch = do
   liftIO $ do
     files' <- listDirectory folder
     let epochNames = Haskell.map (Epoch . read . Haskell.takeWhile (/= '.')) files'
-
+    
     pure $ case epochNames of
       [] -> Nothing
       _otherwise -> Just $ Haskell.maximum epochNames
