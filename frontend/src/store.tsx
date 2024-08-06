@@ -1,6 +1,6 @@
 import axios from "axios";
 import { create } from "zustand";
-import { mapInitialJsonStateToCurrentJsonState } from "./utils/mapper";
+import { mapInitialJsonStateToCurrentJsonState, mapPostValuesToInitialJsonValues } from "./utils/mapper";
 
 import type { InitialJsonState, CurrentJsonState, ProposalValues, ValidationResult } from "./types";
 
@@ -19,9 +19,11 @@ export type State = {
 
 export type Action = {
   fetchJsonInitialState: () => void;
-  updateInitialJsonValue: (importValue: InitialJsonState) => void;
+  updateInitialValues: (importValue: InitialJsonState) => void;
   updateCurrentJsonFieldState: (field: string, value: string) => void;
   postParametersProposal: (data: ProposalValues) => Promise<any>;
+  updateValuesFromURL: (url: String) => Promise<any>;
+  fetchParametersByURL: (url: String) => Promise<any>;
   changeSelectedTab: (tabName: string) => void;
   changeSearchValue: (value: string) => void;
   toggleMoreDetailsDrawer: (value: boolean) => void;
@@ -100,6 +102,34 @@ const useStore = create<State & Action>((set, get) => ({
     }
   },
 
+  fetchParametersByURL: async (url: String) => {
+    try {
+      const response = await axios.post('http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/parameters/proposal/by-url', url, {
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          'Accept': 'application/json;charset=utf-8',
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Post request failed:", error);
+      throw new Error("Post request failed");
+    }
+  },
+
+  updateValuesFromURL: async (url: String) => {
+    set({ loading: true, error: null });
+    try {
+      const data = await get().fetchParametersByURL(url);
+      get().updateInitialValues(mapPostValuesToInitialJsonValues(data));
+    } catch (error) {
+      set({
+        error: 'Failed to load values from URL',
+        loading: false
+      });
+    }
+  },
+
   updateCurrentJsonFieldState: (field, value) => {
     const [level1, level2] = field.split('.');
     if (!level2) {
@@ -122,7 +152,7 @@ const useStore = create<State & Action>((set, get) => ({
     }
   },
 
-  updateInitialJsonValue: (importValue) => {
+  updateInitialValues: (importValue) => {
     set({resetForm: true});
     const newState = mapInitialJsonStateToCurrentJsonState(importValue);
     const currentState = get().currentJsonState;

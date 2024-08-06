@@ -4,10 +4,11 @@ import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import CommonButton from "./CommonButton";
 import Input from './InputGroup/Input';
-import { Field } from "../components/InputGroup";
+import type { ImportForm } from "../types";
 import useStore from "../store";
 
 import DownloadIcon from "@mui/icons-material/Download";
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 import {
   UrlField,
@@ -20,15 +21,16 @@ const buttons = [
   'URL',
   'Transaction ID',
 ];
-
+  
 export default function PHAButtonGroup() {
   const [importOption, setimportOption] = useState(0);
 
-  const { updateInitialJsonValue } = useStore(state => ({
-    updateInitialJsonValue: state.updateInitialJsonValue,
+  const { updateInitialValues, updateValuesFromURL } = useStore(state => ({
+    updateInitialValues: state.updateInitialValues,
+    updateValuesFromURL: state.updateValuesFromURL,
   }));
 
-  const { register, formState, getFieldState, getValues, setValue } = useForm<Field>({ resolver, mode: 'onChange' });
+  const { register, formState, getFieldState, getValues, setValue } = useForm<ImportForm>({ resolver, mode: 'onChange' });
 
   const handleButtonClick = (index: number) => {
     return () => {
@@ -43,7 +45,7 @@ export default function PHAButtonGroup() {
       reader.onload = (e) => {
         try {
           const json = JSON.parse(e.target?.result as string);
-          updateInitialJsonValue(json); 
+          updateInitialValues(json); 
           (event.target as HTMLInputElement).value = '';
         } catch (error) {
           console.error("Error parsing JSON:", error);
@@ -55,6 +57,11 @@ export default function PHAButtonGroup() {
 
   function getError() {
     return false;
+  }
+
+  const handleURLUpload = () => {
+  const url = getValues('url'); 
+  updateValuesFromURL(JSON.stringify(url));
   }
 
   return (
@@ -82,7 +89,8 @@ export default function PHAButtonGroup() {
         onChange={handleFileChange}
       />
     {importOption === 1 && 
-    <Input
+    <> 
+      <Input
         field={UrlField}
         formState={formState}
         register={register}
@@ -90,7 +98,10 @@ export default function PHAButtonGroup() {
         getValues={getValues}
         setValue={setValue}
         getError={getError}
-      />}
+      />
+      <CommonButton fullWidth={true} text="Fetch Values from Github" startIcon={<GitHubIcon />} onClick={handleURLUpload} />
+    </>
+      }
     {importOption === 2 && 
     <Input
         field={TransactionIDField}

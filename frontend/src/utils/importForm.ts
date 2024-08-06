@@ -1,6 +1,8 @@
 import { Resolver } from "react-hook-form";
-import { Field, FieldType } from "../components/InputGroup";
+import { FieldType } from "../components/InputGroup";
 import { buildFormResolver } from "../utils/form";
+
+import type { ImportForm } from "../types";
 
 export const UrlField = {
   label: 'GitHub Repository',
@@ -16,6 +18,6 @@ export const TransactionIDField = {
   type: FieldType.TransactionID,
 };
 
-export const resolver: Resolver<Field> = buildFormResolver<Field>([
+export const resolver: Resolver<ImportForm> = buildFormResolver<ImportForm>([
     UrlField, TransactionIDField
   ]);

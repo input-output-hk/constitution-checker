@@ -52,10 +52,10 @@ const StyledMenu = styled((props: MenuProps) => (
 }));
 
 export default function MenuButton() {
-    const { initialJsonState, fetchJsonInitialState, updateInitialJsonValue, postParametersProposal } = useStore(state => ({
+    const { initialJsonState, fetchJsonInitialState, updateInitialValues, postParametersProposal } = useStore(state => ({
         initialJsonState: state.initialJsonState,
         fetchJsonInitialState: state.fetchJsonInitialState,
-        updateInitialJsonValue: state.updateInitialJsonValue,
+        updateInitialValues: state.updateInitialValues,
         postParametersProposal: state.postParametersProposal
   }));
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -69,7 +69,7 @@ export default function MenuButton() {
 
   const handleResetInitialState = () => {
     if (initialJsonState) {
-        updateInitialJsonValue(initialJsonState);
+        updateInitialValues(initialJsonState);
         postParametersProposal(initialJsonState);
     }
     handleClose();

@@ -84,6 +84,7 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           },
           contained: ({ theme }) => ({
             backgroundColor: theme.palette.primary.main,
+            marginTop: '8px',
             '&:hover': {
               background: `linear-gradient(
                 0deg, 
@@ -102,14 +103,14 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
                   ), ${theme.palette.primary.main}`,
                   boxShadow: "none !important", 
               },
-            },
-            '&:focus': {
+              '&:focus': {
               background: `linear-gradient( 
                 0deg,
                 ${theme.palette.primary.conOpacity2}, 
                 ${theme.palette.primary.conOpacity2}
                 ), ${theme.palette.primary.main}`,
                 boxShadow: "none !important", 
+              },
             },
           }),
           outlined: ({ theme }) => ({
@@ -212,7 +213,6 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         styleOverrides: {
           root: {
             boxShadow: 'none',
-            marginBottom: '8px',
           },
           grouped: {
             flexGrow: 1,
