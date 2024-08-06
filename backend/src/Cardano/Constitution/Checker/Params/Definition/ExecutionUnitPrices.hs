@@ -5,10 +5,12 @@
 
 module Cardano.Constitution.Checker.Params.Definition.ExecutionUnitPrices where
 
+import Cardano.Constitution.Checker.Params.Definition.Base
 import Cardano.Constitution.Checker.Params.Intervals
 import Cardano.Constitution.Checker.Params.Lookup ()
 import Cardano.Constitution.Checker.Params.Swagger ()
 import Cardano.Constitution.Checker.Params.Types
+
 import Prelude hiding (Rational)
 
 executionUnitPrices :: Param [Rational]
@@ -23,11 +25,14 @@ executionUnitPrices =
         [ ("EIUP-PM-01", "executionUnitPrices[priceMemory] must not exceed 2_000 / 10_000") `MustBe` NG (2_000 % 10_000)
         , ("EIUP-PM-02", "executionUnitPrices[priceMemory] must not be lower than 400 / 10_000") `MustBe` NL (400 % 10_000)
         , ("EIUP-GEN-01", "The execution prices must be set so that i) the cost of executing a transaction with maximum CPU steps is similar to the cost of a maximum sized non-script transaction and ii) the cost of executing a transaction with maximum memory units is similar to the cost of a maximum sized non-script transaction")
-            `ShouldSatisfy` \ctx val ->
-              Neutral "Please contribute to this check."
+            `ShouldSatisfy` \_ _ -> Neutral "Please contribute to this check."
         , ("EIUP-GEN-02", "The execution prices should be adjusted whenever transaction fees are adjusted (txFeeFixed/txFeePerByte). The goal is to ensure that the processing delay is similar for \"full\" transactions, regardless of their type. This helps ensure that the requirements on block diffusion/propagation times are met.")
-            `ShouldSatisfy` \ctx val ->
+            `ShouldSatisfy` \_ _ ->
               Neutral "Please contribute to this check."
+        , ("NETWORK-01", "No individual network parameter **should** change more than once per two epochs")
+            `ShouldSatisfy` network01Check "executionUnitPrices" "priceMemory"
+        , ("NETWORK-02", "Only one network parameter **should** be changed per epoch unless they are directly correlated")
+            `ShouldSatisfy` network02Check "executionUnitPrices" "priceMemory" executionUnitPricesNames
         ]
     , Scalar
         1
@@ -39,8 +44,12 @@ executionUnitPrices =
             `ShouldSatisfy` \_ _ ->
               Neutral "Please contribute to this check."
         , ("EIUP-GEN-02", "The execution prices should be adjusted whenever transaction fees are adjusted (txFeeFixed/txFeePerByte). The goal is to ensure that the processing delay is similar for \"full\" transactions, regardless of their type. This helps ensure that the requirements on block diffusion/propagation times are met.")
-            `ShouldSatisfy` \ctx val ->
+            `ShouldSatisfy` \_ _ ->
               Neutral "Please contribute to this check."
+        , ("NETWORK-01", "No individual network parameter **should** change more than once per two epochs")
+            `ShouldSatisfy` network01Check "executionUnitPrices" "priceSteps"
+        , ("NETWORK-02", "Only one network parameter **should** be changed per epoch unless they are directly correlated")
+            `ShouldSatisfy` network02Check "executionUnitPrices" "priceSteps" executionUnitPricesNames
         ]
     ]
 
