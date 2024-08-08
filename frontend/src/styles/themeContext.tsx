@@ -1,14 +1,13 @@
 // ThemeContext.tsx
-import { createContext, useContext, useMemo, useState, ReactNode } from "react";
+import { createContext, useContext, useMemo, ReactNode } from "react";
 import { ThemeProvider as MUIThemeProvider } from "@mui/material/styles";
 import { getTheme } from "./theme";
 
 type ThemeModeContextType = {
-  toggleTheme: () => void;
-  mode: 'light' | 'dark';
+  mode: 'light';
 };
 
-const ThemeModeContext = createContext<ThemeModeContextType>({ toggleTheme: () => {}, 
+const ThemeModeContext = createContext<ThemeModeContextType>({ 
 mode: 'light'
 });
 
@@ -16,15 +15,13 @@ mode: 'light'
 export const useThemeMode = () => useContext(ThemeModeContext);
 
 export const ThemeModeProvider = ({ children }: { children: ReactNode }) => {
-    const [mode, setMode] = useState<'light' | 'dark'>('light');
+    const mode = 'light';
     const theme = useMemo(() => getTheme(mode), [mode]);
   
-    const toggleTheme = () => {
-      setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-    };
+   
   
     return (
-      <ThemeModeContext.Provider value={{ toggleTheme, mode }}>
+      <ThemeModeContext.Provider value={{ mode }}>
         <MUIThemeProvider theme={theme}>
           {children}
         </MUIThemeProvider>

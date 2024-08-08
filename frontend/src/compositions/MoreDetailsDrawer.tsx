@@ -1,23 +1,34 @@
+//Mui imports
+import { styled } from "@mui/material/styles";
 import Drawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
 import { Typography } from "@mui/material";
-import IconButton from "./IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Divider from "@mui/material/Divider";
-import useStore from "../store";
-import { ParameterValidationResult } from "../types";
+
+//Store imports
+import { useShallow } from 'zustand/react/shallow';
+import useStore from "../store/store";
+import { ParameterValidationResult } from "../store/types";
+
+//local components
+import IconButton from "../components/IconButton";
+
+const ScrollBar2 = styled("div", {
+  name: "MuiScrollBar2",
+  slot: 'Root',
+})``;
 
 export default function MoreDetailsDrawer() {
-  const { drawerOpen, validationResults, selectedRowName, currentTab, toggleMoreDetailsDrawer } = useStore(state => ({
+  const { drawerOpen, validationResults, selectedRowName, currentTab } = useStore(useShallow(state => ({
     validationResults: state.validationResults,
     drawerOpen: state.drawerOpen,
     selectedRowName: state.selectedRowName,
-    currentTab: state.currentTab,
-    toggleMoreDetailsDrawer: state.toggleMoreDetailsDrawer,
-  }));
+    currentTab: state.currentTab
+  })));
 
   const handleCloseDrawer = () => {
-    toggleMoreDetailsDrawer(false);
+    useStore.setState({drawerOpen: false});
   };
    
   const getRowDetails = () => {
@@ -91,7 +102,7 @@ export default function MoreDetailsDrawer() {
               <Typography variant='body1'>
                 {value.description}
               </Typography>
-              <Divider sx={{ margin: '16px 0px' }} />
+              <Divider className="drawerDivider" />
             </div>
           );
         })}
@@ -106,14 +117,14 @@ export default function MoreDetailsDrawer() {
       open={drawerOpen}
     >
       <Toolbar className="spBtwnToolbar">
-        <Typography variant={'h6'} sx={{overflowWrap: 'anywhere'}}>
+        <Typography variant={'h6'} className="drawerh6">
           {selectedRowName[0]} Details
         </Typography>
         <IconButton icon={<CloseIcon />} color="default" onClick={handleCloseDrawer}/>
       </Toolbar>
-      <div className="scrollBar2">
+      <ScrollBar2>
         {getRowDetails()}
-      </div>
+      </ScrollBar2>
     </Drawer>
   );
 }

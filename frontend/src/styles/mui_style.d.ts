@@ -1,6 +1,65 @@
 import "@mui/material"
 
 declare module "@mui/material/styles" {
+
+  interface Components {
+    MuiSearch?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiSearch'];
+    };
+    MuiSearchIcon?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiSearchIcon'];
+    }
+    MuiSearchInput?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiSearchInput'];
+    }
+    MuiTableBox?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiTableBox'];
+    }
+    MuiTableBoxContainer?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiTableBoxContainer'];
+    }
+    MuiScrollBar?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiScrollBar'];
+    }
+    MuiScrollBar2?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiScrollBar2'];
+    }
+    MuiSpBtwn?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiSpBtwn'];
+    }
+    MuiChildContain1?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiChildContain1'];
+    }
+    MuiChildContain2?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiChildContain2'];
+    }
+    MuiPerContain?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiPerContain'];
+    }
+    MuiMain?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiMain'];
+    }
+    MuiBody?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiBody'];
+    }
+    MuiLoading?: {
+      root?: React.CSSProperties;
+      styleOverrides?: ComponentsOverrides<Theme>['MuiLoading'];
+    }
+  }
   interface Palette {
     tertiary: Palette["primary"];
     surfaceDim: Palette["primary"];

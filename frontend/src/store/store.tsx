@@ -1,11 +1,10 @@
 import axios from "axios";
 import { create } from "zustand";
-import { mapInitialJsonStateToCurrentJsonState, mapPostValuesToInitialJsonValues } from "./utils/mapper";
+import { mapInitialJsonStateToCurrentJsonState, mapPostValuesToInitialJsonValues } from "./mapper";
 
 import type { InitialJsonState, CurrentJsonState, ProposalValues, ValidationResult } from "./types";
 
 export type State = {
-  loading: boolean;
   resetForm: boolean;
   error: null | string;
   currentTab: string;
@@ -23,52 +22,39 @@ export type Action = {
   updateCurrentJsonFieldState: (field: string, value: string) => void;
   postParametersProposal: (data: ProposalValues) => Promise<any>;
   updateValuesFromURL: (url: String) => Promise<any>;
-  fetchParametersByURL: (url: String) => Promise<any>;
-  changeSelectedTab: (tabName: string) => void;
-  changeSearchValue: (value: string) => void;
-  toggleMoreDetailsDrawer: (value: boolean) => void;
-  changeTableDetails: (rowName: string, parameterName?: string) => void;
 };
 
 const useStore = create<State & Action>((set, get) => ({
-  loading: false,
   resetForm: false,
   error: null,
   currentTab: 'Proposal Parameters',
   drawerOpen: false,
   selectedRowName: [],
   searchValue: '',
-  
-  // Holds initial JSON state
   initialJsonState: undefined,
-
-  // Holds updated proposal form state
   currentJsonState: undefined,
-  
-  // Holds updated state from POST response
   validationResults: undefined,
 
-  // Used only to load initial app state from Cardano
+  // Used only to fetch app state from Cardano
   fetchJsonInitialState: async () => {
-    set({ loading: true, error: null, validationResults: undefined });
+    set({ error: null, validationResults: undefined });
     try {
       const response = await axios.get("http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/current-values");
       set({
         initialJsonState: response.data,
         currentJsonState: mapInitialJsonStateToCurrentJsonState(response.data),
-        loading: false
       });
     } catch (error) {
-      console.error("Failed to fetch initial state:", error);
+      console.error("Failed to fetch state from Cardano:", error);
       set({
-        error: "Failed to fetch initial state",
-        loading: false
+        error: "Failed to fetch state from Cardano",
       });
     }
   },
   
+  // Uses the current app state to check if the parameters pass the guardrail checks
   postParametersProposal: async (data: ProposalValues) => {
-    set({ loading: true, error: null });
+    set({ error: null });
     try {
       const response = await axios.post('http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/parameters/proposal', data, {
         headers: {
@@ -91,45 +77,35 @@ const useStore = create<State & Action>((set, get) => ({
       set({
         validationResults: response.data,
         currentJsonState: checkedCurrentJsonState,
-        loading: false
       }); 
     } catch (error) {
-      console.error("Post request failed:", error);
+      console.error("Post request to see if paramaters pass guardrail checks failed:", error);
       set({
-        error: "Post request failed",
-        loading: false
+        error: "Post request to see if paramaters pass guardrail checks failed",
       });
     }
   },
 
-  fetchParametersByURL: async (url: String) => {
+  //use URL to get values from Github self-hosted JSON file
+  updateValuesFromURL: async (url: String) => {
+    set({ error: null });
     try {
       const response = await axios.post('http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/parameters/proposal/by-url', url, {
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
           'Accept': 'application/json;charset=utf-8',
-        }
+        },
       });
-      return response.data;
-    } catch (error) {
-      console.error("Post request failed:", error);
-      throw new Error("Post request failed");
-    }
-  },
-
-  updateValuesFromURL: async (url: String) => {
-    set({ loading: true, error: null });
-    try {
-      const data = await get().fetchParametersByURL(url);
+      const data = response.data;
       get().updateInitialValues(mapPostValuesToInitialJsonValues(data));
     } catch (error) {
       set({
         error: 'Failed to load values from URL',
-        loading: false
       });
     }
   },
 
+  //when value is input field is changed make sure users know the new value is unchecked
   updateCurrentJsonFieldState: (field, value) => {
     const [level1, level2] = field.split('.');
     if (!level2) {
@@ -152,6 +128,7 @@ const useStore = create<State & Action>((set, get) => ({
     }
   },
 
+  //allow user to reset the app state to their preferred initial starting value from Cardano, URL, JSON file, or Transaction ID
   updateInitialValues: (importValue) => {
     set({resetForm: true});
     const newState = mapInitialJsonStateToCurrentJsonState(importValue);
@@ -176,15 +153,7 @@ const useStore = create<State & Action>((set, get) => ({
       currentJsonState: newState,
     });
   },
-  
-
-  changeSelectedTab: (tabName) => set({currentTab: tabName}),
-  changeSearchValue: (value) => set({searchValue: value}),
-  toggleMoreDetailsDrawer: (value) => set({drawerOpen: value}),
-
-  changeTableDetails: (rowName: string, parameterName?: string) => set({
-    selectedRowName: parameterName ? [rowName, parameterName] : [rowName]
-  }),
 }));
 
 export default useStore;
+

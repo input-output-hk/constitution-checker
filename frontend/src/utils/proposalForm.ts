@@ -1,8 +1,8 @@
 import { Resolver } from "react-hook-form";
-import { Field, FieldType } from "../components/InputGroup";
+import { Field, FieldType } from "../compositions/InputGroup";
 import { buildFormResolver } from "../utils/form";
 
-import type { ProposalForm } from "../types";
+import type { ProposalForm } from "../store/types";
 
 export const baseFormFields: Field[] = [
   {

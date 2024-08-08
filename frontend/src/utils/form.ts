@@ -1,7 +1,7 @@
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import { FieldType, Field } from "../components/InputGroup";
+import { FieldType, Field } from "../compositions/InputGroup";
 import * as Schema from "./schemas";
 
 import type { AnySchema, AnyObjectSchema } from "yup";

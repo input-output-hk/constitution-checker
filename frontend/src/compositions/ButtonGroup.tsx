@@ -1,14 +1,22 @@
+//React Imports
 import React, { useState } from 'react';
+
+//React form Imports
 import { useForm } from "react-hook-form";
+
+//Mui imports
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
-import CommonButton from "./CommonButton";
-import Input from './InputGroup/Input';
-import type { ImportForm } from "../types";
-import useStore from "../store";
-
 import DownloadIcon from "@mui/icons-material/Download";
 import GitHubIcon from '@mui/icons-material/GitHub';
+
+//Store imports
+import type { ImportForm } from "../store/types";
+import useStore from "../store/store";
+
+//local components
+import CommonButton from "../components/CommonButton";
+import Input from './InputGroup/Input';
 
 import {
   UrlField,
@@ -71,9 +79,7 @@ export default function PHAButtonGroup() {
         <Button
         key={index}
         onClick={handleButtonClick(index)}
-        sx={{ 
-          backgroundColor: index === importOption ? 'rgba(57, 82, 205, 0.12)' : '#fff',
-        }}
+        className={index === importOption ? 'selectedButton' : ''}
       >
         {button}
       </Button>
