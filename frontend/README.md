@@ -44,7 +44,7 @@ Contains MUI global theme styles and theme configuration for the project.
 #### Utils
 Contains utility functions such as validation helpers and other functions needed for the react form.
 
-### Setup
+## Setup
 
 Clone the repository and install the dependencies:
 
