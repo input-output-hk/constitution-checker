@@ -9,7 +9,7 @@ module Cardano.Constitution.Checker.Params.Definition (
 ) where
 
 import Blockfrost.Client (unQuantity)
-import Cardano.Constitution.Checker.Blockfrost
+import Cardano.Constitution.Checker.Blockfrost.Base
 import Cardano.Constitution.Checker.Params.Lookup ()
 import Cardano.Constitution.Checker.Params.Swagger ()
 import Cardano.Constitution.Checker.Params.Types

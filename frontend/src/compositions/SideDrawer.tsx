@@ -93,7 +93,7 @@ export default function SideDrawerLeft() {
     const [level1, level2] = name.split('.');
     let value = (validationResults as any)[level1];
     if (level2) value = value[level2];
-    if (value) return !value.summary;
+    if (value) return !value.summaryMandatory;
     return false;
   };
 

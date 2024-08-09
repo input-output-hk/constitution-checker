@@ -404,11 +404,12 @@ export default function GuardrailView() {
       result = result[field[1]];
     }
     if (result && result.guardrails && result.guardrails[guardrail] && result.guardrails[guardrail].result !== null) {
-      
-      if (!result.guardrails[guardrail].isMandatory) {
-        return result.guardrails[guardrail].result ? 'notMandatory' : 'inactive';
+      if (result.guardrails[guardrail].isMandatory && (result.guardrails[guardrail].result === false)) {
+        return 'inactive';
+      } else if ((result.guardrails[guardrail].isMandatory === false) && (result.guardrails[guardrail].result === false)) {
+        return 'notMandatory'
       } else {
-        return result.guardrails[guardrail].result ? 'active' : 'inactive';
+        return 'active';
       }
     } 
     return 'disabled';

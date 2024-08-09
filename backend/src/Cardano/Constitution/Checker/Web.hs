@@ -31,7 +31,6 @@ import Prelude as Haskell
 import qualified Data.Aeson as Aeson
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Map as Map
-import Debug.Trace (traceShow)
 
 homePage :: Bool -> CurrentParams -> ParamChecks' -> Text
 homePage viewParamsResult currentParams checks =
@@ -123,7 +122,7 @@ parameterProposedCell proposedValue =
 
 guardrailsTable :: SwapOOB -> ParamChecks' -> Filter -> Text
 guardrailsTable swapOOB' ParamChecks'{..} filterM =
-  traceShow filterM $ [textF|src/Cardano/Constitution/Checker/Web/Template/guardrails-table.html|]
+  [textF|src/Cardano/Constitution/Checker/Web/Template/guardrails-table.html|]
  where
   swapOOB = if swapOOB' then "true" else "false"
   checksResults =

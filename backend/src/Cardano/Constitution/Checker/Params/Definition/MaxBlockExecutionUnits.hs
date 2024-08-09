@@ -5,11 +5,14 @@
 
 module Cardano.Constitution.Checker.Params.Definition.MaxBlockExecutionUnits where
 
+import Cardano.Constitution.Checker.Params.Definition.Base
 import Cardano.Constitution.Checker.Params.Intervals
 import Cardano.Constitution.Checker.Params.Lookup ()
 import Cardano.Constitution.Checker.Params.Swagger ()
 import Cardano.Constitution.Checker.Params.Types
+
 import qualified Data.Map as Map
+
 import Prelude hiding (Rational)
 
 maxBlockExecutionUnits :: Param [Integer]
@@ -38,6 +41,10 @@ maxBlockExecutionUnits =
                 if val >= maxTxExecutionUnitsMem'
                   then Satisfied
                   else Unsatisfied "maxBlockExecutionUnits[memory] must not be less than maxTxExecutionUnits[memory]"
+        , ("NETWORK-01", "No individual network parameter **should** change more than once per two epochs")
+            `ShouldSatisfy` network01Check "maxBlockExecutionUnits" "memory"
+        , ("NETWORK-02", "Only one network parameter **should** be changed per epoch unless they are directly correlated")
+            `ShouldSatisfy` network02Check "maxBlockExecutionUnits" "memory" maxBlockExecutionUnitsNames
         ]
     , Scalar
         1
@@ -60,6 +67,10 @@ maxBlockExecutionUnits =
                 if val >= maxTxExecutionUnitsSteps'
                   then Satisfied
                   else Unsatisfied "maxBlockExecutionUnits[steps] must not be less than maxTxExecutionUnits[steps]"
+        , ("NETWORK-01", "No individual network parameter **should** change more than once per two epochs")
+            `ShouldSatisfy` network01Check "maxBlockExecutionUnits" "steps"
+        , ("NETWORK-02", "Only one network parameter **should** be changed per epoch unless they are directly correlated")
+            `ShouldSatisfy` network02Check "maxBlockExecutionUnits" "steps" maxBlockExecutionUnitsNames
         ]
     ]
 
