@@ -27,7 +27,7 @@ export type InputGroupProps<T extends FieldValues = any> = {
   getFieldState: UseFormGetFieldState<T>;
   getValues: UseFormGetValues<T>;
   setValue: UseFormSetValue<T>;
-  getError: (field: string) => boolean;
+  getError?: (field: string) => boolean;
 }
 
 export type InputProps<T extends FieldValues = any> = {
@@ -37,7 +37,7 @@ export type InputProps<T extends FieldValues = any> = {
   getFieldState: UseFormGetFieldState<T>;
   getValues: UseFormGetValues<T>;
   setValue: UseFormSetValue<T>;
-  getError: (field: string) => boolean;
+  getError?: (field: string) => boolean;
 }
 
 const InputGroup = (props: InputGroupProps) => {

@@ -16,3 +16,5 @@ export const GitHubRepository = yup.string()
   message: 'URL entered should be in the format - https://raw.githubusercontent.com/<username>/<filepath> .',
   excludeEmptyString: true 
 });
+
+export const TransactionID = yup.string();

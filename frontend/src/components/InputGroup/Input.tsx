@@ -9,7 +9,7 @@ import type { InputProps } from "./";
 const Input = (props: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const error = props.getFieldState(props.field.name, props.formState).error !== undefined || props.getError(props.field.name);
+  const error = props.getFieldState(props.field.name, props.formState).error !== undefined || props.getError?.(props.field.name);
 
   const handleFocus = (event: any) => {
     setIsFocused(true);
