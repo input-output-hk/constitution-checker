@@ -16,7 +16,8 @@ The frontend for this application was built using React, Typescript, Zustand, an
 
 The project follows a modular structure with a separation of concerns for better maintainability and scalability.
 
-my-frontend-project/
+```plaintext
+frontend/
 ├── public/
 ├── src/
 │   ├── components/
@@ -26,6 +27,7 @@ my-frontend-project/
 │   ├── utils/
 │   ├── App.tsx
 │   ├── index.tsx
+```
 
 #### Components
 Contains simple, reusable components.
@@ -42,7 +44,7 @@ Contains MUI global theme styles and theme configuration for the project.
 #### Utils
 Contains utility functions such as validation helpers and other functions needed for the react form.
 
-### Setup
+## Setup
 
 Clone the repository and install the dependencies:
 
