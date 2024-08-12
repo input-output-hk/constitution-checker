@@ -54,22 +54,22 @@ import qualified Data.Map as Map
 allParams :: [Param']
 allParams = map fromParamWithCurrentValues allParamsWithCurrentValues
 
-_fakeFetcher :: (Monoid_ a) => b -> a
+_fakeFetcher :: (Unsure_ a) => b -> a
 _fakeFetcher _ = unsure'
 
-class Monoid_ a where
+class Unsure_ a where
   unsure' :: a
 
-instance Monoid_ Integer where
+instance Unsure_ Integer where
   unsure' = -1
 
-instance Monoid_ Rational where
+instance Unsure_ Rational where
   unsure' = -1
 
-instance (Monoid_ a) => Monoid_ (Identity a) where
+instance (Unsure_ a) => Unsure_ (Identity a) where
   unsure' = Identity unsure'
 
-instance (Monoid_ a) => Monoid_ [a] where
+instance (Unsure_ a) => Unsure_ [a] where
   unsure' = []
 
 allParamsWithCurrentValues :: [ParamWithCurrentValue]
