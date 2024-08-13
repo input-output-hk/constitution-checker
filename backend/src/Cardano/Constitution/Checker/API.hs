@@ -13,22 +13,25 @@ import Cardano.Constitution.Checker.Checks hiding (description)
 import Cardano.Constitution.Checker.Context
 import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
-import Control.Lens hiding (Context (..), (.=))
+import Control.Lens hiding (Context (..), (.=), (<.>))
 import Data.Map (Map)
 import Data.Swagger as SWG hiding (URL)
 import Network.HTTP.Conduit (simpleHttp)
 import Servant.Swagger
 
 import Cardano.Constitution.Checker.Blockfrost
+import Cardano.Constitution.Checker.Blockfrost.Sync as Sync
 import Cardano.Constitution.Checker.Web
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Data.Aeson
+import Data.Aeson as Aeson
 import Data.String
-import Data.Text (Text, unpack)
+import Data.Text (Text, pack, unpack)
+import Network.Wai.Middleware.Cors
 import Servant.Client (BaseUrl, parseBaseUrl, showBaseUrl)
+import System.Directory (doesFileExist, listDirectory)
+import System.FilePath
 
 import qualified Data.Map as Map
-import Network.Wai.Middleware.Cors
 
 type API =
   "parameters"
@@ -38,6 +41,7 @@ type API =
        )
     :<|> "current-values" :> Get '[JSON] EpochParameters
     :<|> "transactions" :> Capture "transactionId" Text :> Get '[JSON] ParametersChange
+    :<|> "transactions" :> Get '[JSON] [Text]
 
 type StaticAPI = Raw
 
@@ -53,15 +57,27 @@ server ServerCaps{..} =
            )
             :<|> getAllCurrentParamsValues
             :<|> transactionHandler
+            :<|> getAllTransactionsHandler
          )
     :<|> serveDirectoryWebApp "./web"
  where
+  getAllTransactionsHandler :: Handler [Text]
+  getAllTransactionsHandler = do
+    let folder = dataPath </> proposalsFolder
+    files <- liftIO $ listDirectory folder
+    return $ map (pack . dropExtension) files
+
   transactionHandler :: Text -> Handler ParametersChange
   transactionHandler transactionId = do
-    resp <- liftIO $ getProposal transactionId
-    case resp of
-      Right (ProposalTx change) -> return change
-      Left err -> throwError err500{errBody = fromString err}
+    let filePath = dataPath </> proposalsFolder </> unpack transactionId <.> "json"
+    exists <- liftIO $ doesFileExist filePath
+    if not exists
+      then throwError err404{errBody = fromString "not found"}
+      else do
+        content <- liftIO $ readFile filePath
+        case Aeson.eitherDecode' $ fromString content of
+          Left err -> throwError err500{errBody = fromString err}
+          Right (ProposalTx params) -> return params
 
   getLatestEpochProtocolParams :: Map Epoch ProtocolParams -> Either String ProtocolParams
   getLatestEpochProtocolParams protocolParams =
@@ -115,7 +131,7 @@ fetchParamCheck :: URL -> Handler ParametersChange
 fetchParamCheck (URL baseUrl) = do
   -- Replace with your URL
   response <- simpleHttp $ showBaseUrl baseUrl
-  let jsonData = eitherDecode' response
+  let jsonData = Aeson.eitherDecode' response
   case jsonData of
     Right data' -> return data'
     Left err -> throwError err400{errBody = fromString err}
@@ -152,8 +168,9 @@ swaggerJson =
     & info . SWG.version .~ "0.1.0.0"
     & info . description ?~ "This is the API for the Constitution Checker."
 
-newtype ServerCaps = ServerCaps
-  { getProtocolParams :: IO (Map Epoch ProtocolParams)
+data ServerCaps = ServerCaps
+  { getProtocolParams :: !(IO (Map Epoch ProtocolParams))
+  , dataPath :: !FilePath
   }
 
 -- | Servant server for an API

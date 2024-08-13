@@ -11,8 +11,11 @@ import Control.Monad.Reader
 import Data.Map (Map)
 import Network.Wai.Handler.Warp
 
+dataFolder :: FilePath
+dataFolder = "data"
+
 monitor :: MVar (Map Epoch ProtocolParams) -> IO (Either IOError ThreadId)
-monitor mvar = runMonad startMonitoring' (SyncEnv "data" (liftIO . putStrLn))
+monitor mvar = runMonad startMonitoring' (SyncEnv dataFolder (liftIO . putStrLn))
  where
   runMonad m = runReaderT (runExceptT m)
   startMonitoring' = do
@@ -24,6 +27,7 @@ monitor mvar = runMonad startMonitoring' (SyncEnv "data" (liftIO . putStrLn))
     liftIO $ log' "Syncing parameters for the first time"
     initiateParamsFromFolder mvar
     syncParams firstEpoch mvar
+    _ <- syncAllProposals
     liftIO $ do
       log' "Starting monitoring"
       forkIO $ void $ runMonad (startMonitoring delaySeconds firstEpoch mvar) env
@@ -41,4 +45,5 @@ dummyServerCaps :: MVar (Map Epoch ProtocolParams) -> ServerCaps
 dummyServerCaps mvar =
   ServerCaps
     { getProtocolParams = readMVar mvar
+    , dataPath = dataFolder
     }
