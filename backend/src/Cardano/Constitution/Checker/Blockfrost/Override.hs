@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
@@ -17,6 +18,9 @@ module Cardano.Constitution.Checker.Blockfrost.Override (
   getLatestParams,
   getProposal,
   ProposalTx (..),
+  getProposalsInfo,
+  ProposalInfo (..),
+  GovernanceType (..),
 ) where
 
 import Data.Text (Text)
@@ -41,8 +45,48 @@ type ParamAPI =
                   :<|> "latest" :> "parameters" :> Get '[JSON] ProtocolParams
                )
          )
-          :<|> "governance" :> "proposals" :> Capture "txHash" Text :> "0" :> Get '[JSON] ProposalTx
+          :<|> "governance"
+            :> "proposals"
+            :> ( Capture "txHash" Text :> "0" :> Get '[JSON] Value
+                  :<|> QueryParam "page" Int :> Get '[JSON] [ProposalInfo]
+               )
        )
+
+data ProposalInfo = ProposalInfo
+  { propInfoTxHash :: !Text
+  , propInfoCertIndex :: !Int
+  , propInfoGovernanceType :: !GovernanceType
+  }
+  deriving (Eq, Show)
+
+instance FromJSON ProposalInfo where
+  parseJSON = withObject "ProposalInfo" $ \o -> do
+    txHash <- o .: "tx_hash"
+    certIndex <- o .: "cert_index"
+    governanceType <- o .: "governance_type"
+    pure $ ProposalInfo txHash certIndex governanceType
+
+data GovernanceType
+  = InfoAction
+  | NewConstitution
+  | NoConfidence
+  | NewCommittee
+  | TreasuryWithdrawals
+  | HardForkInitiation
+  | ParameterChange
+  | UnknownGovernanceType !Text
+  deriving (Eq, Show)
+
+instance FromJSON GovernanceType where
+  parseJSON = withText "GovernanceType" $ \case
+    "info_action" -> pure InfoAction
+    "new_constitution" -> pure NewConstitution
+    "no_confidence" -> pure NoConfidence
+    "new_committee" -> pure NewCommittee
+    "treasury_withdrawals" -> pure TreasuryWithdrawals
+    "hard_fork_initiation" -> pure HardForkInitiation
+    "parameter_change" -> pure ParameterChange
+    x -> pure $ UnknownGovernanceType x
 
 newtype ProposalTx = ProposalTx {unProposalTx :: ParametersChange}
   deriving (Eq, Show)
@@ -63,12 +107,18 @@ endpoints ::
   ( (Epoch -> ClientM ProtocolParams)
       :<|> ClientM ProtocolParams
   )
-    :<|> (Text -> ClientM ProposalTx)
+    :<|> ( (Text -> ClientM Value)
+            :<|> (Maybe Int -> ClientM [ProposalInfo])
+         )
 endpoints auth = do
   client api (Just auth)
 
 withClient ::
-  ( (((Epoch -> ClientM ProtocolParams) :<|> ClientM ProtocolParams) :<|> (Text -> ClientM ProposalTx)) ->
+  ( ( ((Epoch -> ClientM ProtocolParams) :<|> ClientM ProtocolParams)
+        :<|> ( (Text -> ClientM Value)
+                :<|> (Maybe Int -> ClientM [ProposalInfo])
+             )
+    ) ->
     ClientM b
   ) ->
   IO (Either String b)
@@ -94,7 +144,14 @@ getLatestParams = withClient $ \endpoints' -> do
   let (_ :<|> getLatestParams') :<|> _ = endpoints'
   getLatestParams'
 
-getProposal :: Text -> IO (Either String ProposalTx)
+getProposal :: Text -> IO (Either String Value)
 getProposal txHash = withClient $ \endpoints' -> do
-  let (_ :<|> _) :<|> getProposal' = endpoints'
+  let (_ :<|> _) :<|> (getProposal' :<|> _) = endpoints'
   getProposal' txHash
+
+type Page = Int
+
+getProposalsInfo :: Page -> IO (Either String [ProposalInfo])
+getProposalsInfo page = withClient $ \endpoints' -> do
+  let (_ :<|> _) :<|> (_ :<|> getProposalInfos') = endpoints'
+  getProposalInfos' $ Just page
