@@ -49,16 +49,13 @@ export default function MenuButton() {
       <CommonButton fullWidth={false} variant="text" text="Reset" onClick={handleClick} endIcon={<KeyboardArrowDownIcon />} />     
         <Menu
         id="demo-customized-menu"
-        MenuListProps={{'aria-labelledby': 'demo-customized-button',
-        }}
+        MenuListProps={{'aria-labelledby': 'demo-customized-button' }}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         elevation={0}
-        anchorOrigin={{ vertical: 'bottom',horizontal: 'right',
-        }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right',
-        }}>
+        anchorOrigin={{ vertical: 'bottom',horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
         <MenuItem onClick={handleResetInitialState} disableRipple>
           <EditIcon />
           Initial Values
