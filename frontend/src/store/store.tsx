@@ -23,13 +23,13 @@ export type Action = {
   updateCurrentJsonFieldState: (field: string, value: string) => void;
   postParametersProposal: (data: ProposalValues) => Promise<any>;
   updateValuesFromURL: (url: String) => Promise<any>;
-  updateValuesFromTID: (tID: string) => Promise<any>;
+  updateValuesFromTxID: (tID: string) => Promise<any>;
   updateValuesFromFile: (importValue: InitialJsonState) => void;
 };
 
 const useStore = create<State & Action>((set, get) => ({
   resetForm: false,
-  error: null,
+  error: 'null',
   currentTab: 'Proposal Parameters',
   drawerOpen: false,
   selectedRowName: [],
@@ -41,7 +41,7 @@ const useStore = create<State & Action>((set, get) => ({
 
   // Used only to fetch app state from Cardano
   fetchJsonInitialState: async () => {
-    set({ error: null, validationResults: undefined });
+    set({ error: 'null', validationResults: undefined });
     try {
       const response = await axios.get("http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/current-values");
       set({
@@ -110,7 +110,7 @@ const useStore = create<State & Action>((set, get) => ({
     }
   },
 
-  updateValuesFromTID: async (txID: String) => {
+  updateValuesFromTxID: async (txID: String) => {
     try {
       const response = await axios.get(`http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/transactions/${txID}`);
       const newState = {...get().cardanoJsonState!};

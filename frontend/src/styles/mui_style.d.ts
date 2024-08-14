@@ -55,9 +55,9 @@ declare module "@mui/material/styles" {
       root?: React.CSSProperties;
       styleOverrides?: ComponentsOverrides<Theme>['MuiBody'];
     }
-    MuiLoading?: {
+    MuiConditionalContainer?: {
       root?: React.CSSProperties;
-      styleOverrides?: ComponentsOverrides<Theme>['MuiLoading'];
+      styleOverrides?: ComponentsOverrides<Theme>['MuiConditionalContainer'];
     }
   }
   interface Palette {

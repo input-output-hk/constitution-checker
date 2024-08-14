@@ -1,8 +1,16 @@
-import { styled } from "@mui/material/styles";
+//React Imports
 import { useEffect } from "react";
-import useStore from "./store/store";
-import { useShallow } from 'zustand/react/shallow';
+
+//Mui imports
+import { styled } from "@mui/material/styles";
+import Typography from '@mui/material/Typography';
 import CircularProgress from "@mui/material/CircularProgress";
+
+//Store imports
+import { useShallow } from 'zustand/react/shallow';
+import useStore from "./store/store";
+
+//local components
 import SideDrawerLeft from "./compositions/SideDrawer";
 import TableContainer from "./compositions/Table/TableContainer";
 import MoreDetailsDrawer from "./compositions/MoreDetailsDrawer";
@@ -17,8 +25,8 @@ const Body = styled("div", {
   slot: 'Root',
 })``;
 
-const Loading = styled("div", {
-  name: "MuiLoading",
+const ConditionalContainer = styled("div", {
+  name: "MuiConditionalContainer",
   slot: 'Root',
 })``;
 
@@ -45,27 +53,22 @@ function App() {
     }
   }, [initialJsonState]);
 
+if (error) {
+  return <Body><ConditionalContainer><Typography variant="h4">{error}</Typography></ConditionalContainer></Body>
+}
+
 if (!validationResults) {
-    return <Body><Loading><CircularProgress /></Loading></Body>; 
+    return <Body><ConditionalContainer><CircularProgress /></ConditionalContainer></Body>; 
 }
 
   return (
     <Body>
       <Main>
-      {error && (
-        <Loading>
-          {error}
-        </Loading>
-      )}
-      {!error && (
-        <>
-          <SideDrawerLeft />
-          <TableContainer />
-          <MoreDetailsDrawer />
-        </>
-      )}
-    </Main>
-  </Body>
+        <SideDrawerLeft />
+        <TableContainer />
+        <MoreDetailsDrawer />
+      </Main>
+    </Body>
   );
 }
 

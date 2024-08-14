@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import App from '../App';
 import useStore from '../store/store'; 
@@ -14,7 +14,6 @@ describe('Test the useEffect hooks in app component are firing correctly', () =>
       fetchJsonInitialState,
     });
 
-    // Render the component
     render(<App />);
 
     // Wait for useEffect to run and ensure fetchJsonInitialState was called
@@ -24,7 +23,7 @@ describe('Test the useEffect hooks in app component are firing correctly', () =>
   });
 
   test('postParametersProposal is called when initialJsonState changes', async () => {
-    // Define the mock functions
+    // Define the mock function
     const postParametersProposal = jest.fn();
 
     // Update the mocked store with the mock function and initial state
@@ -33,7 +32,6 @@ describe('Test the useEffect hooks in app component are firing correctly', () =>
       initialJsonState: undefined, 
     });
 
-    // Render the component
     render(<App />);
 
     // Update state of mock store using the mock data
@@ -45,5 +43,34 @@ describe('Test the useEffect hooks in app component are firing correctly', () =>
     await waitFor(() => {
       expect(postParametersProposal).toHaveBeenCalledTimes(1);
     });
+  });
+});
+
+describe('Test that the loading and error states are displayed correctly', () => {
+  test('shows loading state when validationResults is undefined', () => {
+    // Set the initial state of the mock store
+    useStore.setState({
+      validationResults: undefined,
+      error: null,
+    });
+
+    render(<App />);
+
+    // Test if the CircularProgress component is displayed
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+  });
+
+  test('shows error state when there is an error', () => {
+    const errorMessage = 'Failed to fetch data';
+
+    // Set the initial state of the mock store
+    useStore.setState({
+      error: errorMessage,
+    });
+
+    render(<App />);
+
+    // Test if the error message is displayed
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 });

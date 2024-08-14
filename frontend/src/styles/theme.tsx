@@ -612,7 +612,7 @@ export const getTheme = (mode: 'light') => createTheme({
           }
         }
       },
-      MuiLoading: {
+      MuiConditionalContainer: {
         styleOverrides: {
           root: {
             display: 'flex',
