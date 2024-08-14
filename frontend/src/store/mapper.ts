@@ -1,4 +1,4 @@
-import type { InitialJsonState, CurrentJsonState, ProposalForm, ProposalValues, CurrentFieldState } from "../types";
+import type { InitialJsonState, CurrentJsonState, ProposalForm, ProposalValues, CurrentFieldState } from "./types";
 
 const numberToString = (value: number): string => value.toString();
 const rationalToString = (value: [number, number]): string => `${value[0]}/${value[1]}`;

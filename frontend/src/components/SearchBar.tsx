@@ -1,50 +1,39 @@
-import { styled, alpha } from "@mui/material/styles";
-import InputBase from "@mui/material/InputBase";
+//Mui imports
+import { styled } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
-import useStore from "../store";
+import InputBase from "@mui/material/InputBase";
 
-const Search = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  backgroundColor: alpha(theme.palette.containerLowest.main, 0.15),
-  maxWidth: '350px',
-  borderRadius: '20px',
-  border: `1px solid ${theme.palette.outline.main}`,
-  [theme.breakpoints.up('sm')]: {
-    width: 'auto',
-  },
-}));
+//Store imports
+import useStore from "../store/store";
 
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
+const Search = styled("div", {
+  name: "MuiSearch",
+  slot: 'Root',
+})``;
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  fontSize: '12px',
-  width: '100%',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 1),
-    // vertical padding + font size from searchIcon
-    paddingLeft: '1em',
-    transition: theme.transitions.create('width'),
-  },
-}));
+const SearchIconWrapper = styled("div", {
+  name: "MuiSearchIcon",
+  slot: 'Root',
+})``;
+
+const StyledInputBase = styled(InputBase, {
+  name: "MuiSearchInput",
+  slot: 'Root',
+})``;
 
 export default function SearchBar() {
-  const { searchValue, changeSearchValue } = useStore();
+  const { searchValue } = useStore(state => ({
+    searchValue: state.searchValue,
+  }));
 
   const handleCancelSearch = () => {
-    changeSearchValue('');
+    useStore.setState({searchValue: ''});
   }
 
   return (
     <Search>
-    <StyledInputBase placeholder="Search…" value={searchValue} onChange={e => changeSearchValue(e.target.value)} />
+    <StyledInputBase placeholder="Search…" value={searchValue} onChange={e => useStore.setState({searchValue: e.target.value})} />
     <SearchIconWrapper>
       {!searchValue ? <SearchIcon color='action'/> : <ClearOutlinedIcon color='action' onClick={handleCancelSearch}/>}
         

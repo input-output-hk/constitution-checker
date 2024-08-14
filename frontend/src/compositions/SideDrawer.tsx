@@ -1,17 +1,26 @@
+//React Imports
 import { useEffect } from "react";
+
+//React form Imports
 import { useForm } from "react-hook-form";
-import { Typography, Button, Toolbar, Drawer, Box } from "@mui/material";
 
-import MenuButton from "./MenuButton";
-import ButtonGroup from "./ButtonGroup";
-import InputGroup from "./InputGroup";
+//Mui imports
+import { styled } from "@mui/material/styles";
+import { Typography, Button, Toolbar, Drawer } from "@mui/material";
 
-import useStore from "../store";
-
+//Store imports
+import { useShallow } from 'zustand/react/shallow';
+import useStore from "../store/store";
 import {
   mapInitialJsonStateToProposalForm,
   mapProposalFormToProposalValues,
-} from "../utils/mapper";
+} from "../store/mapper";
+import type { ProposalForm } from "../store/types";
+
+//local components
+import MenuButton from "../components/MenuButton";
+import ButtonGroup from "./ButtonGroup";
+import InputGroup from "./InputGroup";
 
 import {
   baseFormFields,
@@ -23,10 +32,39 @@ import {
   resolver,
 } from '../utils/proposalForm';
 
-import type { ProposalForm } from "../types";
+const ScrollBar = styled("div", {
+  name: "MuiScrollBar",
+  slot: 'Root',
+})``;
+
+const SpBtwn = styled("div", {
+  name: "MuiSpBtwn",
+  slot: 'Root',
+})``;
+
+const ChildContain1 = styled("div", {
+  name: "MuiChildContain1",
+  slot: 'Root',
+})``;
+
+const ChildContain2 = styled("div", {
+  name: "MuiChildContain2",
+  slot: 'Root',
+})``;
+
+const PerContain = styled("div", {
+  name: "MuiPerContain",
+  slot: 'Root',
+})``;
 
 export default function SideDrawerLeft() {
-  const { resetForm, initialJsonState, validationResults, postParametersProposal, updateCurrentJsonFieldState } = useStore();
+  const { resetForm, initialJsonState, validationResults, postParametersProposal, updateCurrentJsonFieldState } = useStore(useShallow(state => ({
+    resetForm: state.resetForm,
+    initialJsonState: state.initialJsonState,
+    validationResults: state.validationResults,
+    postParametersProposal: state.postParametersProposal,
+    updateCurrentJsonFieldState: state.updateCurrentJsonFieldState
+  })));
 
   const defaultValues = initialJsonState ? mapInitialJsonStateToProposalForm(initialJsonState) : undefined;
   const { register, formState, getFieldState, getValues, setValue, watch, reset } = useForm<ProposalForm>({ defaultValues, resolver, mode: 'onChange' });
@@ -67,7 +105,7 @@ export default function SideDrawerLeft() {
   };
 
   return (
-    <div className="perDrawerContainer">
+    <PerContain>
       <Drawer
         variant="permanent"
         anchor="left"
@@ -78,26 +116,26 @@ export default function SideDrawerLeft() {
             </Typography>
         </Toolbar>
         
-          <div className="child1DrawerContainer">
-            <Box className="spBtwnDiv">
+          <ChildContain1>
+            <SpBtwn>
               <Typography variant={'h6'}>
                 Import Parameters
               </Typography>
               <MenuButton />
-            </Box>
+            </SpBtwn>
             <ButtonGroup />
             
-          </div>
+          </ChildContain1>
 
-          <div className="child2DrawerContainer">
-            <Box className="spBtwnDiv" >
+          <ChildContain2>
+            <SpBtwn>
               <Typography variant={'h6'}>
                 Change Parameter Value
               </Typography>
               <Button color='primary' variant='text' disableRipple disableFocusRipple onClick={handleRunCheck}>Run</Button>
-            </Box>
+            </SpBtwn>
 
-            <div className="scrollBar">
+            <ScrollBar>
               <InputGroup
                 fields={baseFormFields}
                 formState={formState}
@@ -107,7 +145,7 @@ export default function SideDrawerLeft() {
                 setValue={setValue}
                 getError={getError}
               />
-              <Typography variant={'body1'} sx={{marginTop: '8px'}}>
+              <Typography variant={'body1'}>
                 executionUnitPrices
               </Typography>
               <InputGroup
@@ -119,7 +157,7 @@ export default function SideDrawerLeft() {
                 setValue={setValue}
                 getError={getError}
               />
-              <Typography variant={'body1'} sx={{marginTop: '8px'}}>
+              <Typography variant={'body1'}>
                 maxTxExecutionUnits
               </Typography>
               <InputGroup
@@ -131,7 +169,7 @@ export default function SideDrawerLeft() {
                 setValue={setValue}
                 getError={getError}
               />
-              <Typography variant={'body1'} sx={{marginTop: '8px'}}>
+              <Typography variant={'body1'}>
                 maxBlockExecutionUnits
               </Typography>
               <InputGroup
@@ -143,7 +181,7 @@ export default function SideDrawerLeft() {
                 setValue={setValue}
                 getError={getError}
               />
-              <Typography variant={'body1'} sx={{marginTop: '8px'}}>
+              <Typography variant={'body1'}>
                 poolVotingThresholds
               </Typography>
               <InputGroup
@@ -155,7 +193,7 @@ export default function SideDrawerLeft() {
                 setValue={setValue}
                 getError={getError}
               />
-              <Typography variant={'body1'} sx={{marginTop: '8px'}}>
+              <Typography variant={'body1'}>
                 dRepVotingThresholds
               </Typography>
               <InputGroup
@@ -167,10 +205,10 @@ export default function SideDrawerLeft() {
                 setValue={setValue}
                 getError={getError}
               />
-            </div>
-          </div>
+            </ScrollBar>
+          </ChildContain2>
         
       </Drawer>
-    </div>
+    </PerContain>
   );
 }

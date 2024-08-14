@@ -1,10 +1,15 @@
+//React Imports
 import { useState, useRef } from "react";
+
+//Mui imports
 import { TextField, InputAdornment, Tooltip } from "@mui/material";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
-import IconButton from "../IconButton";
 
-import type { InputProps } from "./";
+//local components
+import IconButton from "../../components/IconButton";
+
+import type { InputProps } from ".";
 
 const Input = (props: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);

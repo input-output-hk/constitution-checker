@@ -1,30 +1,44 @@
+//Mui imports
+import { styled } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import NavTabs from "./NavTabs";
 import TableContainer from "@mui/material/TableContainer";
 import Paper from "@mui/material/Paper";
-import { Box } from "@mui/material";
-import CommonButton from "./CommonButton";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
-import SearchBar from "./SearchBar";
-import ParameterView from "./ParameterView";
-import GuardrailView from "./GuardrailView";
-import useStore from "../store";
 
+//Store imports
+import { useShallow } from 'zustand/react/shallow';
+import useStore from "../../store/store";
 import {
   mapCurrentJsonStateToExportParams
-} from "../utils/mapper";
+} from "../../store/mapper";
+
+//local components
+import NavTabs from "../../components/NavTabs";
+import CommonButton from "../../components/CommonButton";
+import SearchBar from "../../components/SearchBar";
+import ParameterView from "./ParameterView";
+import GuardrailView from "./GuardrailView";
+
+const TableBox = styled("div", {
+  name: "MuiTableBox",
+  slot: 'Root',
+})``;
+
+const TableBoxContainer = styled("div", {
+  name: "MuiTableBoxContainer",
+  slot: 'Root',
+})``;
 
 export default function BasicTable() {
-  const { currentTab, currentJsonState, validationResults, changeSelectedTab } = useStore(state => ({
+  const { currentTab, currentJsonState, validationResults } = useStore(useShallow(state => ({
     currentTab: state.currentTab,
     currentJsonState: state.currentJsonState,
-    validationResults: state.validationResults,
-    changeSelectedTab: state.changeSelectedTab,
-  }));
+    validationResults: state.validationResults
+  })));
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: string) => {
-    changeSelectedTab(newValue);
+    useStore.setState({currentTab: newValue});
   };
 
   const handleParamExport = () => {
@@ -56,7 +70,7 @@ export default function BasicTable() {
   }
 
   return (
-    <Box className="tableContainerBox">
+    <TableBoxContainer>
     <TableContainer component={Paper}>
     <AppBar position="static">
     <Toolbar>
@@ -69,11 +83,11 @@ export default function BasicTable() {
         
         <SearchBar/>
       </Toolbar>
-      <Box className='tableBox'>
+      <TableBox>
         {currentTab === 'Proposal Parameters' && <ParameterView />}
         {currentTab === 'Guardrails' && <GuardrailView />}
-      </Box>
+      </TableBox>
     </TableContainer>
-    </Box>
+    </TableBoxContainer>
   );
 }
