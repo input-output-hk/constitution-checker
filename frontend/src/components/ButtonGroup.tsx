@@ -25,10 +25,10 @@ const buttons = [
 export default function PHAButtonGroup() {
   const [importOption, setimportOption] = useState(0);
 
-  const { updateValuesFromFile, updateValuesFromURL, updateValuesFromTID } = useStore(state => ({
+  const { updateValuesFromFile, updateValuesFromURL, updateValuesFromTxID } = useStore(state => ({
     updateValuesFromFile: state.updateValuesFromFile,
     updateValuesFromURL: state.updateValuesFromURL,
-    updateValuesFromTID: state.updateValuesFromTID,
+    updateValuesFromTxID: state.updateValuesFromTxID,
   }));
 
   const { register, formState, getFieldState, getValues, setValue } = useForm<ImportForm>({ resolver, mode: 'onChange' });
@@ -64,7 +64,7 @@ export default function PHAButtonGroup() {
   }
 
   const handleTIDUpload = () => {
-    updateValuesFromTID(getValues('transactionID'));
+    updateValuesFromTxID(getValues('transactionID'));
   }
 
   return (

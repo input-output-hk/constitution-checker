@@ -24,7 +24,7 @@ export type Action = {
   updateCurrentJsonFieldState: (field: string, value: string) => void;
   postParametersProposal: (data: ProposalValues) => Promise<any>;
   updateValuesFromURL: (url: String) => Promise<any>;
-  updateValuesFromTID: (tID: string) => Promise<any>;
+  updateValuesFromTxID: (tID: string) => Promise<any>;
   updateValuesFromFile: (importValue: InitialJsonState) => void;
   fetchParametersByURL: (url: String) => Promise<any>;
   changeSelectedTab: (tabName: string) => void;
@@ -136,7 +136,7 @@ const useStore = create<State & Action>((set, get) => ({
     }
   },
 
-  updateValuesFromTID: async (tID: String) => {
+  updateValuesFromTxID: async (tID: String) => {
     try {
       const response = await axios.get(`http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/transactions/${tID}`);
       const newState = {...get().cardanoJsonState!};
