@@ -11,6 +11,7 @@ export type State = {
   drawerOpen: boolean;
   selectedRowName: string[];
   searchValue: string;
+  cardanoJsonState: InitialJsonState | undefined;
   initialJsonState: InitialJsonState | undefined;
   currentJsonState: CurrentJsonState | undefined;
   validationResults: ValidationResult | undefined;
@@ -22,6 +23,8 @@ export type Action = {
   updateCurrentJsonFieldState: (field: string, value: string) => void;
   postParametersProposal: (data: ProposalValues) => Promise<any>;
   updateValuesFromURL: (url: String) => Promise<any>;
+  updateValuesFromTID: (tID: string) => Promise<any>;
+  updateValuesFromFile: (importValue: InitialJsonState) => void;
 };
 
 const useStore = create<State & Action>((set, get) => ({
@@ -32,6 +35,7 @@ const useStore = create<State & Action>((set, get) => ({
   selectedRowName: [],
   searchValue: '',
   initialJsonState: undefined,
+  cardanoJsonState: undefined,
   currentJsonState: undefined,
   validationResults: undefined,
 
@@ -42,6 +46,7 @@ const useStore = create<State & Action>((set, get) => ({
       const response = await axios.get("http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/current-values");
       set({
         initialJsonState: response.data,
+        cardanoJsonState: response.data,
         currentJsonState: mapInitialJsonStateToCurrentJsonState(response.data),
       });
     } catch (error) {
@@ -105,6 +110,22 @@ const useStore = create<State & Action>((set, get) => ({
     }
   },
 
+  updateValuesFromTID: async (txID: String) => {
+    try {
+      const response = await axios.get(`http://ec2-16-171-11-232.eu-north-1.compute.amazonaws.com:8081/transactions/${txID}`);
+      const newState = {...get().cardanoJsonState!};
+      for (const k of Object.keys(response.data)) {
+        if ((newState as any)[k]) {
+          (newState as any)[k] = response.data[k];
+        } 
+      }
+      get().updateInitialValues(newState)
+    } catch (error) {
+      console.error("Failed to get values from transactionID:", error);
+      throw new Error("Failed to get values from transactionID");
+    }
+  },
+
   //when value is input field is changed make sure users know the new value is unchecked
   updateCurrentJsonFieldState: (field, value) => {
     const [level1, level2] = field.split('.');
@@ -128,9 +149,25 @@ const useStore = create<State & Action>((set, get) => ({
     }
   },
 
+  updateValuesFromFile: (importValue) => {
+    try {
+      const newState = {...get().cardanoJsonState!};
+      for (const k of Object.keys(importValue)) {
+        if ((newState as any)[k]) {
+          (newState as any)[k] = (importValue as any)[k];
+        } 
+      }
+      get().updateInitialValues(newState)
+    } catch (error) {
+      console.error("Failed to get values from local file:", error);
+      throw new Error("Failed to get values from local file");
+    }
+  },
+
   //allow user to reset the app state to their preferred initial starting value from Cardano, URL, JSON file, or Transaction ID
   updateInitialValues: (importValue) => {
     set({resetForm: true});
+
     const newState = mapInitialJsonStateToCurrentJsonState(importValue);
     const currentState = get().currentJsonState;
 

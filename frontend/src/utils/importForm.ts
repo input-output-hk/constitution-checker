@@ -14,7 +14,7 @@ export const UrlField = {
 export const TransactionIDField = {
   label: 'Transaction ID',
   tooltip: 'Enter in the transaction ID',
-  name: 'transactionId',
+  name: 'transactionID',
   type: FieldType.TransactionID,
 };
 
