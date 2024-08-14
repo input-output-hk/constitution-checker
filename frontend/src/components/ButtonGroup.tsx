@@ -25,9 +25,10 @@ const buttons = [
 export default function PHAButtonGroup() {
   const [importOption, setimportOption] = useState(0);
 
-  const { updateInitialValues, updateValuesFromURL } = useStore(state => ({
-    updateInitialValues: state.updateInitialValues,
+  const { updateValuesFromFile, updateValuesFromURL, updateValuesFromTID } = useStore(state => ({
+    updateValuesFromFile: state.updateValuesFromFile,
     updateValuesFromURL: state.updateValuesFromURL,
+    updateValuesFromTID: state.updateValuesFromTID,
   }));
 
   const { register, formState, getFieldState, getValues, setValue } = useForm<ImportForm>({ resolver, mode: 'onChange' });
@@ -45,7 +46,7 @@ export default function PHAButtonGroup() {
       reader.onload = (e) => {
         try {
           const json = JSON.parse(e.target?.result as string);
-          updateInitialValues(json); 
+          updateValuesFromFile(json); 
           (event.target as HTMLInputElement).value = '';
         } catch (error) {
           console.error("Error parsing JSON:", error);
@@ -55,13 +56,15 @@ export default function PHAButtonGroup() {
     }
   };
 
-  function getError() {
-    return false;
-  }
+ 
 
   const handleURLUpload = () => {
   const url = getValues('url'); 
   updateValuesFromURL(JSON.stringify(url));
+  }
+
+  const handleTIDUpload = () => {
+    updateValuesFromTID(getValues('transactionID'));
   }
 
   return (
@@ -97,21 +100,24 @@ export default function PHAButtonGroup() {
         getFieldState={getFieldState}
         getValues={getValues}
         setValue={setValue}
-        getError={getError}
       />
       <CommonButton fullWidth={true} text="Fetch Values from Github" startIcon={<GitHubIcon />} onClick={handleURLUpload} />
     </>
       }
     {importOption === 2 && 
-    <Input
-        field={TransactionIDField}
-        formState={formState}
-        register={register}
-        getFieldState={getFieldState}
-        getValues={getValues}
-        setValue={setValue}
-        getError={getError}
-      />}
+    <>
+      <Input
+          field={TransactionIDField}
+          formState={formState}
+          register={register}
+          getFieldState={getFieldState}
+          getValues={getValues}
+          setValue={setValue}
+        />
+        <CommonButton fullWidth={true} text="Fetch Values from TransactionID" startIcon={<DownloadIcon />} onClick={handleTIDUpload} />
+      </>
+      }
+      
     </>
   );
 }
