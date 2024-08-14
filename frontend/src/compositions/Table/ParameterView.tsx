@@ -1,10 +1,14 @@
+//Mui imports
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import BodyTableRow from "./BodyTableRow"
-import useStore from "../store";
+
+//Store imports
+import { useShallow } from 'zustand/react/shallow';
+import useStore from "../../store/store";
 
 const FIELDS = [
   ['txFeePerByte'],
@@ -55,7 +59,11 @@ const FIELDS = [
 ];
 
 export default function ParameterView() {
-  const { currentJsonState, validationResults, searchValue } = useStore();
+  const { currentJsonState, validationResults, searchValue } = useStore(useShallow(state => ({
+    currentJsonState: state.currentJsonState,
+    validationResults: state.validationResults,
+    searchValue: state.searchValue
+  })));
 
   const getName = (field: string[]) => {
     if (field.length === 1) {

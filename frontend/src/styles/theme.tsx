@@ -1,10 +1,10 @@
-import { createTheme } from "@mui/material/styles";
-import { lightModePalette, darkModePalette} from "./palette";
+import { createTheme, alpha, Theme  } from "@mui/material/styles";
+import { palette} from "./palette";
 
-export const getTheme = (mode: 'light' | 'dark',) => createTheme({
+export const getTheme = (mode: 'light') => createTheme({
     palette: {
         mode, 
-        ...(mode === "light" ? lightModePalette : darkModePalette),
+        ...palette,
     },
     typography: {
       fontFamily: "Poppins, sans-serif",
@@ -70,7 +70,13 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           }),
           h6: ({theme}) => ({
             color: theme.palette.onVariant.main,
+            '&.drawerh6': {
+              overflowWrap: 'anywhere'
+            }
           }),
+          body1: {
+            marginTop: '8px'
+          }
         },
       },
       MuiButton: {
@@ -81,6 +87,9 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
             boxShadow: "none",
             padding: "6px 10px",
             lineHeight: 'normal',
+            '&.selectedButton': {
+              background: 'rgba(57, 82, 205, 0.12)',
+            }
           },
           contained: ({ theme }) => ({
             backgroundColor: theme.palette.primary.main,
@@ -246,6 +255,12 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           fontSizeSmall: {
             width: '18px',
             height: '18px',
+            '&.circleIcon': {
+            width: '12px',
+            height: '12px',
+            verticalAlign: 'middle',
+            marginRight: '8px'
+           },
           },
         },
       },
@@ -312,6 +327,39 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
         styleOverrides: {
           root: ({ theme }) => ({
             borderColor: `${theme.palette.outlineVariant.main} !important`,
+            '&.drawerDivider': {
+              margin: '16px 0px',
+            },
+            '&.menuDivider': {
+              margin: '4px 0px',
+            }
+          })
+        },
+      },
+      MuiMenu: {
+        styleOverrides: {
+          paper: ({ theme }) => ({
+            borderRadius: '6px',
+            marginTop: '4px',
+            minWidth: '180px',
+            color: 'rgb(55, 65, 81)',
+            boxShadow: 'rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px',
+            '&.MuiMenu-list': {
+              padding: '4px 0px',
+            },
+            '& .MuiMenuItem-root': {
+              '& .MuiSvgIcon-root': {
+                fontSize: '18px',
+                color: 'rgba(0, 0, 0, 0.6) !important',
+                marginRight: '6px',
+              },
+              '&:active': {
+                backgroundColor: alpha(
+                  theme.palette.primary.main,
+                  theme.palette.action.selectedOpacity,
+                ),
+              },
+            }
           })
         },
       },
@@ -336,6 +384,9 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
               padding: '12px',
               justifyContent: 'space-between',
               alignItems: 'center'
+            },
+            '&.tableToolbar': {
+              justifyContent: 'space-between',
             }
           }),
         },
@@ -408,6 +459,11 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
           hover: ({ theme }) => ({
               backgroundColor: 'rgba(27, 27, 31, 0.1)',
           }),
+          root: {
+          '&:last-child td': {
+            border: 0
+          },
+          }
         },
       }, 
       MuiTableCell: {
@@ -420,6 +476,153 @@ export const getTheme = (mode: 'light' | 'dark',) => createTheme({
                 ), ${theme.palette.common.white}`,
           }),
         },
-      }, 
+      },
+      MuiSearch: {
+        styleOverrides: {
+          root: ({ theme }: {theme: Theme }) => ({
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: alpha(theme.palette.containerLowest.main, 0.15),
+            maxWidth: '350px',
+            borderRadius: '20px',
+            border: `1px solid ${theme.palette.outline.main}`,
+            [theme.breakpoints.up('sm')]: {
+              width: 'auto',
+            },
+          })
+        }
+      },
+      MuiSearchIcon: {
+        styleOverrides: {
+          root: ({ theme }: {theme: Theme }) => ({
+            padding: theme.spacing(0, 2),
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          })
+        }
+      },
+      MuiSearchInput: {
+        styleOverrides: {
+          root: ({ theme }: {theme: Theme }) => ({
+            width: '100%',
+            '& .MuiInputBase-input': {
+              padding: theme.spacing(1, 1, 1, 1),
+              // vertical padding + font size from searchIcon
+              paddingLeft: '1em',
+              transition: theme.transitions.create('width'),
+            },
+          })
+        }
+      },
+      MuiTableBox: {
+        styleOverrides: {
+          root: {
+            height: 'calc(100vh - 128px)',
+            overflowY: 'auto',
+          }
+        }
+      },
+      MuiTableBoxContainer: {
+        styleOverrides: {
+          root: {
+            height: '100vh',
+            minWidth: '720px',
+            padding: '16px',
+          }
+        }
+      },
+      MuiScrollBar: {
+        styleOverrides: {
+          root: {
+            height: '100%',
+            overflow: 'auto',
+            paddingRight: '16px',
+            paddingBottom: '48px',
+            paddingTop: '4px',
+          }
+        }
+      },
+      MuiScrollBar2: {
+        styleOverrides: {
+          root: {
+            height: '100vh',
+            overflow: 'auto',
+            padding: '16px',
+          }
+        }
+      },
+      MuiSpBtwn: {
+        styleOverrides: {
+          root: {
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingBottom: '4px',
+          }
+        }
+      },
+      MuiChildContain1: {
+        styleOverrides: {
+          root: {
+            padding: '12px 16px',
+          }
+        }
+      },
+      MuiChildContain2: {
+        styleOverrides: {
+          root: {
+            paddingTop: '12px',
+            paddingLeft: '16px', 
+            height: 'calc(100vh - 200px)'
+          }
+        }
+      },
+      MuiPerContain: {
+        styleOverrides: {
+          root: {
+            height: '100vh'
+          }
+        }
+      },
+      MuiMain: {
+        styleOverrides: {
+          root: {
+            display: 'grid',
+            gridTemplateColumns: '350px auto',
+            gridTemplateRows: '100vh',
+            background: `linear-gradient(
+              0deg, 
+              rgba(57, 82, 205, 0.04), 
+              rgba(57, 82, 205, 0.04)
+              ), #FEFBFF`,
+          }
+        }
+      },
+      MuiBody: {
+        styleOverrides: {
+          root: {
+            margin: 0,
+            background: `linear-gradient(
+              0deg, 
+              rgba(57, 82, 205, 0.04), 
+              rgba(57, 82, 205, 0.04)
+              ), #FEFBFF`,
+          }
+        }
+      },
+      MuiLoading: {
+        styleOverrides: {
+          root: {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh', 
+          }
+        }
+      },
     },
   });
+
+  

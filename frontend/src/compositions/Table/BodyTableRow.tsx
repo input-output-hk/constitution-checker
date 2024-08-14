@@ -1,9 +1,15 @@
+//Mui imports
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
-import CommonButton from "./CommonButton";
 import CircleIcon from "@mui/icons-material/Circle";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
-import useStore from "../store";
+
+//Store imports
+import { useShallow } from 'zustand/react/shallow';
+import useStore from "../../store/store";
+
+//local components
+import CommonButton from "../../components/CommonButton";
 
 interface PHATableRowProps {
   name: string;
@@ -23,28 +29,24 @@ const statusToColor = (status: string): "disabled" | "inherit" | "primary" | "se
 }
 
 export default function PHATableRow({name, status="disabled", value, parameter}: PHATableRowProps) {
-  const { currentTab, toggleMoreDetailsDrawer,changeTableDetails } = useStore(state => ({
-    currentTab: state.currentTab,
-    toggleMoreDetailsDrawer: state.toggleMoreDetailsDrawer,
-    changeTableDetails: state.changeTableDetails
-  }));
+  const { currentTab } = useStore(useShallow(state => ({
+    currentTab: state.currentTab
+  })));
   const iconColor = statusToColor(status);
 
   const handleOpenDrawer = () => {
-    toggleMoreDetailsDrawer(true);
+    useStore.setState({drawerOpen: true});
     if (parameter) {
-      changeTableDetails(name, parameter);
+      useStore.setState({selectedRowName: [name, parameter]});
     } else {
-      changeTableDetails(name);
+      useStore.setState({selectedRowName: [name]});
     }
   };
 
   return (
-    <TableRow
-      sx={{ '&:last-child td, &:last-child th': { border: 0 }, }}
-    >
+    <TableRow>
       <TableCell component="th" scope="row">
-      <CircleIcon color={iconColor} sx={{width: '12px', height: '12px', verticalAlign: 'middle', marginRight: '8px'}} />
+      <CircleIcon color={iconColor} className="circleIcon" />
         {name}
       </TableCell>
       {currentTab === 'Proposal Parameters' && <TableCell align="right">{value}</TableCell>}

@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import CssBaseline from "@mui/material/CssBaseline";
-import "./styles/index.css";
 import { ThemeModeProvider  } from "./styles/themeContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
