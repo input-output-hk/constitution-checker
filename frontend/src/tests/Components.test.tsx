@@ -1,7 +1,8 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import SaveIcon from '@mui/icons-material/Save';
 import PHACommonButton from '../components/CommonButton'; 
 import PHAIconButton from '../components/IconButton';
+import NavTabs from '../components/NavTabs';
 
 describe('PHACommonButton component tests', () => {
   test('renders with default props', () => { 
@@ -78,5 +79,45 @@ describe('PHAIconButton component tests', () => {
     fireEvent.click(iconButton);
 
     expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+});
+
+
+describe('NavTabs component tests', () => {
+  test('tabs render correctly with correct default selected props', () => { 
+    const handleClick = jest.fn();
+    render(<NavTabs value="Proposal Parameters" onChange={handleClick}/>);
+
+    expect(screen.getByRole('tablist')).toBeInTheDocument();
+    const tabElements = screen.getAllByRole('tab');
+    expect(screen.getByText('Proposal Parameters')).toBeInTheDocument(); 
+    expect(screen.getByText('Proposal Parameters')).toHaveClass('Mui-selected'); 
+    expect(tabElements[0]).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText('Guardrails')).toBeInTheDocument();
+    expect(tabElements[1]).toHaveAttribute('aria-selected', 'false');
+  });
+
+  test('tabs render props with second tab selected', () => { 
+    const handleClick = jest.fn();
+    render(<NavTabs value="Guardrails" onChange={handleClick}/>);
+
+    const tabElements = screen.getAllByRole('tab');
+    expect(tabElements[0]).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByText('Guardrails')).toHaveClass('Mui-selected'); 
+    expect(tabElements[1]).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('function called when tab clicked on', async () => { 
+    const changeTab = jest.fn();
+    render(<NavTabs value="Proposal Parameters" onChange={changeTab}/>);
+
+    expect(screen.getByText('Proposal Parameters')).toHaveAttribute('aria-selected', 'true');
+
+    await act(async () => {
+      screen.getByText(/guardrails/i).click();
+    });
+
+    expect(changeTab).toHaveBeenCalledTimes(1);
+    expect(changeTab).toHaveBeenCalledWith(expect.any(Object), 'Guardrails');
   });
 });
