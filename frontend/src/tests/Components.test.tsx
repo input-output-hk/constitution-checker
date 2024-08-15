@@ -1,7 +1,19 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+//React-testing-library imports
+import { render, screen, fireEvent, act } from '@testing-library/react';
+
+//Mui imports
 import SaveIcon from '@mui/icons-material/Save';
+
+//Store imports
+import useStore from '../store/store';
+
+//Mock imports
+import { mockInitialJsonState } from './mockData';
+
+//local components
 import PHACommonButton from '../components/CommonButton'; 
 import PHAIconButton from '../components/IconButton';
+import MenuButton from '../components/MenuButton';
 import NavTabs from '../components/NavTabs';
 
 describe('PHACommonButton component tests', () => {
@@ -83,6 +95,77 @@ describe('PHAIconButton component tests', () => {
 });
 
 
+describe('MenuButton component tests', () => {
+  test('renders child components when open', () => { 
+    render(<MenuButton />);
+    
+    const buttonElement = screen.getByText('Reset');
+    expect(buttonElement).toBeInTheDocument();
+    
+    fireEvent.click(buttonElement);
+
+    expect(screen.getByRole('menu', { hidden: true })).toBeInTheDocument();
+    expect(screen.getByText('Initial Values')).toBeInTheDocument();
+    expect(screen.getByText('Cardano State')).toBeInTheDocument();
+  });
+
+  test('opens the menu when the button is clicked', () => {
+    render(<MenuButton />);
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Reset'));
+
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+  });
+
+  test('closes the menu when a menu item is clicked', () => {
+    render(<MenuButton />);
+
+    fireEvent.click(screen.getByText('Reset'));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Initial Values'));
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  test('Initial values menu button calls expected state changes', () => {
+    const updateInitialValues = jest.fn();
+    const postParametersProposal = jest.fn();
+
+    useStore.setState({
+      initialJsonState: mockInitialJsonState,
+      updateInitialValues,
+      postParametersProposal,
+    });
+
+    render(<MenuButton />);
+    fireEvent.click(screen.getByText('Reset'));
+    fireEvent.click(screen.getByText('Initial Values'));
+
+    expect(updateInitialValues).toHaveBeenCalledTimes(1);
+    expect(postParametersProposal).toHaveBeenCalledTimes(1);
+  });
+
+  
+  test('Cardano state menu button calls expected state changes', () => {
+    const fetchJsonInitialState = jest.fn();
+
+    useStore.setState({
+      initialJsonState: mockInitialJsonState,
+      fetchJsonInitialState,
+    });
+
+    render(<MenuButton />);
+    fireEvent.click(screen.getByText('Reset'));
+    fireEvent.click(screen.getByText('Cardano State'));
+
+    expect(fetchJsonInitialState).toHaveBeenCalledTimes(1);
+  });
+});
+
+
 describe('NavTabs component tests', () => {
   test('tabs render correctly with correct default selected props', () => { 
     const handleClick = jest.fn();
@@ -110,8 +193,6 @@ describe('NavTabs component tests', () => {
   test('function called when tab clicked on', async () => { 
     const changeTab = jest.fn();
     render(<NavTabs value="Proposal Parameters" onChange={changeTab}/>);
-
-    expect(screen.getByText('Proposal Parameters')).toHaveAttribute('aria-selected', 'true');
 
     await act(async () => {
       screen.getByText(/guardrails/i).click();
