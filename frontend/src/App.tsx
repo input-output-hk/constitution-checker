@@ -1,5 +1,5 @@
 //React Imports
-import { useEffect } from "react";
+import { useEffect, useState  } from "react";
 
 //Mui imports
 import { styled } from "@mui/material/styles";
@@ -39,19 +39,25 @@ function App() {
     error: state.error,
   })));
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const initializeApp = async () => {
       await fetchJsonInitialState();
     };
-
     initializeApp();
   }, []);
 
   useEffect(() => {
     if (initialJsonState) {
       postParametersProposal(initialJsonState);
+      setLoading(false);
     }
   }, [initialJsonState]);
+
+if (loading) {
+  return <Body><ConditionalContainer><CircularProgress /></ConditionalContainer></Body>; 
+}
 
 if (error) {
   return <Body><ConditionalContainer><Typography variant="h4">{error}</Typography></ConditionalContainer></Body>

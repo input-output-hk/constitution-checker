@@ -5,7 +5,7 @@ import { mapInitialJsonStateToCurrentJsonState, mapPostValuesToInitialJsonValues
 import type { InitialJsonState, CurrentJsonState, ProposalValues, ValidationResult } from "./types";
 
 export type State = {
-  resetForm: boolean;
+  loadApp: boolean;
   error: null | string;
   currentTab: string;
   drawerOpen: boolean;
@@ -28,7 +28,7 @@ export type Action = {
 };
 
 const useStore = create<State & Action>((set, get) => ({
-  resetForm: false,
+  loadApp: false,
   error: 'null',
   currentTab: 'Proposal Parameters',
   drawerOpen: false,
@@ -166,7 +166,7 @@ const useStore = create<State & Action>((set, get) => ({
 
   //allow user to reset the app state to their preferred initial starting value from Cardano, URL, JSON file, or Transaction ID
   updateInitialValues: (importValue) => {
-    set({resetForm: true});
+    set({loadApp: true});
 
     const newState = mapInitialJsonStateToCurrentJsonState(importValue);
     const currentState = get().currentJsonState;

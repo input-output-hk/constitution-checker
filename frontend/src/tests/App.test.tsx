@@ -1,8 +1,15 @@
+//React-testing-library imports
 import { render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import App from '../App';
+
+//Store imports
 import useStore from '../store/store'; 
+
+//Mock imports
 import { mockInitialJsonState } from './mockData';
+
+//local components
+import App from '../App';
+
 
 describe('Test the useEffect hooks in app component are firing correctly', () => {
   test('fetchJsonInitialState is called once on component mount', async () => {
@@ -14,6 +21,7 @@ describe('Test the useEffect hooks in app component are firing correctly', () =>
       fetchJsonInitialState,
     });
 
+    // Render the component
     render(<App />);
 
     // Wait for useEffect to run and ensure fetchJsonInitialState was called
@@ -29,15 +37,10 @@ describe('Test the useEffect hooks in app component are firing correctly', () =>
     // Update the mocked store with the mock function and initial state
     useStore.setState({
       postParametersProposal,
-      initialJsonState: undefined, 
+      initialJsonState: mockInitialJsonState, 
     });
-
+    
     render(<App />);
-
-    // Update state of mock store using the mock data
-    useStore.setState({
-      initialJsonState: mockInitialJsonState,  
-    });
 
     // Wait for useEffect to run and ensure postParametersProposal was called
     await waitFor(() => {
@@ -60,17 +63,19 @@ describe('Test that the loading and error states are displayed correctly', () =>
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
-  test('shows error state when there is an error', () => {
+  test('shows error state when there is an error', async () => {
     const errorMessage = 'Failed to fetch data';
 
     // Set the initial state of the mock store
     useStore.setState({
       error: errorMessage,
-    });
+    });    
 
     render(<App />);
 
     // Test if the error message is displayed
-    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    });
   });
 });
