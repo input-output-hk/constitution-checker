@@ -15,6 +15,7 @@ import PHACommonButton from '../components/CommonButton';
 import PHAIconButton from '../components/IconButton';
 import MenuButton from '../components/MenuButton';
 import NavTabs from '../components/NavTabs';
+import SearchBar from '../components/SearchBar';
 
 describe('PHACommonButton component tests', () => {
   test('renders with default props', () => { 
@@ -200,5 +201,64 @@ describe('NavTabs component tests', () => {
 
     expect(changeTab).toHaveBeenCalledTimes(1);
     expect(changeTab).toHaveBeenCalledWith(expect.any(Object), 'Guardrails');
+  });
+});
+
+
+describe('SearchBar component tests', () => {
+  test('renders child components and initial props', () => { 
+    render(<SearchBar/>);
+    
+    const inputElement = screen.getByPlaceholderText('Search…');
+    expect(inputElement).toBeInTheDocument();
+    expect(inputElement).toHaveValue('');
+    const searchIcon = screen.getByTestId('SearchIcon');
+    expect(searchIcon).toBeInTheDocument();
+    const clearIcon = screen.queryByTestId('ClearOutlinedIcon');
+    expect(clearIcon).toBeNull();
+  });
+
+  test('update search value', () => { 
+    render(<SearchBar/>);
+    
+    act(() => {
+      useStore.setState({
+          searchValue: 'Find text',
+      });
+    });
+
+    const inputElement = screen.getByPlaceholderText('Search…');
+    expect(inputElement).toHaveValue('Find text');
+  });
+
+  test('update icon when value changes', () => {
+    useStore.setState({
+      searchValue: 'test text',
+    });
+
+    render(<SearchBar />);
+
+    const clearIcon = screen.getByTestId('ClearOutlinedIcon');
+    expect(clearIcon).toBeInTheDocument();
+
+    const searchIcon = screen.queryByTestId('SearchIcon');
+    expect(searchIcon).toBeNull();
+  });
+
+  test('clear search value', () => { 
+    render(<SearchBar/>);
+    
+    act(() => {
+      useStore.setState({
+          searchValue: 'Find text',
+      });
+    });
+
+    const inputElement = screen.getByPlaceholderText('Search…');
+    expect(inputElement).toHaveValue('Find text');
+
+    const clearIcon = screen.getByTestId('ClearOutlinedIcon'); 
+    fireEvent.click(clearIcon);
+    expect(inputElement).toHaveValue('');
   });
 });
