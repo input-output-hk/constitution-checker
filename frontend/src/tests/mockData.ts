@@ -63,7 +63,7 @@ export const mockInitialJsonState: InitialJsonState = {
 export const mockUpdateJsonState: InitialJsonState = {
   "0": 22,
   "1": 155381,
-  "2": 8,
+  "2": 8976,
   "3": 16384,
   "4": 1100,
   "5": 2000000,
@@ -118,7 +118,7 @@ export const mockUpdateJsonState: InitialJsonState = {
   "33": -1
 };
 
-export const validationResult: ValidationResult = {
+export const mockValidationResult: ValidationResult = {
   "collateralPercentage": {
     "guardrails": {
       "CP-01": {

@@ -1,15 +1,16 @@
 //React-testing-library imports
-import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 
 //Store imports
 import useStore from '../store/store';
 
 //Mock imports
-import { mockUpdateJsonState, validationResult } from './mockData';
+import { mockInitialJsonState, mockUpdateJsonState, mockValidationResult } from './mockData';
 
 //local components
 import PHAButtonGroup from '../compositions/ButtonGroup'; 
 import MoreDetailsDrawer from '../compositions/MoreDetailsDrawer';
+import SideDrawerLeft from '../compositions/SideDrawer';
 
 describe('PHAButtonGroup component tests', () => {
   test('renders child components with correct styles', () => { 
@@ -147,7 +148,7 @@ describe('MoreDetailsDrawer component tests', () => {
         expect(screen.getByTestId('CloseIcon')).toBeInTheDocument();
     });
 
-    test('open and close drawer', async () => {
+    test('close drawer', async () => {
         render(<MoreDetailsDrawer />);
 
         const paper = screen.getByRole('dialog');
@@ -160,6 +161,12 @@ describe('MoreDetailsDrawer component tests', () => {
         await waitFor(() => {
             expect(paper).toHaveStyle('visibility: hidden');
         });   
+    });
+
+    test('open drawer', async () => {
+        render(<MoreDetailsDrawer />);
+
+        const paper = screen.getByRole('dialog');           
 
         useStore.setState({ drawerOpen: true });
         await waitFor(() => {
@@ -169,7 +176,7 @@ describe('MoreDetailsDrawer component tests', () => {
 
     test('render Proposal Parameters details for txFeePerByte', () => {
         useStore.setState({
-            validationResults: validationResult
+            validationResults: mockValidationResult
         });
 
         render(<MoreDetailsDrawer />);
@@ -208,7 +215,7 @@ describe('MoreDetailsDrawer component tests', () => {
     
         render(<MoreDetailsDrawer />);
         
-        expect(screen.getByText('No details available')).toBeInTheDocument();
+        expect(screen.getByText('No details available')).toBeInTheDocument(); 
       });
 
       test('displays error message when selectedRowName is null', () => {
@@ -218,8 +225,79 @@ describe('MoreDetailsDrawer component tests', () => {
 
         render(<MoreDetailsDrawer />);
 
-        expect(screen.getByText(/No details available/i)).toBeInTheDocument();
+        expect(screen.getByText(/No details available/i)).toBeInTheDocument(); 
     });
   });
 
 
+
+describe('SideDrawerLeft component tests', () => {
+    beforeEach(() => {
+      useStore.setState({
+        initialJsonState: mockInitialJsonState, 
+        validationResults: mockValidationResult,
+      });
+    }); 
+  
+    test('renders correctly with child components', () => {
+      render(<SideDrawerLeft />);
+  
+      expect(screen.getByRole('presentation')).toBeInTheDocument();
+      expect(screen.getByRole('toolbar')).toBeInTheDocument();
+      expect(screen.getByText('Proposal Parameter Checker')).toBeInTheDocument();
+      expect(screen.getByText('Import Parameters')).toBeInTheDocument();
+      expect(screen.getByText('Change Parameter Value')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /run/i })).toBeInTheDocument();
+      expect(screen.getByLabelText(/txFeePerByte/i)).toBeInTheDocument();
+    });
+
+    test('resets form to correct default values when loadApp and initialJsonState are reset', async () => {
+        await act(async () => { 
+          useStore.setState({
+            loadApp: true,
+            initialJsonState: mockUpdateJsonState,
+          });
+        });
+    
+        render(<SideDrawerLeft />);
+    
+        await waitFor(() => {
+          expect(useStore.getState().loadApp).toBe(false);
+        });
+    
+        //check values in updated mock data have replaced initial mock data
+        expect(screen.getByDisplayValue(22)).toBeInTheDocument();
+        expect(screen.getByDisplayValue(8976)).toBeInTheDocument();
+      });
+
+      test('calls handleRunCheck when Run button is clicked and posts the correct data', async () => {
+        const postParametersProposal = jest.fn();
+
+        useStore.setState({
+            postParametersProposal,
+          });
+
+        render(<SideDrawerLeft />);
+    
+        const runButton = screen.getByText('Run');
+        fireEvent.click(runButton);
+        
+        expect(postParametersProposal).toHaveBeenCalledTimes(1);
+      });
+
+      test('form value update changes currentJsonState', async () => {
+        const updateCurrentJsonFieldState = jest.fn();
+
+        useStore.setState({
+            initialJsonState: mockInitialJsonState,
+            updateCurrentJsonFieldState,
+        });
+
+        render(<SideDrawerLeft />);
+
+        const inputField = screen.getByLabelText(/txFeePerByte/i);
+        fireEvent.change(inputField, { target: { value: '88' } });
+    
+        expect(useStore.getState().updateCurrentJsonFieldState).toHaveBeenCalledWith('txFeePerByte', '88');
+      });
+  });

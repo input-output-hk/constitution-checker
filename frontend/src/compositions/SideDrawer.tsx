@@ -109,8 +109,12 @@ export default function SideDrawerLeft() {
       <Drawer
         variant="permanent"
         anchor="left"
+        role="presentation"
+        PaperProps={{
+          role: "dialog"
+        }}
       >
-        <Toolbar>
+        <Toolbar role="toolbar">
             <Typography variant={'h5'}>
               Proposal Parameter Checker
             </Typography>
