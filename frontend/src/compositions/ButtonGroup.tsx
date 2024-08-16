@@ -64,8 +64,6 @@ export default function PHAButtonGroup() {
     }
   };
 
- 
-
   const handleURLUpload = () => {
   const url = getValues('url'); 
   updateValuesFromURL(JSON.stringify(url));
@@ -91,6 +89,7 @@ export default function PHAButtonGroup() {
     {importOption === 0 && 
     <CommonButton fullWidth={true} text="Upload local JSON file" startIcon={<DownloadIcon />} onClick={() => document.getElementById('file-upload')?.click()}/>}
     <input
+        aria-label='file'
         type="file"
         accept=".json"
         id="file-upload"
