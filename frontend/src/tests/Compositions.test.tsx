@@ -1,14 +1,15 @@
 //React-testing-library imports
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 
 //Store imports
 import useStore from '../store/store';
 
 //Mock imports
-import { mockInitialJsonState, mockUpdateJsonState } from './mockData';
+import { mockUpdateJsonState, validationResult } from './mockData';
 
 //local components
 import PHAButtonGroup from '../compositions/ButtonGroup'; 
+import MoreDetailsDrawer from '../compositions/MoreDetailsDrawer';
 
 describe('PHAButtonGroup component tests', () => {
   test('renders child components with correct styles', () => { 
@@ -53,7 +54,7 @@ describe('PHAButtonGroup component tests', () => {
 
     useStore.setState({
         updateValuesFromFile,
-      });
+    });
 
     render(<PHAButtonGroup/>);
 
@@ -77,7 +78,7 @@ describe('PHAButtonGroup component tests', () => {
     expect(updateValuesFromFile).toHaveBeenCalledWith(mockUpdateJsonState);
   });
 
-  test('url upload function is called and works as expected', () => { 
+  test('url upload function is called and works as expected', async () => { 
     const updateValuesFromURL = jest.fn();
 
     useStore.setState({
@@ -95,11 +96,14 @@ describe('PHAButtonGroup component tests', () => {
     const fetchButton = screen.getByRole('button', { name: /fetch values from github/i });
     fireEvent.click(fetchButton);
 
-    expect(updateValuesFromURL).toHaveBeenCalledWith(JSON.stringify('https://github.com/user/repo'));
+    
     expect(updateValuesFromURL).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+        expect(updateValuesFromURL).toHaveBeenCalledWith(JSON.stringify('https://github.com/user/repo'));
+    });
   });
 
-  test('transactionId upload function is called and works as expected', () => { 
+  test('transactionId upload function is called and works as expected', async () => { 
     const updateValuesFromTxID  = jest.fn();
 
     useStore.setState({
@@ -117,10 +121,105 @@ describe('PHAButtonGroup component tests', () => {
     const fetchButton = screen.getByRole('button', { name: /Fetch Values from TransactionID/i });
     fireEvent.click(fetchButton);
 
-    expect(updateValuesFromTxID ).toHaveBeenCalledWith('1234567890abcdef');
     expect(updateValuesFromTxID ).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+        expect(updateValuesFromTxID ).toHaveBeenCalledWith('1234567890abcdef');
+    });
   });
 });
 
+
+describe('MoreDetailsDrawer component tests', () => {
+    beforeEach(() => {
+      useStore.setState({
+        drawerOpen: true,
+        selectedRowName: ['txFeePerByte'],
+        currentTab: 'Proposal Parameters',
+      });
+    });
+  
+    test('renders correctly with child components', () => {
+        render(<MoreDetailsDrawer />);
+        
+        expect(screen.getByRole('presentation')).toBeInTheDocument();
+        expect(screen.getByRole('toolbar')).toBeInTheDocument();
+        expect(screen.getByRole('presentation')).toContainElement(screen.getByText(/txFeePerByte Details/));
+        expect(screen.getByTestId('CloseIcon')).toBeInTheDocument();
+    });
+
+    test('open and close drawer', async () => {
+        render(<MoreDetailsDrawer />);
+
+        const paper = screen.getByRole('dialog');
+        expect(paper).toBeInTheDocument();
+            
+        const closeIcon = screen.getByTestId('CloseIcon');
+        fireEvent.click(closeIcon);
+
+        useStore.setState({ drawerOpen: false });
+        await waitFor(() => {
+            expect(paper).toHaveStyle('visibility: hidden');
+        });   
+
+        useStore.setState({ drawerOpen: true });
+        await waitFor(() => {
+            expect(paper).toHaveStyle('visibility: visible');
+        }); 
+    });
+
+    test('render Proposal Parameters details for txFeePerByte', () => {
+        useStore.setState({
+            validationResults: validationResult
+        });
+
+        render(<MoreDetailsDrawer />);
+        
+        expect(screen.getByText('TFGEN-01')).toBeInTheDocument();
+        expect(screen.getByText('TFGEN-01 is null')).toBeInTheDocument();
+        expect(screen.getByText('TFGEN-02')).toBeInTheDocument();
+        expect(screen.getByText('TFPB-01')).toBeInTheDocument();
+        expect(screen.getByText('TFPB-01')).toHaveClass('MuiTypography-successText');
+        expect(screen.getByText('TFPB-01 is passing')).toBeInTheDocument();
+        expect(screen.getByText('TFPB-02')).toBeInTheDocument();
+        expect(screen.getByText('TFPB-02')).toHaveClass('MuiTypography-errorText');
+        expect(screen.getByText('TFPB-02 is mandatory and failing')).toBeInTheDocument();
+        expect(screen.getByText('TFPB-03')).toBeInTheDocument();
+        expect(screen.getByText('TFPB-03')).toHaveClass('MuiTypography-warningText');
+        expect(screen.getByText('TFPB-03 is not mandatory and failing')).toBeInTheDocument();
+      });
+
+      test('render Guardrails details for TFPB-01', () => {
+        useStore.setState({
+          currentTab: 'Guardrails',
+          selectedRowName: ['TFPB-01', 'txFeePerByte'],
+        });
+    
+        render(<MoreDetailsDrawer />);
+        
+        expect(screen.getByText('TFPB-01')).toBeInTheDocument();
+        expect(screen.getByText('TFPB-01')).toHaveClass('MuiTypography-successText');
+        expect(screen.getByText('TFPB-01 is passing')).toBeInTheDocument();
+      });
+
+      test('displays error message when validationResults is null', () => {
+        useStore.setState({
+            validationResults: undefined,
+        });
+    
+        render(<MoreDetailsDrawer />);
+        
+        expect(screen.getByText('No details available')).toBeInTheDocument();
+      });
+
+      test('displays error message when selectedRowName is null', () => {
+        useStore.setState({
+            selectedRowName: [],
+        });
+
+        render(<MoreDetailsDrawer />);
+
+        expect(screen.getByText(/No details available/i)).toBeInTheDocument();
+    });
+  });
 
 

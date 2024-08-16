@@ -189,12 +189,13 @@ export type GuardrailResult = {
   description: string;
   message: string | null;
   result: boolean | null;
-  resultMandatory: boolean | null;
+  isMandatory: boolean | null;
 };
 
 export type ParameterValidationResult = {
   guardrails: { [key: string]: GuardrailResult };
   summary: boolean;
+  summaryMandatory: boolean;
   value: number | number[] | { [key: string]: number[] };
 };
 

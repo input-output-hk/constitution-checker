@@ -33,7 +33,7 @@ export default function MoreDetailsDrawer() {
    
   const getRowDetails = () => {
     if (!validationResults || !selectedRowName || selectedRowName.length < 1) {
-      return null;
+      return <Typography>No details available</Typography>;
     }
 
     let rowDetails: any = validationResults;
@@ -118,8 +118,12 @@ export default function MoreDetailsDrawer() {
       variant="persistent"
       anchor="right"
       open={drawerOpen}
+      role="presentation"
+      PaperProps={{
+        role: "dialog"
+      }}
     >
-      <Toolbar className="spBtwnToolbar">
+      <Toolbar className="spBtwnToolbar" role="toolbar">
         <Typography variant={'h6'} className="drawerh6">
           {selectedRowName[0]} Details
         </Typography>
