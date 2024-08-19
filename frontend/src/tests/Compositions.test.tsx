@@ -1,16 +1,25 @@
 //React-testing-library imports
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 
+//React-hook-form import
+import { useForm } from 'react-hook-form';
+
 //Store imports
 import useStore from '../store/store';
+import { ImportForm } from '../store/types';
 
-//Mock imports
+//Mocks
 import { mockInitialJsonState, mockUpdateJsonState, mockValidationResult } from './mockData';
+
+//Utils and types
+import { UrlField } from '../utils/importForm';
 
 //local components
 import PHAButtonGroup from '../compositions/ButtonGroup'; 
 import MoreDetailsDrawer from '../compositions/MoreDetailsDrawer';
 import SideDrawerLeft from '../compositions/SideDrawer';
+import Input from '../compositions/InputGroup/Input';
+
 
 describe('PHAButtonGroup component tests', () => {
   test('renders child components with correct styles', () => { 
@@ -298,6 +307,88 @@ describe('SideDrawerLeft component tests', () => {
         const inputField = screen.getByLabelText(/txFeePerByte/i);
         fireEvent.change(inputField, { target: { value: '88' } });
     
-        expect(useStore.getState().updateCurrentJsonFieldState).toHaveBeenCalledWith('txFeePerByte', '88');
+        await act(async () => {
+          expect(useStore.getState().updateCurrentJsonFieldState).toHaveBeenCalledWith('txFeePerByte', '88');
+        });
       });
+  });
+
+
+  describe('Input Component Test', () => {
+    test('renders correctly with all child components', () => {
+  
+      const TestWrapperComponent = () => {
+        const { register, formState, getFieldState, getValues, setValue } = useForm<ImportForm>({ mode: 'onChange' });
+        return (
+          <Input
+            field={UrlField}
+            formState={formState}
+            register={register}
+            getFieldState={getFieldState}
+            getValues={getValues}
+            setValue={setValue}
+          />
+        );
+      };
+
+      render(<TestWrapperComponent />);
+  
+      expect(screen.getByLabelText('GitHub Repository')).toBeInTheDocument();
+      expect(screen.getByTestId('CancelOutlinedIcon')).toBeInTheDocument();
+    });
+
+    test('error causes expected component changes', () => {
+  
+      const TestWrapperComponent = () => {
+        const { register, formState, getFieldState, getValues, setValue } = useForm<ImportForm>({ mode: 'onChange' });
+
+        return (
+          <Input
+            field={UrlField}
+            formState={formState}
+            register={register}
+            getFieldState={getFieldState}
+            getValues={getValues}
+            setValue={setValue}
+            getError={() => true}
+          />
+        );
+      };
+
+      render(<TestWrapperComponent />);
+  
+      const textField = screen.getByLabelText('GitHub Repository');
+      expect(textField).toBeInvalid();
+
+      const errorIcon = screen.getByTestId('ErrorOutlineOutlinedIcon');
+      expect(errorIcon).toBeInTheDocument();
+    });
+
+    test('clear input functionality works correctly', () => {
+      const TestWrapperComponent = () => {
+        const { register, formState, getFieldState, getValues, setValue } = useForm<ImportForm>({
+          mode: 'onChange',
+          defaultValues: { [UrlField.name]: 'https://raw.githubusercontent.com/user/repo/main/file.json' },
+        });
+    
+        return (
+          <Input
+            field={UrlField}
+            formState={formState}
+            register={register}
+            getFieldState={getFieldState}
+            getValues={getValues}
+            setValue={setValue}
+          />
+        );
+      };
+    
+      render(<TestWrapperComponent />);
+    
+      const inputElement = screen.getByLabelText('GitHub Repository');
+      expect(inputElement).toHaveValue('https://raw.githubusercontent.com/user/repo/main/file.json');
+    
+      fireEvent.mouseDown(screen.getByTestId('CancelOutlinedIcon'));
+      expect(inputElement).toHaveValue('');
+    });
   });

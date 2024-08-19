@@ -13,7 +13,7 @@ export const Number = yup.number()
 
 export const GitHubRepository = yup.string()
 .matches(/^https:\/\/raw\.githubusercontent\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-\/]+\/[a-zA-Z0-9-]+\.[a-zA-Z0-9]+$/, {
-  message: 'URL entered should be in the format - https://raw.githubusercontent.com/<username>/<filepath> .',
+  message: 'URL entered should be in the format - https://raw.githubusercontent.com/<username>/<reponame>/<branch>/<filename>.json .',
   excludeEmptyString: true 
 });
 
