@@ -1,5 +1,5 @@
 // local import
-import type { InitialJsonState, ValidationResult } from '../store/types';
+import type { CurrentJsonState, InitialJsonState, ValidationResult } from '../store/types';
 
 // mock data
 export const mockInitialJsonState: InitialJsonState = {
@@ -116,6 +116,64 @@ export const mockUpdateJsonState: InitialJsonState = {
   "31": 500000000,
   "32": 20,
   "33": -1
+};
+
+export const mockCurrentJsonState: CurrentJsonState = {
+  txFeePerByte: {value: '44', checkStatus: 'checked'},
+  txFeeFixed: {value: '155381', checkStatus: 'checked'},
+  maxBlockBodySize: {value: '90112', checkStatus: 'checked'},
+  maxTxSize: {value: '16384', checkStatus: 'checked'},
+  maxBlockHeaderSize: {value: '1100', checkStatus: 'checked'},
+  stakeAddressDeposit: {value: '2000000', checkStatus: 'checked'},
+  stakePoolDeposit: {value: '500000000', checkStatus: 'checked'},
+  poolRetireMaxEpoch: {value: '18', checkStatus: 'checked'},
+  stakePoolTargetNum: {value: '500', checkStatus: 'checked'},
+  poolPledgeInfluence: {value: '3/10', checkStatus: 'checked'},
+  monetaryExpansion: {value: '3/1000', checkStatus: 'checked'},
+  treasuryCut: {value: '1/5', checkStatus: 'checked'},
+  minPoolCost: {value: '340000000', checkStatus: 'checked'},
+  utxoCostPerByte: {value: '4310', checkStatus: 'checked'},
+  maxValueSize: {value: '5000', checkStatus: 'checked'},
+  collateralPercentage: {value: '150', checkStatus: 'checked'},
+  maxCollateralInputs: {value: '3', checkStatus: 'checked'},
+  committeeMinSize: {value: '5', checkStatus: 'checked'},
+  committeeMaxTermLimit: {value: '146', checkStatus: 'checked'},
+  govActionLifetime: {value: '14', checkStatus: 'checked'},
+  govDeposit: {value: '100000000000', checkStatus: 'checked'},
+  dRepDeposit: {value: '500000000', checkStatus: 'checked'},
+  dRepActivity: {value: '20', checkStatus: 'checked'},
+  minFeeRefScriptCoinsPerByte: {value: '-1', checkStatus: 'checked'},
+  executionUnitPrices: {
+    priceMemory: {value: '577/10000', checkStatus: 'checked'},
+    priceSteps: {value: '721/10000000', checkStatus: 'checked'},
+  },
+  maxTxExecutionUnits: {
+    mem: {value: '14000000', checkStatus: 'checked'},
+    steps: {value: '10000000000', checkStatus: 'checked'},
+  },
+  maxBlockExecutionUnits: {
+    memory: {value: '62000000', checkStatus: 'checked'},
+    steps: {value: '20000000000', checkStatus: 'checked'},
+  },
+  poolVotingThresholds: {
+    committeeNoConfidence: {value: '13/20', checkStatus: 'checked'},
+    committeeNormal: {value: '13/20', checkStatus: 'checked'},
+    hardForkInitiation: {value: '51/100', checkStatus: 'checked'},
+    motionNoConfidence: {value: '3/5', checkStatus: 'checked'},
+    ppSecurityGroup: {value: '-1/1', checkStatus: 'checked'},
+  },
+  dRepVotingThresholds: {
+    committeeNoConfidence: {value: '13/20', checkStatus: 'checked'},
+    committeeNormal: {value: '67/100', checkStatus: 'checked'},
+    hardForkInitiation: {value: '3/5', checkStatus: 'checked'},
+    motionNoConfidence: {value: '67/100', checkStatus: 'checked'},
+    ppEconomicGroup: {value: '67/100', checkStatus: 'checked'},
+    ppGovernanceGroup: {value: '3/4', checkStatus: 'checked'},
+    ppNetworkGroup: {value: '67/100', checkStatus: 'checked'},
+    ppTechnicalGroup: {value: '67/100', checkStatus: 'checked'},
+    treasuryWithdrawal: {value: '67/100', checkStatus: 'checked'},
+    updateConstitution: {value: '3/4', checkStatus: 'checked'},
+  },
 };
 
 export const mockValidationResult: ValidationResult = {

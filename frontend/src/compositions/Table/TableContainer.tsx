@@ -77,7 +77,7 @@ export default function BasicTable() {
         <NavTabs value={currentTab} onChange={handleTabChange} />
     </Toolbar>
     </AppBar>
-    <Toolbar className="tableToolbar" variant='dense'>
+    <Toolbar className="tableToolbar" variant='dense' role="toolbar">
       {currentTab === 'Proposal Parameters' && <CommonButton text='Export Updated Proposal JSON' variant="outlined" startIcon={<SaveAltIcon />} onClick={handleParamExport} />}
       {currentTab === 'Guardrails' && <CommonButton text='Export Guardrail Results' variant="outlined" startIcon={<SaveAltIcon />} onClick={handleGuardrailExport} />}
         
