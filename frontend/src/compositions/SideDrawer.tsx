@@ -58,8 +58,8 @@ const PerContain = styled("div", {
 })``;
 
 export default function SideDrawerLeft() {
-  const { resetForm, initialJsonState, validationResults, postParametersProposal, updateCurrentJsonFieldState } = useStore(useShallow(state => ({
-    resetForm: state.resetForm,
+  const { loadApp, initialJsonState, validationResults, postParametersProposal, updateCurrentJsonFieldState } = useStore(useShallow(state => ({
+    loadApp: state.loadApp,
     initialJsonState: state.initialJsonState,
     validationResults: state.validationResults,
     postParametersProposal: state.postParametersProposal,
@@ -70,12 +70,12 @@ export default function SideDrawerLeft() {
   const { register, formState, getFieldState, getValues, setValue, watch, reset } = useForm<ProposalForm>({ defaultValues, resolver, mode: 'onChange' });
 
   useEffect(() => {
-    if (resetForm && initialJsonState) {
+    if (loadApp && initialJsonState) {
       const newDefaultValues = mapInitialJsonStateToProposalForm(initialJsonState);
       reset(newDefaultValues);
-      useStore.setState({ resetForm: false }); 
+      useStore.setState({ loadApp: false }); 
     }
-  }, [resetForm, initialJsonState, reset]);
+  }, [loadApp, initialJsonState, reset]);
 
   useEffect(() => {
     const subscription = watch((values, { name }) => {
@@ -109,8 +109,12 @@ export default function SideDrawerLeft() {
       <Drawer
         variant="permanent"
         anchor="left"
+        role="presentation"
+        PaperProps={{
+          role: "dialog"
+        }}
       >
-        <Toolbar>
+        <Toolbar role="toolbar">
             <Typography variant={'h5'}>
               Proposal Parameter Checker
             </Typography>

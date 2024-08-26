@@ -1,5 +1,9 @@
 # Constitution Checker Frontend Guide
 
+| Statements                  | Branches                | Functions                 | Lines             |
+| --------------------------- | ----------------------- | ------------------------- | ----------------- |
+| ![Statements](https://img.shields.io/badge/statements-87.38%25-green.svg?style=flat) | ![Branches](https://img.shields.io/badge/branches-78.65%25-yellow.svg?style=flat) | ![Functions](https://img.shields.io/badge/functions-86.41%25-green.svg?style=flat) | ![Lines](https://img.shields.io/badge/lines-86.66%25-green.svg?style=flat) |
+
 ## Table of Contents
 
 - [Introduction](#introduction)
