@@ -44,8 +44,8 @@ maxTxSize =
             Nothing -> Unsatisfied "maxTxSize not found"
     , ("MTS-06", "maxTxSize should not exceed 1/4 of the block size") `ShouldSatisfy` \ctx val ->
         case ctx.merged.byName.getInteger "maxBlockBodySize" of
-          Just maxBlockSize'
-            | val <= maxBlockSize' `div` 4 -> Satisfied
+          Just maxBlockBodySize'
+            | val <= maxBlockBodySize' `div` 4 -> Satisfied
             | otherwise -> Unsatisfied "maxTxSize must not exceed 1/4 of the block size"
           Nothing -> Unsatisfied "maxBlockBodySize not found"
     ]
