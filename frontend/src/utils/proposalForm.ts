@@ -146,12 +146,12 @@ const internalMaxTxExecutionUnitsFields: Field[] = [
   {
     label: 'mem',
     name: 'mem',
-    type: FieldType.Rational,
+    type: FieldType.Number,
     required: true,
   },{
     label: 'steps',
     name: 'steps',
-    type: FieldType.Rational,
+    type: FieldType.Number,
     required: true,
   },
 ];
@@ -160,12 +160,12 @@ const internalMaxBlockExecutionUnitsFields: Field[] = [
   {
     label: 'memory',
     name: 'memory',
-    type: FieldType.Rational,
+    type: FieldType.Number,
     required: true,
   },{
     label: 'steps',
     name: 'steps',
-    type: FieldType.Rational,
+    type: FieldType.Number,
     required: true,
   },
 ];
