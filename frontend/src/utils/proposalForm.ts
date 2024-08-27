@@ -132,12 +132,12 @@ const internalExecutionUnitPricesFields: Field[] = [
   {
     label: 'priceMemory',
     name: 'priceMemory',
-    type: FieldType.Rational,
+    type: FieldType.Number,
     required: true,
   },{
     label: 'priceSteps',
     name: 'priceSteps',
-    type: FieldType.Rational,
+    type: FieldType.Number,
     required: true,
   },
 ];
@@ -146,12 +146,12 @@ const internalMaxTxExecutionUnitsFields: Field[] = [
   {
     label: 'mem',
     name: 'mem',
-    type: FieldType.Rational,
+    type: FieldType.Number,
     required: true,
   },{
     label: 'steps',
     name: 'steps',
-    type: FieldType.Rational,
+    type: FieldType.Number,
     required: true,
   },
 ];
