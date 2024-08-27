@@ -47,7 +47,7 @@ maxTxSize =
           Just maxBlockSize'
             | val <= maxBlockSize' `div` 4 -> Satisfied
             | otherwise -> Unsatisfied "maxTxSize must not exceed 1/4 of the block size"
-          Nothing -> Unsatisfied "maxBlockSize not found"
+          Nothing -> Unsatisfied "maxBlockBodySize not found"
     ]
 
 -- Complete as of June 12, 2024
