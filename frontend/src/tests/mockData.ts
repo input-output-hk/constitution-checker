@@ -1533,7 +1533,7 @@ export const mockValidationResult: ValidationResult = {
   },
   "stakePoolDeposit": {
     "guardrails": {
-      "SDP-03": {
+      "SPD-03": {
         "description": "stakePoolDeposit must not be negative",
         "isMandatory": true,
         "message": null,

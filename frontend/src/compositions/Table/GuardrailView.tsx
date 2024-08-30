@@ -41,9 +41,9 @@ const FIELDS = [
   },{
     parameter: ['stakePoolDeposit'],
     guardrails: [
-      'SDP-01',
-      'SDP-02',
-      'SDP-03',
+      'SPD-01',
+      'SPD-02',
+      'SPD-03',
     ],
   },{
     parameter: ['minPoolCost'],
