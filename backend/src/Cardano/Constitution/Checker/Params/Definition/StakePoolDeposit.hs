@@ -20,7 +20,7 @@ stakePoolDeposit =
     -- 500_000_000
     [ ("SPD-01", "stakePoolDeposit must not be lower than 250,000,000 (250 ada)") `MustBe` NL 250_000_000
     , ("SPD-02", "stakePoolDeposit must not exceed 500,000,000 (500 ada)") `MustBe` NG 500_000_000
-    , ("SDP-03", "stakePoolDeposit must not be negative") `MustBe` NL 0
+    , ("SPD-03", "stakePoolDeposit must not be negative") `MustBe` NL 0
     ]
 
 -- Complete as of June 12, 2024
