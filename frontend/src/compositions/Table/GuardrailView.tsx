@@ -23,6 +23,15 @@ const FIELDS = [
       'TFGEN-02',
     ],
   },{
+    parameter: ['txFeeFixed'],
+    guardrails: [
+      'TFF-01',
+      'TFF-02',
+      'TFF-03',
+      'TFGEN-01',
+      'TFGEN-02',
+    ]
+  },{
     parameter: ['utxoCostPerByte'],
     guardrails: [
       'UCPB-01',
@@ -41,9 +50,9 @@ const FIELDS = [
   },{
     parameter: ['stakePoolDeposit'],
     guardrails: [
-      'SDP-01',
-      'SDP-02',
-      'SDP-03',
+      'SPD-01',
+      'SPD-02',
+      'SPD-03',
     ],
   },{
     parameter: ['minPoolCost'],
@@ -77,6 +86,8 @@ const FIELDS = [
       'EIUP-GEN-02',
       'EIUP-PM-01',
       'EIUP-PM-02',
+      'NETWORK-01',
+      'NETWORK-02',
     ],
   },{
     parameter: ['executionUnitPrices', 'priceSteps'],
@@ -85,6 +96,8 @@ const FIELDS = [
       'EIUP-GEN-02',
       'EIUP-PS-01',
       'EIUP-PS-02',
+      'NETWORK-01',
+      'NETWORK-02',
     ],
   },{
     parameter: ['minFeeRefScriptCoinsPerByte'],
@@ -101,7 +114,7 @@ const FIELDS = [
       'MBBS-02',
       'MBBS-03',
       'MBBS-04',
-      'MBBS-04',
+      'MBBS-05',
       'MBBS-06',
       'MBBS-07',
     ],
@@ -112,7 +125,7 @@ const FIELDS = [
       'MTS-02',
       'MTS-03',
       'MTS-04',
-      'MTS-04',
+      'MTS-05',
       'MTS-06',
     ],
   },{
@@ -122,18 +135,21 @@ const FIELDS = [
       'MBEU-M-02',
       'MBEU-M-03',
       'MBEU-M-04',
-      'MBEU-M-05',
+      // 'MBEU-M-05',
       'MEU-M-01',
+      'NETWORK-01',
+      'NETWORK-02',
     ],
   },{
     parameter: ['maxBlockExecutionUnits', 'steps'],
     guardrails: [
-      'MBEU-M-01',
-      'MBEU-M-02',
-      'MBEU-M-03',
-      'MBEU-M-04',
-      'MBEU-M-05',
-      'MEU-M-01',
+      'MBEU-S-01',
+      'MBEU-S-02',
+      'MBEU-S-03',
+      'MBEU-S-04',
+      'MEU-S-01',
+      'NETWORK-01',
+      'NETWORK-02',
     ],
   },{
     parameter: ['maxTxExecutionUnits', 'mem'],
@@ -142,6 +158,8 @@ const FIELDS = [
       'MTEU-M-02',
       'MTEU-M-03',
       'MTEU-M-04',
+      'NETWORK-01',
+      'NETWORK-02',
     ],
   },{
     parameter: ['maxTxExecutionUnits', 'steps'],
@@ -150,6 +168,8 @@ const FIELDS = [
       'MTEU-S-02',
       'MTEU-S-03',
       'MTEU-S-04',
+      'NETWORK-01',
+      'NETWORK-02',
     ],
   },{
     parameter: ['maxBlockHeaderSize'],
