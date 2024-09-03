@@ -19,7 +19,6 @@ Here is the list of guardrails we are currently checking for:
 - [ ] PARAM-06
 </details>
 
-
 ### Changes to Specific Economic Parameters
 
 #### Transaction fee per byte (txFeePerByte) and fixed transaction fee (txFeeFixed)
@@ -35,7 +34,6 @@ Here is the list of guardrails we are currently checking for:
 - [ ] TFGEN-01
 - [ ] TFGEN-02
 </details>
-
 
 #### UTxO cost per byte (utxoCostPerByte)
 <details>
@@ -118,6 +116,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] MFRS-03
 - [ ] MFRS-04
 </details>
+
 ## Network Parameters
 <details>
   <summary>2/2 checked</summary>
@@ -125,6 +124,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] NETWORK-01
 - [x] NETWORK-02
 </details>
+
 ### Changes to Specific Network Parameters
 
 #### Block Size (maxBlockBodySize)
@@ -139,6 +139,7 @@ Here is the list of guardrails we are currently checking for:
 - [ ] MBBS-06
 - [ ] MBBS-07
 </details>
+
 #### Transaction Size (maxTxSize)
 <details>
   <summary>5/6 checked</summary>
@@ -150,6 +151,7 @@ Here is the list of guardrails we are currently checking for:
 - [ ] MTS-05
 - [x] MTS-06
 </details>
+
 #### Memory Unit Limits (maxBlockExecutionUnits[memory], maxTxExecutionUnits[memory])
 <details>
   <summary>8/9 checked</summary>
@@ -164,6 +166,7 @@ Here is the list of guardrails we are currently checking for:
 - [ ] MBEU-M-04
 - [x] MEU-M-01
 </details>
+
 #### CPU Unit Limits (maxBlockExecutionUnits[steps], maxTxExecutionUnits[steps])
 <details>
   <summary>8/9 checked</summary>
@@ -178,6 +181,7 @@ Here is the list of guardrails we are currently checking for:
 - [ ] MBEU-S-04
 - [x] MEU-S-01
 </details>
+
 #### Block Header Size (maxBlockHeaderSize)
 <details>
   <summary>3/5 checked</summary>
@@ -188,6 +192,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] MBHS-04
 - [ ] MBHS-05
 </details>
+
 ## Technical/Security Parameters
 
 ### Changes to Specific Technical/Security Parameters
@@ -201,6 +206,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] SPTN-03
 - [x] SPTN-04
 </details>
+
 #### Pledge Influence Factor (poolPledgeInfluence)
 <details>
   <summary>3/4 checked</summary>
@@ -210,6 +216,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] PPI-03
 - [ ] PPI-04
 </details>
+
 #### Pool Retirement Window (poolRetireMaxEpoch)
 <details>
   <summary>2/2 checked</summary>
@@ -217,6 +224,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] PRME-01
 - [x] PRME-02
 </details>
+
 #### Collateral Percentage (collateralPercentage)
 <details>
   <summary>4/4 checked</summary>
@@ -226,12 +234,14 @@ Here is the list of guardrails we are currently checking for:
 - [x] CP-03
 - [x] CP-04
 </details>
+
 #### Maximum number of collateral inputs (maxCollateralInputs)
 <details>
   <summary>1/1 checked</summary>
 
 - [x] MCI-01
 </details>
+
 #### Maximum Value Size (maxValueSize)
 <details>
   <summary>4/5 checked</summary>
@@ -242,6 +252,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] MVS-04
 - [ ] MVS-05
 </details>
+
 #### Plutus Cost Models (costModels)
 <details>
   <summary>0/4 checked</summary>
@@ -251,6 +262,7 @@ Here is the list of guardrails we are currently checking for:
 - [ ] PCM-03
 - [ ] PCM-04
 </details>
+
 ## Governance Parameters
 
 ### Changes to Specific Governance Parameters
@@ -264,6 +276,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] GD-03
 - [ ] GD-04
 </details>
+
 #### Deposit for DReps (dRepDeposit)
 <details>
   <summary>3/4 checked</summary>
@@ -273,6 +286,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] DRD-03
 - [ ] DRD-04
 </details>
+
 #### DRep Activity Period (dRepActivity)
 <details>
   <summary>5/5 checked</summary>
@@ -283,6 +297,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] DRA-04
 - [x] DRA-05
 </details>
+
 #### DRep and SPO Governance Action Thresholds (dRepVotingThresholds[...],poolVotingThresholds[...])
 <details>
   <summary>7/7 checked</summary>
@@ -295,6 +310,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] VT-CC-01
 - [x] VT-NC-01
 </details>
+
 #### Governance Action Lifetime (govActionLifetime)
 <details>
   <summary>5/5 checked</summary>
@@ -305,6 +321,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] GAL-04
 - [x] GAL-05
 </details>
+
 #### Maximum Constitutional Committee Term (committeeMaxTermLimit)
 <details>
   <summary>5/5 checked</summary>
@@ -315,6 +332,7 @@ Here is the list of guardrails we are currently checking for:
 - [x] CMTL-04
 - [x] CMTL-05
 </details>
+
 #### The minimum size of the Constitutional Committee (committeeMinSize)
 <details>
   <summary>3/3 checked</summary>
