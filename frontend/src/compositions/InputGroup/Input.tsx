@@ -51,7 +51,7 @@ const Input = (props: InputProps) => {
           <InputAdornment position="end">
             {error && !isFocused ? (
               <Tooltip title={props.getFieldState(props.field.name, props.formState).error?.message}>
-                <ErrorOutlineOutlinedIcon />
+                <ErrorOutlineOutlinedIcon sx={{margin: '5px'}}/>
               </Tooltip>
             ) : (
               <IconButton
