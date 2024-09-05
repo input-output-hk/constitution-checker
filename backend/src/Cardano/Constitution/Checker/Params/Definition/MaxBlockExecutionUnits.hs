@@ -26,7 +26,7 @@ maxBlockExecutionUnits =
         [ ("MBEU-M-01", "maxBlockExecutionUnits[memory] must not exceed 120,000,000 units") `MustBe` NG 120_000_000
         , ("MBEU-M-02", "maxBlockExecutionUnits[memory] must not be negative") `MustBe` NL 0
         , ("MBEU-M-03", "maxBlockExecutionUnits[memory] should not be changed (increased or decreased) by more than 10,000,000 units in any epoch") `ShouldSatisfy` \ctx val ->
-            case Map.lookup "mem" $ ctx.merged.byName.getIntegers "maxBlockExecutionUnits" of
+            case Map.lookup "memory" $ ctx.merged.byName.getIntegers "maxBlockExecutionUnits" of
               Nothing -> Unsatisfied "maxBlockExecutionUnits[memory] not found"
               Just maxBlockExecutionUnitsMem' ->
                 if abs (val - maxBlockExecutionUnitsMem') <= 10_000_000
