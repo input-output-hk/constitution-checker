@@ -43,11 +43,11 @@ maxTxSize =
               | otherwise -> Unsatisfied $ "maxTxSize should not be increased by more than 2,560 Bytes in any epoch. Your change was for " <> show (val - maxTxSize') <> " Bytes"
             Nothing -> Unsatisfied "maxTxSize not found"
     , ("MTS-06", "maxTxSize should not exceed 1/4 of the block size") `ShouldSatisfy` \ctx val ->
-        case ctx.merged.byName.getInteger "maxBlockSize" of
-          Just maxBlockSize'
-            | val <= maxBlockSize' `div` 4 -> Satisfied
+        case ctx.merged.byName.getInteger "maxBlockBodySize" of
+          Just maxBlockBodySize'
+            | val <= maxBlockBodySize' `div` 4 -> Satisfied
             | otherwise -> Unsatisfied "maxTxSize must not exceed 1/4 of the block size"
-          Nothing -> Unsatisfied "maxBlockSize not found"
+          Nothing -> Unsatisfied "maxBlockBodySize not found"
     ]
 
 -- Complete as of June 12, 2024
