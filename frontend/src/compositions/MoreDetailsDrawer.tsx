@@ -103,7 +103,7 @@ export default function MoreDetailsDrawer() {
             <div key={key}>
               <Typography variant={variant}>{key}</Typography>
               <Typography variant='body1'>
-                {value.description}
+                {value.result === false ? `${value.message}` : value.description}           
               </Typography>
               <Divider className="drawerDivider" />
             </div>
