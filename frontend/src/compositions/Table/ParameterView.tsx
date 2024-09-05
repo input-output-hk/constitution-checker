@@ -108,10 +108,10 @@ export default function ParameterView() {
   };
 
   const filteredFields = searchValue
-    ? FIELDS.filter(field => 
-        getName(field).toLowerCase().includes(searchValue.toLowerCase())
-      )
-    : FIELDS;
+  ? FIELDS.filter(field => 
+      getName(field).toLowerCase().replace(/\s+/g, '').includes(searchValue.toLowerCase().trim().replace(/\s+/g, ''))
+    )
+  : FIELDS;
 
   return (
     <Table size="small" aria-label="simple table" stickyHeader>

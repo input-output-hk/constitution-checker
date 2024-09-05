@@ -436,10 +436,15 @@ export default function GuardrailView() {
   };
 
   const filteredFields = searchValue
-    ? FIELDS.filter(field => 
-      getParameter(field.guardrails).toLowerCase().includes(searchValue.toLowerCase())
-      )
-    : FIELDS;
+  ? FIELDS.map(field => {
+      const matchedGuardrails = field.guardrails.filter(guardrail => 
+        guardrail.replace(/\s+/g, '').toLowerCase().includes(searchValue.toLowerCase().trim().replace(/\s+/g, ''))
+      );
+      return matchedGuardrails.length > 0 
+        ? { ...field, guardrails: matchedGuardrails } 
+        : null;
+    }).filter(field => field !== null)
+  : FIELDS;
 
   return (
     <Table size="small" aria-label="simple table" stickyHeader>
@@ -452,7 +457,7 @@ export default function GuardrailView() {
       </TableHead>
       <TableBody>
         {filteredFields.map((field, fieldIndex) => (
-          field.guardrails.map((guardrail, guardrailIndex) => (
+          field && field.guardrails.map((guardrail, guardrailIndex) => (
             <BodyTableRow
               key={`${fieldIndex}.${guardrailIndex}`}
               name={guardrail}
