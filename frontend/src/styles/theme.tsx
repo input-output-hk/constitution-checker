@@ -244,7 +244,7 @@ export const getTheme = (mode: 'light') => createTheme({
         },
         styleOverrides: {
           colorSecondary: {
-            color: '#C1CD39',
+            color: '#CD8939',
           },
           colorAction: ({ theme }) => ({
             color: theme.palette.onVariant.main,
@@ -459,11 +459,6 @@ export const getTheme = (mode: 'light') => createTheme({
           hover: ({ theme }) => ({
               backgroundColor: 'rgba(27, 27, 31, 0.1)',
           }),
-          root: {
-          '&:last-child td': {
-            border: 0
-          },
-          }
         },
       }, 
       MuiTableCell: {

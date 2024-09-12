@@ -116,7 +116,7 @@ export default function SideDrawerLeft() {
       >
         <Toolbar role="toolbar">
             <Typography variant={'h5'}>
-              Proposal Parameter Checker
+              Proposal Parameter Guardrail Checker
             </Typography>
         </Toolbar>
         
@@ -136,7 +136,7 @@ export default function SideDrawerLeft() {
               <Typography variant={'h6'}>
                 Change Parameter Value
               </Typography>
-              <Button color='primary' variant='text' disableRipple disableFocusRipple onClick={handleRunCheck}>Run</Button>
+              <Button sx={{marginRight: '16px'}} color='primary' variant='outlined' disableRipple disableFocusRipple onClick={handleRunCheck}>Run</Button>
             </SpBtwn>
 
             <ScrollBar>
