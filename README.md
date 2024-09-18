@@ -9,7 +9,7 @@ Here is the list of guardrails we are currently checking for:
 
 ## GUARDRAILS AND GUIDELINES ON PROTOCOL PARAMETER UPDATE ACTIONS (1/6)
 <details>
-  <summary>1/6 checked</summary>
+  <summary>4/6 checked</summary>
   
 - [x] PARAM-01
 - [x] PARAM-02
