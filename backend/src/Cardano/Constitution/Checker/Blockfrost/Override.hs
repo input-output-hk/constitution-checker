@@ -5,8 +5,10 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -20,6 +22,7 @@ module Cardano.Constitution.Checker.Blockfrost.Override (
   ProposalTx (..),
   getProposalsInfo,
   ProposalInfo (..),
+  ProposalDetails (..),
   GovernanceType (..),
 ) where
 
@@ -32,6 +35,8 @@ import Data.Aeson
 import Data.Proxy
 
 import Cardano.Constitution.Checker.Types (ParametersChange)
+import Control.Lens hiding (Context, (.=))
+import Data.Swagger hiding (Header, Https)
 import Network.HTTP.Client.TLS
 import Servant.API
 import Servant.Client
@@ -52,6 +57,20 @@ type ParamAPI =
                )
        )
 
+data ProposalDetails = ProposalDetails
+  { propDetailsTxHash :: !Text
+  , propDetailsRatifiedEpoch :: !(Maybe Epoch)
+  , propDetailsDroppedEpoch :: !(Maybe Epoch)
+  , propDetailsEnactedEpoch :: !(Maybe Epoch)
+  , propDetailsExpiration :: !(Maybe Epoch)
+  , propDetailsExpiredEpoch :: !(Maybe Epoch)
+  , propDetailsReturnAddress :: !(Maybe Text)
+  , propDetailsAnchorHash :: !(Maybe Text)
+  , propDetailsAnchorUrl :: !(Maybe Text)
+  , propDetailsCertIndex :: !Int
+  , propDetailsDeposit :: !Lovelaces
+  }
+
 data ProposalInfo = ProposalInfo
   { propInfoTxHash :: !Text
   , propInfoCertIndex :: !Int
@@ -59,12 +78,67 @@ data ProposalInfo = ProposalInfo
   }
   deriving (Eq, Show)
 
+instance ToSchema ProposalDetails where
+  declareNamedSchema _ = do
+    textSchema <- declareSchemaRef (Proxy :: Proxy Text)
+    intSchema <- declareSchemaRef (Proxy :: Proxy Int)
+    lovelacesSchema <- declareSchemaRef (Proxy :: Proxy String)
+
+    return $
+      NamedSchema (Just "ProposalDetails") $
+        mempty
+          & type_ ?~ SwaggerObject
+          & properties
+            .~ [ ("tx_hash", textSchema)
+               , ("ratified_epoch", intSchema)
+               , ("dropped_epoch", intSchema)
+               , ("enacted_epoch", intSchema)
+               , ("expiration", intSchema)
+               , ("expired_epoch", intSchema)
+               , ("return_address", textSchema)
+               , ("anchor_hash", textSchema)
+               , ("anchor_url", textSchema)
+               , ("cert_index", intSchema)
+               , ("deposit", lovelacesSchema)
+               ]
+          & required .~ ["tx_hash", "cert_index", "deposit"]
+
+instance FromJSON ProposalDetails where
+  parseJSON = withObject "ProposalInfo" $ \o ->
+    ProposalDetails
+      <$> o .: "tx_hash"
+      <*> o .:? "ratified_epoch"
+      <*> o .:? "dropped_epoch"
+      <*> o .:? "enacted_epoch"
+      <*> o .:? "expiration"
+      <*> o .:? "expired_epoch"
+      <*> o .:? "return_address"
+      <*> o .:? "anchor_hash"
+      <*> o .:? "anchor_url"
+      <*> o .: "cert_index"
+      <*> o .: "deposit"
+
+instance ToJSON ProposalDetails where
+  toJSON ProposalDetails{..} =
+    object
+      [ "tx_hash" .= propDetailsTxHash
+      , "ratified_epoch" .= propDetailsRatifiedEpoch
+      , "dropped_epoch" .= propDetailsDroppedEpoch
+      , "enacted_epoch" .= propDetailsEnactedEpoch
+      , "expiration" .= propDetailsExpiration
+      , "expired_epoch" .= propDetailsExpiredEpoch
+      , "return_address" .= propDetailsReturnAddress
+      , "anchor_hash" .= propDetailsAnchorHash
+      , "anchor_url" .= propDetailsAnchorUrl
+      , "cert_index" .= propDetailsCertIndex
+      , "deposit" .= propDetailsDeposit
+      ]
 instance FromJSON ProposalInfo where
-  parseJSON = withObject "ProposalInfo" $ \o -> do
-    txHash <- o .: "tx_hash"
-    certIndex <- o .: "cert_index"
-    governanceType <- o .: "governance_type"
-    pure $ ProposalInfo txHash certIndex governanceType
+  parseJSON = withObject "ProposalInfo" $ \o ->
+    ProposalInfo
+      <$> o .: "tx_hash"
+      <*> o .: "cert_index"
+      <*> o .: "governance_type"
 
 data GovernanceType
   = InfoAction
