@@ -3,7 +3,7 @@
 Constitution checker is a web-based tool that checks the constitutionality of a Parameter Update Proposal.
 It implements checks for the guardrails from the [Constitution](https://raw.githubusercontent.com/IntersectMBO/interim-constitution/main/cardano-constitution-0.txt).
 
-We are currently checking for 113 out of the 143 guardrails. If you would like to help us complete the list, please feel free to contribute.
+We are currently checking for 116 out of the 143 guardrails. If you would like to help us complete the list, please feel free to contribute.
 
 Here is the list of guardrails we are currently checking for:
 
@@ -11,11 +11,11 @@ Here is the list of guardrails we are currently checking for:
 <details>
   <summary>1/6 checked</summary>
   
-- [ ] PARAM-01
+- [x] PARAM-01
 - [x] PARAM-02
-- [ ] PARAM-03
+- [x] PARAM-03
 - [ ] PARAM-04
-- [ ] PARAM-05
+- [x] PARAM-05
 - [ ] PARAM-06
 </details>
 
