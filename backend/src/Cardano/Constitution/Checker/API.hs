@@ -41,6 +41,7 @@ type API =
        )
     :<|> "current-values" :> Get '[JSON] EpochParameters
     :<|> "transactions" :> Capture "transactionId" Text :> Get '[JSON] ParametersChange
+    :<|> "transactions" :> Capture "transactionId" Text :> "details" :> Get '[JSON] ProposalDetails
     :<|> "transactions" :> Get '[JSON] [Text]
 
 type StaticAPI = Raw
@@ -57,6 +58,7 @@ server ServerCaps{..} =
            )
             :<|> getAllCurrentParamsValues
             :<|> transactionHandler
+            :<|> transactionDetailsHandler
             :<|> getAllTransactionsHandler
          )
     :<|> serveDirectoryWebApp "./web"
@@ -67,8 +69,8 @@ server ServerCaps{..} =
     files <- liftIO $ listDirectory folder
     return $ map (pack . dropExtension) files
 
-  transactionHandler :: Text -> Handler ParametersChange
-  transactionHandler transactionId = do
+  transactionsHandlerGen :: (FromJSON a) => (a -> b) -> Text -> Handler b
+  transactionsHandlerGen f transactionId = do
     let filePath = dataPath </> proposalsFolder </> unpack transactionId <.> "json"
     exists <- liftIO $ doesFileExist filePath
     if not exists
@@ -77,7 +79,13 @@ server ServerCaps{..} =
         content <- liftIO $ readFile filePath
         case Aeson.eitherDecode' $ fromString content of
           Left err -> throwError err500{errBody = fromString err}
-          Right (ProposalTx params) -> return params
+          Right x -> return $ f x
+
+  transactionDetailsHandler :: Text -> Handler ProposalDetails
+  transactionDetailsHandler = transactionsHandlerGen id
+
+  transactionHandler :: Text -> Handler ParametersChange
+  transactionHandler = transactionsHandlerGen unProposalTx
 
   getLatestEpochProtocolParams :: Map Epoch ProtocolParams -> Either String ProtocolParams
   getLatestEpochProtocolParams protocolParams =

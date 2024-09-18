@@ -20,21 +20,24 @@ import Control.Exception (SomeException)
 import Control.Monad.Catch (MonadCatch, catchAll)
 import Control.Monad.IO.Class
 import Control.Monad.Reader
+import Data.Aeson (FromJSON)
 import Data.ByteString.Lazy.Char8
 import Data.Foldable as Haskell
 import Data.Map (Map)
 import Data.Maybe
+import Data.Set (Set, fromList, member)
 import Data.String
+import Data.Text (Text)
 import System.Directory (createDirectoryIfMissing, listDirectory)
 import System.Directory.Internal.Prelude (exitFailure)
 import System.FilePath
+import Text.Read (readEither)
 import Prelude as Haskell
 
 import qualified Data.Aeson as Aeson
 import qualified Data.Map as Map
 import qualified Data.Text as Text
 import qualified System.Directory as Haskell
-import Text.Read (readEither)
 
 type SyncMonad env m =
   ( MonadError IOError m
@@ -81,6 +84,7 @@ startMonitoring delayInSeconds firstEpoch mvar = do
         log' $ "Sleeping for " <> show delayInSeconds <> " seconds"
         threadDelay delayInMicroseconds
       syncParams firstEpoch mvar
+      resyncOldProposals
       syncAllProposals
   delayInMicroseconds = delayInSeconds * 1000000
 
@@ -209,13 +213,13 @@ getLastProposalPageStored :: (SyncMonad env m) => m (Maybe Int)
 getLastProposalPageStored = do
   path <- asks getPath
   log' <- asks getLogger
-  let filePath = path </> lastProposalPage
-  exists <- liftIO $ Haskell.doesFileExist filePath
-  liftIO $ log' $ "Last proposal page file (" <> filePath <> ") exists: " <> show exists
+  let filePath' = path </> lastProposalPage
+  exists <- liftIO $ Haskell.doesFileExist filePath'
+  liftIO $ log' $ "Last proposal page file (" <> filePath' <> ") exists: " <> show exists
   if not exists
     then pure Nothing
     else do
-      content <- liftIO $ Haskell.readFile filePath
+      content <- liftIO $ Haskell.readFile filePath'
       case readEither content of
         Left err -> do
           liftIO $ log' $ "Error reading last proposal page: " <> err <> " for content: " <> content
@@ -234,21 +238,68 @@ syncAllProposals = do
   lastPage <- getLastProposalPageStored
   liftIO $ log' $ "Last page stored: " <> show lastPage
 
-  syncProposalPages (fromMaybe 0 lastPage + 1) []
+  alreadyStored <- fromList <$> listAllProposalsHashFromDirectory
+  syncProposalPages alreadyStored (fromMaybe 0 lastPage) []
 
 getProposalFromFile :: (SyncMonad env m) => Text.Text -> m (Maybe ProposalTx)
-getProposalFromFile hash' = do
+getProposalFromFile = getProposalFromFileGen
+
+getProposalDetailsFromFile :: (SyncMonad env m) => Text.Text -> m (Maybe ProposalDetails)
+getProposalDetailsFromFile = getProposalFromFileGen
+
+listAllProposalsHashFromDirectory :: (SyncMonad env m) => m [Text.Text]
+listAllProposalsHashFromDirectory = do
   path <- asks getPath
-  let filePath = path </> proposalsFolder </> Text.unpack hash' <.> "json"
-  exists <- liftIO $ Haskell.doesFileExist filePath
-  if not exists
+  files' <- liftIO $ listDirectory $ path </> proposalsFolder
+  -- remove extension
+  pure $ Haskell.map (Text.pack . Haskell.takeWhile (/= '.')) files'
+
+listAllProposalsFromDirectory :: (SyncMonad env m) => m [ProposalDetails]
+listAllProposalsFromDirectory = do
+  hashes <- listAllProposalsHashFromDirectory
+  forM hashes \hash' -> do
+    infoM <- getProposalDetailsFromFile hash'
+    maybe
+      (throwError $ userError $ "Error reading proposal info from file: " <> show hash')
+      pure
+      infoM
+
+resyncOldProposals :: (SyncMonad env m) => m ()
+resyncOldProposals = do
+  log' <- asks getLogger
+  liftIO $ log' "Resyncing old proposals"
+  -- get all proposals from the folder
+  allDetails <- listAllProposalsFromDirectory
+  -- filter only the pending ones
+  let allPendingDetails = Haskell.filter justPending allDetails
+  forM_ allPendingDetails \details -> do
+    let hash' = propDetailsTxHash details
+    fetchAndSaveProposal (hash' :: Text.Text)
+ where
+  justPending ProposalDetails{..} =
+    case (propDetailsEnactedEpoch, propDetailsDroppedEpoch) of
+      (Nothing, Nothing) -> True
+      _otherwise -> False
+
+getProposalFromFileGen :: forall a env m. (SyncMonad env m, FromJSON a) => Text.Text -> m (Maybe a)
+getProposalFromFileGen hash' = do
+  path <- asks getPath
+  let filePath' = path </> proposalsFolder </> Text.unpack hash' <.> "json"
+  exist <- liftIO $ Haskell.doesFileExist filePath'
+  if doesn't exist
     then pure Nothing
     else do
-      content <- liftIO $ Haskell.readFile filePath
-      liftEither $ mapLeft userError $ Aeson.eitherDecode' $ fromString content
+      -- read the file
+      content <- liftIO $ Haskell.readFile filePath'
+      -- decode the content
+      let decoded = Aeson.eitherDecode' $ fromString content
+      Just <$> liftEither (mapLeft userError decoded)
 
-syncProposalPages :: (SyncMonad env m) => Int -> [ProposalInfo] -> m [ProposalInfo]
-syncProposalPages page' acc = do
+doesn't :: Bool -> Bool
+doesn't = not
+
+syncProposalPages :: (SyncMonad env m) => Set Text -> Int -> [ProposalInfo] -> m [ProposalInfo]
+syncProposalPages alreadyStored page' acc = do
   log' <- asks getLogger
   liftIO $ log' $ "Fetching proposals page: " <> show page'
   proposals <- liftAndMapLeft userError $ liftIO (getProposalsInfo page')
@@ -258,29 +309,34 @@ syncProposalPages page' acc = do
       pure acc
     _otherwise -> do
       -- TODO: filter out
-      let filtered = Haskell.filter ((== ParameterChange) . propInfoGovernanceType) proposals
-      forM_ filtered fetchAndSaveProposal
+
+      let isParameterChange = (== ParameterChange) . propInfoGovernanceType
+          notInAlreadyStored = not . (`member` alreadyStored) . propInfoTxHash
+          filtered = Haskell.filter (\x -> isParameterChange x && notInAlreadyStored x) proposals
+      forM_ filtered (fetchAndSaveProposal . propInfoTxHash)
 
       -- save the page
       saveProposalPage
 
       -- fetch next page
-      syncProposalPages (page' + 1) (acc <> filtered)
+      syncProposalPages alreadyStored (page' + 1) (acc <> filtered)
  where
-  fetchAndSaveProposal ProposalInfo{..} = do
-    log' <- asks getLogger
-    -- fetch the proposal
-    value <- liftAndMapLeft userError $ liftIO (getProposal propInfoTxHash)
-    liftIO $ log' $ "Fetched proposal " <> show propInfoTxHash
-    let bs = Aeson.encode value
-    -- save the proposal
-    path <- asks getPath
-    let filePath = path </> proposalsFolder </> Text.unpack propInfoTxHash <> ".json"
-    liftIO $ Haskell.writeFile filePath $ unpack bs
   saveProposalPage = do
     -- this also has to fetch the proposals
     path <- asks getPath
     liftIO $ Haskell.writeFile (path </> lastProposalPage) (show page')
+
+fetchAndSaveProposal :: (SyncMonad env m) => Text.Text -> m ()
+fetchAndSaveProposal hash' = do
+  log' <- asks getLogger
+  -- fetch the proposal
+  value <- liftAndMapLeft userError $ liftIO (getProposal hash')
+  liftIO $ log' $ "Fetched proposal " <> show hash'
+  let bs = Aeson.encode value
+  -- save the proposal
+  path <- asks getPath
+  let filePath = path </> proposalsFolder </> Text.unpack hash' <> ".json"
+  liftIO $ Haskell.writeFile filePath $ unpack bs
 
 -- fetchProposalPage 1
 -- containers
