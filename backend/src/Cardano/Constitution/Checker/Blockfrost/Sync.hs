@@ -102,6 +102,7 @@ updateMap m p = Map.insert (_protocolParamsEpoch p) p m
 
 initiateParamsFromFolder :: (SyncMonad env m) => MVar (Map Epoch ProtocolParams) -> m ()
 initiateParamsFromFolder mvar = do
+  ensureFolderExistence epochFolder
   protocolParams <- readAllEpochs
   log' <- asks getLogger
   liftIO $
@@ -119,12 +120,16 @@ getLastStoredEpoch' = do
   ret <- mapLeft (userError . show) <$> liftIO (withProject getLatestEpoch)
   _epochInfoEpoch <$> liftEither ret
 
+ensureFolderExistence :: (SyncMonad env m) => FilePath -> m ()
+ensureFolderExistence folder = do
+  path <- asks getPath
+  liftIO $ createDirectoryIfMissing True $ path </> folder
+
 -- sync all folders and returns new fetched params
 syncAllParams :: (SyncMonad env m) => Epoch -> m [ProtocolParams]
 syncAllParams firstEpoch = do
   -- ensure folder exists
-  path <- asks getPath
-  liftIO $ createDirectoryIfMissing True $ path </> epochFolder
+  ensureFolderExistence epochFolder
 
   -- 1. get the last epoch
   latestEpoch <- liftIO getLastStoredEpoch'
@@ -228,12 +233,9 @@ getLastProposalPageStored = do
 
 syncAllProposals :: (SyncMonad env m) => m [ProposalInfo]
 syncAllProposals = do
-  -- ensure folder exists
   log' <- asks getLogger
-  path <- asks getPath
-
-  liftIO $ createDirectoryIfMissing True $ path </> proposalsFolder
-
+  -- ensure folder exists
+  ensureFolderExistence proposalsFolder
   -- get last page stored
   lastPage <- getLastProposalPageStored
   liftIO $ log' $ "Last page stored: " <> show lastPage
