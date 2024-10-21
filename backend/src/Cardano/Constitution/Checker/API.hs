@@ -1,6 +1,10 @@
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Cardano.Constitution.Checker.API where
@@ -14,7 +18,7 @@ import Cardano.Constitution.Checker.Context
 import Cardano.Constitution.Checker.Params.Types
 import Cardano.Constitution.Checker.Types
 import Control.Lens hiding (Context (..), (.=), (<.>))
-import Data.Map (Map)
+import Data.Map (Map, elems)
 import Data.Swagger as SWG hiding (URL)
 import Network.HTTP.Conduit (simpleHttp)
 import Servant.Swagger
@@ -31,6 +35,7 @@ import Servant.Client (BaseUrl, parseBaseUrl, showBaseUrl)
 import System.Directory (doesFileExist, listDirectory)
 import System.FilePath
 
+import qualified Data.Aeson.KeyMap as KM
 import qualified Data.Map as Map
 
 type API =
@@ -41,7 +46,7 @@ type API =
        )
     :<|> "current-values" :> Get '[JSON] EpochParameters
     :<|> "transactions" :> Capture "transactionId" Text :> Get '[JSON] ParametersChange
-    :<|> "transactions" :> Capture "transactionId" Text :> "details" :> Get '[JSON] ProposalDetails
+    :<|> "transactions" :> Capture "transactionId" Text :> "details" :> Get '[JSON] ProposalDetailsWithCheck
     :<|> "transactions" :> Get '[JSON] [Text]
 
 type StaticAPI = Raw
@@ -49,6 +54,33 @@ type StaticAPI = Raw
 type FullApi = HtmxAPI :<|> API :<|> StaticAPI
 
 newtype URL = URL BaseUrl
+
+data ProposalDetailsWithCheck = ProposalDetailsWithCheck
+  { proposalDetails :: !ProposalDetails
+  , proposalDetailsValid :: !Bool
+  }
+
+instance ToJSON ProposalDetailsWithCheck where
+  toJSON ProposalDetailsWithCheck{..} = Object (x <> y)
+   where
+    x = case toJSON proposalDetails of
+      Object obj -> obj
+      _otherwise -> KM.empty
+    y = KM.fromList ["valid" .= proposalDetailsValid]
+
+instance ToSchema ProposalDetailsWithCheck where
+  declareNamedSchema _ = do
+    profileSchema <- declareSchema (Proxy :: Proxy ProposalDetails)
+    boolSchema <- declareSchemaRef (Proxy :: Proxy Bool)
+    return $
+      NamedSchema (Just "ProfileSummaryDTO") $
+        profileSchema
+          & properties
+            %~ ( `mappend`
+                  [ ("valid", boolSchema)
+                  ]
+               )
+          & required %~ (<> ["role", "profileId", "runStats"])
 
 server :: ServerCaps -> Server FullApi
 server ServerCaps{..} =
@@ -81,8 +113,24 @@ server ServerCaps{..} =
           Left err -> throwError err500{errBody = fromString err}
           Right x -> return $ f x
 
-  transactionDetailsHandler :: Text -> Handler ProposalDetails
-  transactionDetailsHandler = transactionsHandlerGen id
+  transactionDetailsHandler :: Text -> Handler ProposalDetailsWithCheck
+  transactionDetailsHandler tx = do
+    details <- transactionsHandlerGen id tx
+    change <- transactionsHandlerGen unProposalTx tx
+    ParamChecks checks _ <- parametersChange change
+    let allMandatoryValid = all check $ elems checks
+    pure $ ProposalDetailsWithCheck details allMandatoryValid
+   where
+    check :: GenericParamCheck -> Bool
+    check (MkGenericParamCheck (ParamCheck _ _ check')) = checkMandatoryGuardrailsMap check'
+    check (MkGenericParamCheck (ParamCheckList checks)) =
+      let mandatoryResults = map (\(ParamCheck _ _ results) -> checkMandatoryGuardrailsMap results) checks
+       in and mandatoryResults
+    check (MkGenericParamCheck (ParamCheckCostModels _ _ (check1, check2, check3))) =
+      let
+        mandatoryResults = map checkMandatoryGuardrailsMap [check1, check2, check3]
+       in
+        and mandatoryResults
 
   transactionHandler :: Text -> Handler ParametersChange
   transactionHandler = transactionsHandlerGen unProposalTx
