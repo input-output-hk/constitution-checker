@@ -80,7 +80,7 @@ startMonitoring delayInSeconds firstEpoch mvar = do
   doWork = do
     log' <- asks getLogger
     void $ forever $ do
-      liftIO $ do
+      _ <- liftIO $ do
         log' $ "Sleeping for " <> show delayInSeconds <> " seconds"
         threadDelay delayInMicroseconds
       syncParams firstEpoch mvar
@@ -241,7 +241,7 @@ syncAllProposals = do
   liftIO $ log' $ "Last page stored: " <> show lastPage
 
   alreadyStored <- fromList <$> listAllProposalsHashFromDirectory
-  syncProposalPages alreadyStored (fromMaybe 0 lastPage) []
+  syncProposalPages alreadyStored (fromMaybe 1 lastPage) []
 
 getProposalFromFile :: (SyncMonad env m) => Text.Text -> m (Maybe ProposalTx)
 getProposalFromFile = getProposalFromFileGen
@@ -339,9 +339,6 @@ fetchAndSaveProposal hash' = do
   path <- asks getPath
   let filePath = path </> proposalsFolder </> Text.unpack hash' <> ".json"
   liftIO $ Haskell.writeFile filePath $ unpack bs
-
--- fetchProposalPage 1
--- containers
 
 type SyncWorker env m a = ExceptT IOError (ReaderT env m) a
 type SyncWorker' env a = SyncWorker env IO a

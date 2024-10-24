@@ -130,6 +130,7 @@ library
         , http-api-data
         , unordered-containers
         , wai-cors
+        , async
 
     hs-source-dirs:   src
 
@@ -150,7 +151,8 @@ executable constitution-checker-backend-exe
         , constitution-checker-backend
         , mtl
         , containers
-
+        , optparse-applicative
+        , async
     hs-source-dirs:   app
 
     default-language: Haskell2010
