@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -19,11 +20,17 @@ module Cardano.Constitution.Checker.Blockfrost.Override (
   getParamsByEpoch,
   getLatestParams,
   getProposal,
-  ProposalTx (..),
   getProposalsInfo,
+  getLatestEpochDetails,
+  ProposalTx (..),
   ProposalInfo (..),
   ProposalDetails (..),
   GovernanceType (..),
+  InternalBFMonad,
+  HasToken (..),
+  NetworkType (..),
+  HasNetworkType (..),
+  EpochDetails (..),
 ) where
 
 import Data.Text (Text)
@@ -34,12 +41,43 @@ import Cardano.Constitution.Checker.Blockfrost.Base
 import Data.Aeson
 import Data.Proxy
 
+import Cardano.Constitution.Checker.Base (mapLeft)
 import Cardano.Constitution.Checker.Types (ParametersChange)
 import Control.Lens hiding (Context, (.=))
+import Control.Monad.Except
+import Control.Monad.Reader
 import Data.Swagger hiding (Header, Https)
 import Network.HTTP.Client.TLS
 import Servant.API
 import Servant.Client
+
+data EpochDetails = EpochDetails
+  { epdEpoch :: !Epoch
+  , epdStartTime :: !Integer
+  , epdEndTime :: !Integer
+  , epdFirstBlockTime :: !Integer
+  , epdLastBlockTime :: !Integer
+  , epdBlockCount :: !Integer
+  , epdTxCount :: !Integer
+  , epdOutput :: !String
+  , epdFees :: !String
+  , epdActiveStake :: !String
+  }
+  deriving stock (Eq, Show)
+
+instance FromJSON EpochDetails where
+  parseJSON = withObject "EpochDetails" $ \o ->
+    EpochDetails
+      <$> o .: "epoch"
+      <*> o .: "start_time"
+      <*> o .: "end_time"
+      <*> o .: "first_block_time"
+      <*> o .: "last_block_time"
+      <*> o .: "block_count"
+      <*> o .: "tx_count"
+      <*> o .: "output"
+      <*> o .: "fees"
+      <*> o .: "active_stake"
 
 type ParamAPI =
   "api"
@@ -47,7 +85,10 @@ type ParamAPI =
     :> Header "project_id" String
     :> ( ( "epochs"
             :> ( Capture "epoch" Epoch :> "parameters" :> Get '[JSON] ProtocolParams
-                  :<|> "latest" :> "parameters" :> Get '[JSON] ProtocolParams
+                  :<|> "latest"
+                    :> ( Get '[JSON] EpochDetails
+                          :<|> "parameters" :> Get '[JSON] ProtocolParams
+                       )
                )
          )
           :<|> "governance"
@@ -167,65 +208,84 @@ newtype ProposalTx = ProposalTx {unProposalTx :: ParametersChange}
 
 instance FromJSON ProposalTx where
   parseJSON = withObject "ProposalTx" $ \o -> do
-    (_, proposal, _) :: (Value, ParametersChange, Value) <- o .: "governance_description" >>= (.: "contents") >>= parseJSON
+    (_, proposal, _) :: (Value, ParametersChange, Value) <-
+      o .: "governance_description" >>= (.: "contents") >>= parseJSON
     pure $ ProposalTx proposal
 
 api :: Proxy ParamAPI
 api = Proxy
 
-baseURL :: BaseUrl
-baseURL = BaseUrl Https "cardano-sanchonet.blockfrost.io" 443 ""
+data NetworkType = Mainnet | Sanchonet
+  deriving (Eq, Show)
 
-endpoints ::
-  [Char] ->
+baseURL :: NetworkType -> BaseUrl
+baseURL nt = BaseUrl Https ("cardano-" <> network <> ".blockfrost.io") 443 ""
+ where
+  network = case nt of
+    Mainnet -> "mainnet"
+    Sanchonet -> "sanchonet"
+
+type APISignature =
   ( (Epoch -> ClientM ProtocolParams)
-      :<|> ClientM ProtocolParams
+      :<|> (ClientM EpochDetails :<|> ClientM ProtocolParams)
   )
     :<|> ( (Text -> ClientM Value)
             :<|> (Maybe Int -> ClientM [ProposalInfo])
          )
+
+endpoints :: [Char] -> APISignature
 endpoints auth = do
   client api (Just auth)
 
-withClient ::
-  ( ( ((Epoch -> ClientM ProtocolParams) :<|> ClientM ProtocolParams)
-        :<|> ( (Text -> ClientM Value)
-                :<|> (Maybe Int -> ClientM [ProposalInfo])
-             )
-    ) ->
-    ClientM b
-  ) ->
-  IO (Either String b)
-withClient m = do
-  auth <- filter (/= '\n') <$> readFile bfTokenPath
+class HasToken env where
+  getToken :: env -> String
+
+class HasNetworkType env where
+  getNetworkType :: env -> NetworkType
+
+type InternalBFMonad env m =
+  ( MonadError IOError m
+  , MonadReader env m
+  , HasToken env
+  , HasNetworkType env
+  , MonadIO m
+  )
+
+withClientM :: (InternalBFMonad env m) => (APISignature -> ClientM b) -> m b
+withClientM f = do
+  auth <- asks getToken
+  networkType <- asks getNetworkType
 
   manager' <- newTlsManagerWith tlsManagerSettings
 
   let endpoints' = endpoints auth
 
-  res <- runClientM (m endpoints') (mkClientEnv manager' baseURL)
-  case res of
-    Left err -> pure $ Left $ show err
-    Right ret -> pure (Right ret)
+  res <- liftIO $ runClientM (f endpoints') (mkClientEnv manager' (baseURL networkType))
+  liftEither $ mapLeft (userError . show) res
 
-getParamsByEpoch :: Epoch -> IO (Either String ProtocolParams)
-getParamsByEpoch epoch = withClient $ \endpoints' -> do
+getParamsByEpoch :: (InternalBFMonad env m) => Epoch -> m ProtocolParams
+getParamsByEpoch epoch = withClientM $ \endpoints' -> do
   let (getParam :<|> _) :<|> _ = endpoints'
   getParam epoch
 
-getLatestParams :: IO (Either String ProtocolParams)
-getLatestParams = withClient $ \endpoints' -> do
-  let (_ :<|> getLatestParams') :<|> _ = endpoints'
+getLatestEpochDetails :: (InternalBFMonad env m) => m EpochDetails
+getLatestEpochDetails = withClientM $ \endpoints' -> do
+  let (_ :<|> (getLatestEpochDetails' :<|> _)) :<|> _ = endpoints'
+  getLatestEpochDetails'
+
+getLatestParams :: (InternalBFMonad env m) => m ProtocolParams
+getLatestParams = withClientM $ \endpoints' -> do
+  let (_ :<|> (_ :<|> getLatestParams')) :<|> _ = endpoints'
   getLatestParams'
 
-getProposal :: Text -> IO (Either String Value)
-getProposal txHash = withClient $ \endpoints' -> do
+getProposal :: (InternalBFMonad env m) => Text -> m Value
+getProposal txHash = withClientM $ \endpoints' -> do
   let (_ :<|> _) :<|> (getProposal' :<|> _) = endpoints'
   getProposal' txHash
 
 type Page = Int
 
-getProposalsInfo :: Page -> IO (Either String [ProposalInfo])
-getProposalsInfo page = withClient $ \endpoints' -> do
+getProposalsInfo :: (InternalBFMonad env m) => Page -> m [ProposalInfo]
+getProposalsInfo page = withClientM $ \endpoints' -> do
   let (_ :<|> _) :<|> (_ :<|> getProposalInfos') = endpoints'
   getProposalInfos' $ Just page

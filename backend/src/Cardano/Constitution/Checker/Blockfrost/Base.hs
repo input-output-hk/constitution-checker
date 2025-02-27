@@ -11,11 +11,9 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module Cardano.Constitution.Checker.Blockfrost.Base (
-  withProject,
   ProtocolParams (..),
   Epoch (..),
   CostModels (..),
-  bfTokenPath,
 ) where
 
 import Blockfrost.Client hiding (CostModels (..), ProtocolParams)
@@ -31,13 +29,6 @@ import qualified Data.Char
 import qualified Data.Map
 
 import Data.Aeson
-
-bfTokenPath :: String
-bfTokenPath = "./secrets/sanchonet.token"
-
-withProject :: BlockfrostClientT IO a -> IO (Either BlockfrostError a)
-withProject bf = do
-  projectFromFile bfTokenPath >>= flip runBlockfrost bf
 
 -- | Protocol parameters
 data ProtocolParams = ProtocolParams
