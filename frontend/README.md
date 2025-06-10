@@ -6,11 +6,19 @@
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [Project Structure](#project-structure)
-- [Setup](#setup)
-- [Running the Application](#running-the-application)
-- [Contributing](#contributing)
+- [Constitution Checker Frontend Guide](#constitution-checker-frontend-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Project Structure](#project-structure)
+      - [Components](#components)
+      - [Compositions](#compositions)
+      - [Store](#store)
+      - [Styles](#styles)
+      - [Utils](#utils)
+  - [Setup](#setup)
+  - [Running the Application](#running-the-application)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Introduction
 
@@ -69,3 +77,12 @@ yarn start
 ```
 ## Contributing
 We welcome contributions to improve this project. If you have any suggestions or encounter any issues, please feel free to create a pull request or open an issue on GitHub.
+
+## License
+
+Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT)
+at your option.
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in this crate by you, as defined in the Apache-2.0 license, shall
+be dual licensed as above, without any additional terms or conditions.
